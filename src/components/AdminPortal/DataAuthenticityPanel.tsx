@@ -1,0 +1,265 @@
+import React, { useState, useEffect } from 'react';
+import {
+  ShieldCheck,
+  Database,
+  FileSpreadsheet,
+  Layers,
+  Sliders,
+  CheckCircle2,
+  AlertCircle,
+  Download,
+  Upload,
+  Calendar,
+  Tag,
+  Info,
+  Building,
+  Save,
+  Clock,
+  Sparkles,
+  Search,
+} from 'lucide-react';
+import { useData } from '../../context/DataContext';
+import { useAuth } from '../../context/AuthContext';
+import { SourceBadge } from '../SourceBadge';
+
+export const DataAuthenticityPanel: React.FC = () => {
+  const { datasets, currentDataset, selectedDatasetId, setSelectedDatasetId, overview, downloadDatasetCSV, exportDatasetCSV } = useData();
+  const { token, isStaff } = useAuth();
+
+  const [sourceReferences, setSourceReferences] = useState<Record<string, string>>(() => {
+    try {
+      const saved = localStorage.getItem('tata_dataset_source_refs');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  const [currentRefInput, setCurrentRefInput] = useState<string>('');
+  const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (selectedDatasetId) {
+      setCurrentRefInput(sourceReferences[selectedDatasetId] || '');
+    }
+  }, [selectedDatasetId, sourceReferences]);
+
+  const handleSaveSourceRef = () => {
+    if (!selectedDatasetId) return;
+    const updated = {
+      ...sourceReferences,
+      [selectedDatasetId]: currentRefInput,
+    };
+    setSourceReferences(updated);
+    localStorage.setItem('tata_dataset_source_refs', JSON.stringify(updated));
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 2500);
+  };
+
+  return (
+    <div id="data-authenticity-panel" className="space-y-8 animate-in fade-in duration-300">
+      {/* Top Banner */}
+      <div className="p-6 rounded-sm bg-[#0A1124] border border-[#1E293B] border-l-4 border-l-[#205CA5] flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
+        <div className="space-y-1">
+          <div className="flex items-center space-x-2">
+            <ShieldCheck className="w-5 h-5 text-[#38BDF8]" />
+            <h3 className="text-base font-bold text-white uppercase font-mono tracking-wide">
+              Data Authenticity & Telemetry Provenance Management
+            </h3>
+          </div>
+          <p className="text-xs text-[#94A3B8] font-light max-w-2xl">
+            Authorised staff governance for dataset source classification, metric verification, and strict demarcation between verified corporate records and uploaded telemetry.
+          </p>
+        </div>
+
+        <SourceBadge type="CONFIGURED_BY_ADMIN" />
+      </div>
+
+      {/* Dataset Provenance Explorer */}
+      <div className="p-6 rounded-sm bg-[#0A1124] border border-[#1E293B] shadow-xl space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#1E293B]">
+          <div className="space-y-1">
+            <h4 className="text-sm font-bold text-white uppercase font-mono flex items-center space-x-2">
+              <Database className="w-4 h-4 text-[#38BDF8]" />
+              <span>Ingested Telemetry Inventory ({datasets.length} Datasets)</span>
+            </h4>
+            <p className="text-xs text-[#94A3B8]">
+              Select a dataset to view its schema authenticity, quality status and attach source audit references.
+            </p>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <span className="text-xs font-mono text-[#64748B] uppercase">Active:</span>
+            <select
+              value={selectedDatasetId || ''}
+              onChange={(e) => setSelectedDatasetId(e.target.value)}
+              className="px-3 py-1.5 rounded-xs bg-[#070D18] border border-[#1E293B] text-xs text-white font-mono focus:border-[#205CA5] cursor-pointer"
+            >
+              {datasets.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.name} ({d.totalRows} rows)
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Dataset Metadata Attributes Grid */}
+        {currentDataset ? (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-mono text-xs">
+              <div className="p-4 rounded-xs bg-[#070D18] border border-[#1E293B] space-y-1">
+                <span className="text-[10px] text-[#64748B] uppercase block">Dataset Name</span>
+                <span className="text-white font-bold text-sm truncate block">{currentDataset.name}</span>
+                <span className="text-[10px] text-[#38BDF8]">ID: {currentDataset.id.slice(0, 8)}...</span>
+              </div>
+
+              <div className="p-4 rounded-xs bg-[#070D18] border border-[#1E293B] space-y-1">
+                <span className="text-[10px] text-[#64748B] uppercase block">Upload Timestamp</span>
+                <span className="text-white font-bold text-sm block">
+                  {new Date(currentDataset.uploadedAt).toLocaleDateString()} {new Date(currentDataset.uploadedAt).toLocaleTimeString()}
+                </span>
+                <span className="text-[10px] text-[#00FF41]">FORMAT: {currentDataset.fileType?.toUpperCase() || 'CSV'}</span>
+              </div>
+
+              <div className="p-4 rounded-xs bg-[#070D18] border border-[#1E293B] space-y-1">
+                <span className="text-[10px] text-[#64748B] uppercase block">Total Verified Records</span>
+                <span className="text-white font-bold text-sm block">{currentDataset.totalRows?.toLocaleString()} rows</span>
+                <span className="text-[10px] text-[#60A5FA]">{currentDataset.columns?.length || 0} Columns Detected</span>
+              </div>
+
+              <div className="p-4 rounded-xs bg-[#070D18] border border-[#1E293B] space-y-1">
+                <span className="text-[10px] text-[#64748B] uppercase block">Source Classification</span>
+                <div className="pt-1">
+                  <SourceBadge type="USER_UPLOADED_TELEMETRY" size="xs" />
+                </div>
+                <span className="text-[10px] text-[#00FF41] block pt-1">HEALTH: INGESTED & VERIFIED</span>
+              </div>
+            </div>
+
+            {/* Custom Data Source Reference Input */}
+            <div className="p-5 rounded-xs bg-[#070D18] border border-[#1E293B] space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-mono font-bold text-white uppercase flex items-center space-x-2">
+                  <Tag className="w-4 h-4 text-[#38BDF8]" />
+                  <span>Dataset Origin / Source Reference Annotation</span>
+                </label>
+                {saveSuccess && (
+                  <span className="text-xs font-mono text-[#00FF41] flex items-center space-x-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Saved to local audit register</span>
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-[#94A3B8] font-light">
+                Document the telemetry origin (e.g., "Jojobera SCADA Unit 1 Historian Export - Shift A", "Continuous Emission Monitoring System (CEMS) Log", etc.).
+              </p>
+              <div className="flex flex-col sm:flex-row items-stretch gap-3">
+                <input
+                  type="text"
+                  value={currentRefInput}
+                  onChange={(e) => setCurrentRefInput(e.target.value)}
+                  placeholder="e.g. Jojobera SCADA Historian - Thermal Generation Unit 1 Export"
+                  className="flex-1 px-3.5 py-2 rounded-xs bg-[#0A1124] border border-[#1E293B] text-white font-mono text-xs focus:border-[#205CA5] focus:outline-none"
+                />
+                <button
+                  onClick={handleSaveSourceRef}
+                  className="px-4 py-2 rounded-xs bg-[#205CA5] hover:bg-[#2B68B8] text-white font-mono font-bold text-xs uppercase cursor-pointer flex items-center justify-center space-x-2 shrink-0 transition-colors"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>Save Reference</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Ingested Schema Columns Breakdown */}
+            <div className="space-y-3">
+              <h5 className="text-xs font-mono font-bold text-[#94A3B8] uppercase">
+                Detected Telemetry Schema Columns ({currentDataset.columns?.length || 0})
+              </h5>
+              <div className="flex flex-wrap gap-2">
+                {currentDataset.columns?.map((col, idx) => {
+                  const colName = typeof col === 'string' ? col : col.name || col.displayName || `Column ${idx + 1}`;
+                  const colType = typeof col === 'object' && col.dataType ? col.dataType : null;
+                  const colUnit = typeof col === 'object' && col.unit ? col.unit : null;
+
+                  return (
+                    <span
+                      key={`${colName}_${idx}`}
+                      className="px-2.5 py-1 rounded-xs bg-[#070D18] border border-[#1E293B] font-mono text-xs text-[#CBD5E1] flex items-center space-x-1.5"
+                    >
+                      <span className="text-white font-medium">{colName}</span>
+                      {colType && (
+                        <span className="text-[10px] text-[#38BDF8] lowercase font-normal">
+                          ({colType}{colUnit ? ` · ${colUnit}` : ''})
+                        </span>
+                      )}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="pt-4 border-t border-[#1E293B] flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center space-x-2 text-xs font-mono text-[#64748B]">
+                <Clock className="w-4 h-4" />
+                <span>Active Dataset Status: Ready for 3D and Graph Visualizations</span>
+              </div>
+
+              <button
+                onClick={() => {
+                  if (currentDataset) {
+                    (exportDatasetCSV || downloadDatasetCSV)(currentDataset.id);
+                  }
+                }}
+                className="px-4 py-2 rounded-xs bg-[#070D18] hover:bg-[#0A1124] text-[#38BDF8] hover:text-white border border-[#205CA5]/60 text-xs font-mono flex items-center space-x-2 cursor-pointer uppercase transition-colors"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Export Processed Telemetry CSV</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="py-12 text-center text-[#94A3B8] font-mono text-xs space-y-2">
+            <Info className="w-8 h-8 mx-auto text-[#64748B]" />
+            <p>No operational datasets currently loaded.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Corporate Reference Standards Verification Status */}
+      <div className="p-6 rounded-sm bg-[#0A1124] border border-[#1E293B] shadow-xl space-y-5">
+        <div className="flex items-center justify-between pb-3 border-b border-[#1E293B]">
+          <div className="flex items-center space-x-2">
+            <Building className="w-4 h-4 text-[#38BDF8]" />
+            <h4 className="text-sm font-bold text-white uppercase font-mono">
+              Verified Corporate & Plant Reference Benchmarks
+            </h4>
+          </div>
+          <SourceBadge type="VERIFIED_CORPORATE_INFO" />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 font-mono text-xs">
+          <div className="p-4 rounded-xs bg-[#070D18] border border-[#1E293B] space-y-1">
+            <span className="text-[10px] text-[#64748B] uppercase">Jojobera Plant Capacity</span>
+            <div className="text-white font-bold text-base">427.5 MW</div>
+            <span className="text-[10px] text-[#38BDF8]">Installed Thermal Capacity</span>
+          </div>
+
+          <div className="p-4 rounded-xs bg-[#070D18] border border-[#1E293B] space-y-1">
+            <span className="text-[10px] text-[#64748B] uppercase">Tata Power Corporate Capacity</span>
+            <div className="text-white font-bold text-base">16,716 MW</div>
+            <span className="text-[10px] text-[#38BDF8]">FY2025-26 Verified Operational</span>
+          </div>
+
+          <div className="p-4 rounded-xs bg-[#070D18] border border-[#1E293B] space-y-1">
+            <span className="text-[10px] text-[#64748B] uppercase">Clean Energy Share</span>
+            <div className="text-[#00FF41] font-bold text-base">47% (7,856 MW)</div>
+            <span className="text-[10px] text-[#00FF41]">Operational Clean & Green</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

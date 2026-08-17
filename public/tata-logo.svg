@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Tata Brand Blue (#225EA9 / #205CA5) -->
+  <g fill="#205CA5">
+    <!-- Top Emblem: Tata Ellipse with stylized white cutout -->
+    <path fill-rule="evenodd" clip-rule="evenodd" d="
+      M 256 90
+      C 375 90, 400 135, 400 185
+      C 400 235, 375 280, 256 280
+      C 137 280, 112 235, 112 185
+      C 112 135, 137 90, 256 90 Z
+
+      M 124 186
+      C 124 165, 142 143, 245 137
+      L 245 272
+      C 220 270, 202 245, 202 205
+      C 202 165, 175 155, 124 155
+      C 124 166, 124 176, 124 186 Z
+
+      M 388 186
+      C 388 165, 370 143, 267 137
+      L 267 272
+      C 292 270, 310 245, 310 205
+      C 310 165, 337 155, 388 155
+      C 388 166, 388 176, 388 186 Z
+    " opacity="0"/>
+    
+    <!-- Precision Tata Emblem Render -->
+    <!-- Outer Oval Base -->
+    <ellipse cx="256" cy="180" rx="142" ry="92" fill="#205CA5" />
+    
+    <!-- White stylization cutouts matching the exact Tata emblem geometry -->
+    <!-- Left white curve cutout -->
+    <path fill="#FFFFFF" d="
+      M 250 128
+      C 175 128, 128 142, 116 156
+      C 118 164, 125 170, 134 168
+      C 160 162, 210 156, 246 156
+      C 246 195, 240 245, 230 271
+      C 240 272, 246 272, 250 272
+      L 250 128 Z
+    " />
+
+    <!-- Right white curve cutout (mirrored) -->
+    <path fill="#FFFFFF" d="
+      M 262 128
+      C 337 128, 384 142, 396 156
+      C 394 164, 387 170, 378 168
+      C 352 162, 302 156, 266 156
+      C 266 195, 272 245, 282 271
+      C 272 272, 266 272, 262 272
+      L 262 128 Z
+    " />
+
+    <!-- Smooth center vertical divider & upper horizontal arch channel -->
+    <path fill="#FFFFFF" d="
+      M 118 150
+      C 160 136, 215 130, 256 130
+      C 297 130, 352 136, 394 150
+      C 396 156, 390 162, 376 160
+      C 336 152, 285 146, 259 146
+      L 259 272
+      L 253 272
+      L 253 146
+      C 227 146, 176 152, 136 160
+      C 122 162, 116 156, 118 150 Z
+    " />
+
+    <!-- Exact T A T A Wordmark (Chevron A without crossbar) -->
+    <!-- First 'T' -->
+    <path d="M 64 326 L 152 326 L 152 355 L 122 355 L 122 422 L 94 422 L 94 355 L 64 355 Z" />
+
+    <!-- First 'A' (Iconic chevron/lambda style, open center, no crossbar) -->
+    <path d="M 172 422 L 145 422 L 194 326 L 222 326 L 271 422 L 244 422 L 208 350 Z" />
+
+    <!-- Second 'T' -->
+    <path d="M 276 326 L 364 326 L 364 355 L 334 355 L 334 422 L 306 422 L 306 355 L 276 355 Z" />
+
+    <!-- Second 'A' (Iconic chevron/lambda style, open center, no crossbar) -->
+    <path d="M 384 422 L 357 422 L 406 326 L 434 326 L 483 422 L 456 422 L 420 350 Z" />
+  </g>
+</svg>

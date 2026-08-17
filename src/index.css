@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100svh;
+  margin: 0;
+  padding: 0;
+  background-color: #070D18;
+  color: #E2E8F0;
+  overflow-x: hidden;
+}
+
+@layer utilities {
+  .industrial-grid {
+    background-image: radial-gradient(rgba(32, 92, 165, 0.18) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  
+  .glass-panel {
+    background: rgba(10, 17, 34, 0.85);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(32, 92, 165, 0.25);
+  }
+
+  .glow-blue {
+    box-shadow: 0 0 18px rgba(32, 92, 165, 0.45);
+  }
+
+  .glow-blue-sm {
+    box-shadow: 0 0 10px rgba(32, 92, 165, 0.3);
+  }
+
+  .glow-cyan {
+    box-shadow: 0 0 14px rgba(56, 189, 248, 0.35);
+  }
+
+  .glow-green {
+    box-shadow: 0 0 14px rgba(0, 255, 65, 0.3);
+  }
+
+  .loading-pulse {
+    animation: industrial-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+@keyframes industrial-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* Tata Blue Dark industrial scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #070D18;
+}
+::-webkit-scrollbar-thumb {
+  background: #1E293B;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #205CA5;
+}

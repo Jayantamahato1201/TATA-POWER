@@ -1,0 +1,8 @@
+{
+  "name": "remix final tatapower",
+  "description": "3D Plant Intelligence, Data Analytics and Monitoring Platform for Tata Power Jojobera Thermal Power Plant and Jamshedpur Operations with dynamic ingestion, configurable alarm engine, interactive 3D digital twin, and analytics command center.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

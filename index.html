@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/tata-vector-logo.svg" />
+    <title>Tata Power - Jojobera Intelligent Operations Command Center</title>
+    <meta name="description" content="Tata Power Jamshedpur Jojobera Thermal Power Station 3D Intelligence & Telemetry Analytics Command Center" />
+    <meta property="og:title" content="Tata Power - Jojobera Intelligent Operations Command Center" />
+    <meta property="og:description" content="Tata Power Jamshedpur Jojobera Thermal Power Station 3D Intelligence & Telemetry Analytics Command Center" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script>
+      // Safe guard against browser extensions (TronLink, MetaMask, etc.) failing on sandboxed proxy objects
+      (function() {
+        try {
+          var dummyStorage = {};
+          var extensionProps = ['tronlinkParams', 'tronWeb', 'ethereum', 'solana', 'bitkeep'];
+          extensionProps.forEach(function(prop) {
+            if (!(prop in window)) {
+              try {
+                Object.defineProperty(window, prop, {
+                  get: function() { return dummyStorage[prop]; },
+                  set: function(val) { dummyStorage[prop] = val; return true; },
+                  configurable: true,
+                  enumerable: true
+                });
+              } catch (e) {}
+            }
+          });
+        } catch (err) {}
+
+        window.addEventListener('error', function(event) {
+          if (event && event.message && (
+            event.message.indexOf('tronlinkParams') !== -1 ||
+            event.message.indexOf('trap returned falsish') !== -1 ||
+            event.message.indexOf('tronWeb') !== -1 ||
+            event.message.indexOf('ethereum') !== -1
+          )) {
+            event.preventDefault && event.preventDefault();
+            event.stopImmediatePropagation && event.stopImmediatePropagation();
+            return true;
+          }
+        }, true);
+
+        window.addEventListener('unhandledrejection', function(event) {
+          if (event && event.reason) {
+            var msg = String(event.reason.message || event.reason);
+            if (
+              msg.indexOf('tronlinkParams') !== -1 ||
+              msg.indexOf('trap returned falsish') !== -1 ||
+              msg.indexOf('tronWeb') !== -1 ||
+              msg.indexOf('ethereum') !== -1
+            ) {
+              event.preventDefault && event.preventDefault();
+              event.stopImmediatePropagation && event.stopImmediatePropagation();
+            }
+          }
+        }, true);
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
