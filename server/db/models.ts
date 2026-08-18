@@ -101,7 +101,7 @@ export interface IDataRecordDoc extends Document {
 
 const DataRecordSchema = new Schema<IDataRecordDoc>(
   {
-    id: { type: String, required: true, index: true },
+    id: { type: String, required: true },
     datasetId: { type: String, required: true, index: true },
     rowIndex: { type: Number, required: true },
     timestamp: { type: String, index: true },
