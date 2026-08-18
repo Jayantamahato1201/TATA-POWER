@@ -17,6 +17,7 @@ import {
   evaluateAndTriggerAlarmAudio,
 } from '../utils/audioAlertEngine';
 import { useAuth } from './AuthContext';
+import { safeParseResponse } from '../utils/apiUtils';
 
 export interface OverviewData {
   hasData: boolean;
@@ -166,7 +167,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const fetchDatasets = useCallback(async () => {
     try {
       const res = await fetch('/api/datasets', { headers: authHeaders });
-      const data = await res.json();
+      const data = await safeParseResponse<{ datasets?: Dataset[] }>(res, { datasets: [] });
       const rawDatasets: Dataset[] = data.datasets || [];
       const seen = new Set<string>();
       const deduped: Dataset[] = [];
@@ -190,7 +191,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ? `/api/analytics/overview?datasetId=${selectedDatasetId}`
         : '/api/analytics/overview';
       const res = await fetch(url, { headers: authHeaders });
-      const data = await res.json();
+      const data = await safeParseResponse<OverviewData>(res, {
+        hasData: false,
+        totalDatasets: 0,
+        totalRecords: 0,
+        activeEquipmentCount: 0,
+        equipmentList: [],
+        activeAlarmsCount: 0,
+        criticalAlarmsCount: 0,
+        metrics: {},
+        latestTimestamp: null,
+      });
       setOverview(data);
     } catch (err) {
       console.error('Error fetching overview:', err);
@@ -203,7 +214,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ? `/api/analytics/insights?datasetId=${selectedDatasetId}`
         : '/api/analytics/insights';
       const res = await fetch(url, { headers: authHeaders });
-      const data = await res.json();
+      const data = await safeParseResponse<{ insights?: SmartInsight[] }>(res, { insights: [] });
       setInsights(data.insights || []);
     } catch (err) {
       console.error('Error fetching insights:', err);
@@ -216,7 +227,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ? `/api/analytics/charts?datasetId=${selectedDatasetId}`
         : '/api/analytics/charts';
       const res = await fetch(url, { headers: authHeaders });
-      const data = await res.json();
+      const data = await safeParseResponse<{ charts?: ChartConfig[] }>(res, { charts: [] });
       setCharts(data.charts || []);
     } catch (err) {
       console.error('Error fetching charts:', err);
@@ -230,8 +241,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         fetch('/api/alarms/events', { headers: authHeaders }),
         fetch('/api/alarms/system-status', { headers: authHeaders }),
       ]);
-      const rulesData = await rulesRes.json();
-      const eventsData = await eventsRes.json();
+      const rulesData = await safeParseResponse<{ rules?: AlarmRule[] }>(rulesRes, { rules: [] });
+      const eventsData = await safeParseResponse<{ events?: AlarmEvent[]; summary?: any }>(eventsRes, { events: [] });
 
       const rawRules: AlarmRule[] = rulesData.rules || [];
       const seenRules = new Set<string>();
@@ -257,7 +268,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setAlarmSummary(eventsData.summary);
       }
       if (statusRes.ok) {
-        const statusData = await statusRes.json();
+        const statusData = await safeParseResponse<{ systemEnabled?: boolean }>(statusRes, { systemEnabled: true });
         setAlarmSettings({ systemEnabled: statusData.systemEnabled !== false });
       }
     } catch (err) {
@@ -276,7 +287,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: JSON.stringify(enabled !== undefined ? { enabled } : {}),
       });
       if (res.ok) {
-        const data = await res.json();
+        const data = await safeParseResponse<{ systemEnabled: boolean }>(res, { systemEnabled: true });
         setAlarmSettings({ systemEnabled: data.systemEnabled });
         return true;
       }
@@ -289,7 +300,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const fetchLayout = useCallback(async () => {
     try {
       const res = await fetch('/api/dashboard/layout', { headers: authHeaders });
-      const data = await res.json();
+      const data = await safeParseResponse<{ layout?: DashboardLayout }>(res, { layout: undefined });
       setLayout(data.layout || null);
     } catch (err) {
       console.error('Error fetching layout:', err);
@@ -329,7 +340,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: formData,
       });
 
-      const data = await res.json();
+      const data = await safeParseResponse<{ dataset?: any; error?: string }>(res, {});
       if (res.ok) {
         if (data.dataset?.id) {
           setSelectedDatasetId(data.dataset.id);
@@ -339,7 +350,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       return {
         success: false,
-        error: data.error || 'Failed to parse or ingest dataset. Please check file format.',
+        error: data.error || `Failed to parse or ingest dataset (Status ${res.status}). Please check file format.`,
       };
     } catch (err: any) {
       console.error('Failed to upload dataset:', err);
@@ -777,11 +788,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       headers: authHeaders,
       body: formData,
     });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || 'Failed to preview file');
+    const data = await safeParseResponse<any>(res, null);
+    if (!res.ok || !data) {
+      throw new Error(data?.error || `Failed to preview file (Status ${res.status})`);
     }
-    return res.json();
+    return data;
   };
 
   const downloadDatasetCSV = (datasetId: string) => {

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, UserRole } from '../types';
+import { safeJsonFetch, safeParseResponse } from '../utils/apiUtils';
 
 interface AuthContextType {
   user: User | null;
@@ -36,13 +37,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       fetch('/api/auth/me', {
         headers: { Authorization: `Bearer ${token}` },
       })
-        .then((res) => {
+        .then(async (res) => {
           if (!res.ok) throw new Error('Session expired');
-          return res.json();
+          return safeParseResponse<{ user: User }>(res, { user: null as any });
         })
         .then((data) => {
-          setUser(data.user);
-          localStorage.setItem('tatapower_user', JSON.stringify(data.user));
+          if (data && data.user) {
+            setUser(data.user);
+            localStorage.setItem('tatapower_user', JSON.stringify(data.user));
+          }
         })
         .catch(() => {
           // Clean expired session
@@ -60,15 +63,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   ): Promise<{ success: boolean; error?: string }> => {
     try {
       setError(null);
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: emailOrUser, username: emailOrUser, password: pass }),
-      });
+      const { ok, data, error: fetchErr } = await safeJsonFetch<{ user: User; token: string; error?: string }>(
+        '/api/auth/login',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: emailOrUser, username: emailOrUser, password: pass }),
+        }
+      );
 
-      const data = await res.json();
-      if (!res.ok) {
-        const errorMsg = data.error || 'Login failed. Please check credentials.';
+      if (!ok || !data || !data.token) {
+        const errorMsg = data?.error || fetchErr || 'Login failed. Please check credentials or database configuration.';
         setError(errorMsg);
         return { success: false, error: errorMsg };
       }
