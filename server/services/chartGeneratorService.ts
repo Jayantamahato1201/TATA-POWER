@@ -28,6 +28,27 @@ export class ChartGeneratorService {
     if (isReportFormat) {
       const report = ReportParser.parseConsolidatedReport(allRecords);
 
+      // 1A.0 Generate KPI Overview Chart if report has numeric KPIs
+      const numericKpis = report.kpis.filter((k) => k.numericValue !== undefined);
+      if (numericKpis.length > 0) {
+        charts.push({
+          id: `chart_${dataset.id}_kpi_overview_bar`,
+          title: 'Key Performance Indicators (KPI Summary)',
+          chartType: 'bar',
+          datasetId: dataset.id,
+          xAxisColumn: 'Field',
+          yAxisColumns: ['Value'],
+          aggregation: 'none',
+          unit: 'Value',
+          colorPalette: ['#38BDF8', '#00FF41', '#F59E0B', '#A855F7'],
+          showLegend: true,
+          showGrid: true,
+          showToolbox: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+      }
+
       // 1A. Generate charts for Alarm Metric Groups with MULTIPLE records
       Object.values(report.alarmMetricGroups).forEach((group) => {
         const numRecords = group.records.filter((r) => r.numericValue !== undefined);

@@ -31,6 +31,8 @@ import {
 } from './models.js';
 import { migrateJsonToMongo } from './migration.js';
 import { deleteFileFromGridFS } from '../services/gridFsStorageService.js';
+import { SchemaDetectionService } from '../services/schemaDetectionService.js';
+import { ReportParser } from '../utils/reportParser.js';
 
 interface DatabaseSchema {
   users: User[];
@@ -191,6 +193,29 @@ export class MongoDatabase {
           }));
       } else {
         this.data.records = [];
+      }
+
+      // Automatically re-evaluate and heal columns and detectedMetrics for normalized reports
+      for (const ds of this.data.datasets) {
+        const dsRecords = this.data.records.filter((r) => r.datasetId === ds.id);
+        if (dsRecords.length > 0) {
+          const rawRows = dsRecords.map((r) => r.data || {});
+          const isReport = ReportParser.isReportFormat(rawRows) || ReportParser.isReportFormat(ds.columns || []);
+          if (isReport || !ds.detectedMetrics || ds.detectedMetrics.length === 0) {
+            const reanalyzed = SchemaDetectionService.analyzeColumns(rawRows);
+            const detected = reanalyzed
+              .filter((c) => c.dataType === 'numeric' && c.isSensor !== false && !c.isIdentifier)
+              .map((c) => c.name);
+
+            ds.columns = reanalyzed;
+            ds.detectedMetrics = detected;
+
+            DatasetModel.updateOne(
+              { id: ds.id },
+              { $set: { columns: reanalyzed, detectedMetrics: detected } }
+            ).catch((err) => console.warn('[DB] Dataset healing update notice:', err?.message || err));
+          }
+        }
       }
 
       if (alarmRulesDocs.length > 0) {

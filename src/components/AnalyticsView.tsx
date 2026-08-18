@@ -469,12 +469,13 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onOpenUpload }) =>
 
       return {
         name: series.name,
-        type: chartType === 'bar' ? 'bar' : 'line',
+        type: chartType === 'bar' || timeSeries.length <= 1 ? 'bar' : 'line',
         smooth: chartType !== 'bar',
         data,
+        barMaxWidth: 60,
         symbol: timeSeries.length > 50 ? 'none' : 'circle',
-        symbolSize: 4,
-        itemStyle: { color: seriesColor },
+        symbolSize: timeSeries.length === 1 ? 12 : 4,
+        itemStyle: { color: seriesColor, borderRadius: [4, 4, 0, 0] },
         lineStyle: { width: 2.5, color: seriesColor },
         areaStyle:
           chartType === 'area'
@@ -908,6 +909,39 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onOpenUpload }) =>
                 </button>
               </div>
             </div>
+
+            {/* If Single Point KPI, show KPI Hero Card */}
+            {activePayload.isSinglePoint && (
+              <div className="p-4 rounded-lg bg-[#070D18] border border-[#1E293B] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="text-[11px] font-mono text-[#64748B] uppercase tracking-wider">
+                    {activePayload.kpiDetails?.category || 'Plant KPI Metric'} &bull; {activePayload.kpiDetails?.field || activeMetricDefinition.key}
+                  </div>
+                  <div className="flex items-baseline space-x-2">
+                    <span className="text-3xl font-bold text-white tracking-tight font-mono">
+                      {activePayload.singlePointData?.value !== undefined
+                        ? activePayload.singlePointData.value.toLocaleString()
+                        : activePayload.distribution.stats.avg.toLocaleString()}
+                    </span>
+                    <span className="text-sm font-semibold text-[#38BDF8]">
+                      {activeMetricDefinition.unit || activePayload.singlePointData?.unit || ''}
+                    </span>
+                  </div>
+                  {activePayload.singlePointData?.message && (
+                    <div className="text-xs text-[#94A3B8] font-mono">
+                      Raw Source: {activePayload.singlePointData.message}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <div className="px-3 py-1.5 rounded-lg bg-emerald-950/40 border border-emerald-800/60 text-emerald-400 text-xs font-semibold flex items-center space-x-1.5">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Report Value</span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* ECharts Interactive Canvas */}
             <div className="w-full h-[360px] sm:h-[400px] rounded-lg bg-[#070D18] border border-[#1E293B]/60 p-1">

@@ -7,10 +7,10 @@ import { MetricDefinition } from '../types/index.js';
 const router = Router();
 
 // GET /api/metrics/overview - Returns full overview of metrics for dataset
-router.get('/overview', (req, res) => {
+router.get('/overview', async (req, res) => {
   try {
     const { datasetId, equipment, startDate, endDate, searchMetric } = req.query;
-    const overview = MetricAnalyticsService.analyzeDataset(
+    const overview = await MetricAnalyticsService.analyzeDatasetAsync(
       datasetId ? String(datasetId) : undefined,
       {
         equipment: equipment ? String(equipment) : undefined,
@@ -27,10 +27,10 @@ router.get('/overview', (req, res) => {
 });
 
 // POST /api/metrics/analytics - Query filtered metric analytics
-router.post('/analytics', (req, res) => {
+router.post('/analytics', async (req, res) => {
   try {
     const { datasetId, filters } = req.body;
-    const overview = MetricAnalyticsService.analyzeDataset(datasetId, filters);
+    const overview = await MetricAnalyticsService.analyzeDatasetAsync(datasetId, filters);
     res.json(overview);
   } catch (err: any) {
     console.error('Error in /api/metrics/analytics:', err);

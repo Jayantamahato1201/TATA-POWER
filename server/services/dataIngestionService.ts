@@ -7,6 +7,7 @@ import { ChartGeneratorService } from './chartGeneratorService.js';
 import { db } from '../db/database.js';
 import { saveFileToGridFS, deleteFileFromGridFS } from './gridFsStorageService.js';
 import { isMongoConnected } from '../db/connection.js';
+import { ReportParser } from '../utils/reportParser.js';
 
 export interface IngestionOptions {
   name: string;
@@ -176,6 +177,11 @@ export class DataIngestionService {
 
     const records: DataRecord[] = [];
 
+    const isReport = ReportParser.isReportFormat(rawRows) || ReportParser.isReportFormat(columns);
+    const detectedMetrics = columns
+      .filter((c) => c.dataType === 'numeric' && c.isSensor !== false && !c.isIdentifier)
+      .map((c) => c.name);
+
     rawRows.forEach((row, idx) => {
       // Basic validation
       const hasAnyValue = Object.values(row).some((v) => v !== undefined && v !== null && v !== '');
@@ -185,8 +191,51 @@ export class DataIngestionService {
       }
 
       validRows++;
-      const timestampVal = dateCol && row[dateCol] ? String(row[dateCol]) : undefined;
-      const equipVal = equipCol && row[equipCol] ? String(row[equipCol]) : undefined;
+      let timestampVal = dateCol && row[dateCol] ? String(row[dateCol]) : undefined;
+      let equipVal = equipCol && row[equipCol] ? String(row[equipCol]) : undefined;
+
+      // For normalized Section | Field | Value datasets, parse structured fields into record data
+      const enrichedData = { ...row };
+      if (isReport) {
+        let section = '';
+        let field = '';
+        let val: any = '';
+        for (const [k, v] of Object.entries(row)) {
+          const lk = k.toLowerCase().trim();
+          if (lk === 'section' || lk.includes('section')) section = String(v || '').trim();
+          else if (lk === 'field' || lk === 'parameter' || lk === 'metric') field = String(v || '').trim();
+          else if (lk === 'value' || lk === 'reading' || lk === 'amount') val = v;
+        }
+
+        const strVal = String(val !== undefined && val !== null ? val : '').trim();
+        if (strVal.includes('|') || strVal.includes('=')) {
+          const parsed = ReportParser.parsePipeSeparatedValue(strVal);
+          Object.assign(enrichedData, parsed);
+
+          // Extract date/time/equipment from pipe-separated structured alarm/event
+          if (!timestampVal) {
+            const time = parsed.Timestamp || parsed.timestamp || parsed.Time || parsed.time;
+            const date = parsed.Date || parsed.date;
+            if (time && date && !String(time).includes('-')) {
+              timestampVal = `${date} ${time}`;
+            } else if (time) {
+              timestampVal = String(time);
+            } else if (date) {
+              timestampVal = String(date);
+            }
+          }
+          if (!equipVal) {
+            equipVal = parsed.Generator_ID || parsed.generator_id || parsed.Equipment || parsed.equipment || parsed.Unit || parsed.unit;
+          }
+        }
+
+        if (field) {
+          const numExtracted = ReportParser.extractNumericAndUnit(val);
+          if (numExtracted.numericValue !== undefined) {
+            enrichedData[field] = numExtracted.numericValue;
+          }
+        }
+      }
 
       records.push({
         id: `rec_${datasetId}_${idx + 1}`,
@@ -194,7 +243,7 @@ export class DataIngestionService {
         rowIndex: idx + 1,
         timestamp: timestampVal,
         equipmentId: equipVal,
-        data: row,
+        data: enrichedData,
         createdAt: new Date().toISOString(),
       });
     });
@@ -238,6 +287,7 @@ export class DataIngestionService {
       timeColumn: options.timeColumn,
       equipmentColumn: equipCol,
       columns,
+      detectedMetrics,
       description: options.description,
       status: 'ACTIVE',
       gridFsFileId,

@@ -512,7 +512,41 @@ export class MetricAnalyticsService {
   }
 
   /**
-   * Main Dynamic Dataset Metric Discovery & Processing
+   * Main Dynamic Dataset Metric Discovery & Processing (Async / Mongo-aware)
+   */
+  public static async analyzeDatasetAsync(
+    datasetId?: string,
+    filters?: {
+      equipment?: string;
+      startDate?: string;
+      endDate?: string;
+      searchMetric?: string;
+    }
+  ): Promise<DatasetMetricsOverview> {
+    const datasets = db.getDatasets();
+    const activeDataset = datasetId ? db.getDatasetById(datasetId) : datasets[0];
+
+    if (!activeDataset) {
+      return {
+        datasetId: '',
+        datasetName: 'No Dataset Loaded',
+        detectedMetrics: [],
+        metricsData: {},
+        isReportFormat: false,
+        isAlarmDataset: false,
+      };
+    }
+
+    let allRecords = await db.getRecordsAsync(activeDataset.id, 50000);
+    if (allRecords.length === 0) {
+      allRecords = db.getRecords(activeDataset.id);
+    }
+
+    return this.processAnalytics(activeDataset, allRecords, filters);
+  }
+
+  /**
+   * Main Dynamic Dataset Metric Discovery & Processing (Sync fallback)
    */
   public static analyzeDataset(
     datasetId?: string,
@@ -538,6 +572,19 @@ export class MetricAnalyticsService {
     }
 
     const allRecords = db.getRecords(activeDataset.id);
+    return this.processAnalytics(activeDataset, allRecords, filters);
+  }
+
+  public static processAnalytics(
+    activeDataset: Dataset,
+    allRecords: DataRecord[],
+    filters?: {
+      equipment?: string;
+      startDate?: string;
+      endDate?: string;
+      searchMetric?: string;
+    }
+  ): DatasetMetricsOverview {
     const isReport = ReportParser.isReportFormat(allRecords.map((r) => r.data)) || ReportParser.isReportFormat(activeDataset.columns);
     const isAlarm = this.isAlarmDataset(allRecords);
 
@@ -687,6 +734,134 @@ export class MetricAnalyticsService {
         metricsData[metricId] = kpiPayload;
         metricsData[kpi.field] = kpiPayload;
         metricsData[kpi.field.toLowerCase()] = kpiPayload;
+      });
+
+      // 1A.2 Ensure all detected numeric columns from dataset metadata are also mapped
+      (activeDataset.columns || []).forEach((col) => {
+        if (col.dataType === 'numeric' && col.isSensor !== false && !col.isIdentifier) {
+          const lowerName = col.name.toLowerCase();
+          const already = metricDefinitions.some(
+            (m) =>
+              m.key.toLowerCase() === lowerName ||
+              m.name.toLowerCase() === lowerName ||
+              m.name.toLowerCase() === (col.displayName || '').toLowerCase()
+          );
+          if (!already) {
+            const baseKey = col.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+            const metricId = `kpi_${baseKey}`;
+            const datasetKey = `${activeDataset.id}__${metricId}`;
+            const classification = this.classifyMetric(col.name, col.unit, col.avg !== undefined ? [col.avg] : []);
+            const numVal = col.avg !== undefined ? col.avg : col.max !== undefined ? col.max : col.min !== undefined ? col.min : 0;
+            const finalUnit = col.unit || classification.unit || '';
+
+            const kpiDef: MetricDefinition = {
+              id: datasetKey,
+              datasetId: activeDataset.id,
+              key: col.name,
+              name: col.displayName || col.name,
+              category: classification.category,
+              unit: finalUnit,
+              dataType: 'numeric',
+              displayType: 'kpi_card',
+              isKPI: true,
+              singleStat: {
+                value: numVal,
+                unit: finalUnit,
+                status: 'NORMAL',
+                details: `${col.displayName || col.name}: ${numVal} ${finalUnit}`,
+              },
+              colorScheme: classification.colorScheme,
+              thresholds: classification.defaultThresholds,
+              displayOrder: order++,
+              isVisible: true,
+              graphType: 'bar',
+              show3D: false,
+            };
+
+            metricDefinitions.push(kpiDef);
+
+            const kpiPayload: MetricAnalyticsPayload = {
+              metric: kpiDef,
+              points: [
+                {
+                  id: `pt_${metricId}`,
+                  rowIndex: 0,
+                  timestamp: 'Report KPI',
+                  xLabel: 'Report KPI',
+                  xIndex: 0,
+                  equipment: 'Plant System',
+                  equipmentIndex: 0,
+                  value: numVal,
+                  status: 'NORMAL',
+                  statusLabel: 'NOMINAL',
+                  color: classification.colorScheme.primary,
+                  data: { Field: col.name, Value: numVal },
+                },
+              ],
+              xCategories: ['Report KPI'],
+              equipmentList: ['Plant System'],
+              isSinglePoint: true,
+              singlePointData: {
+                value: numVal,
+                unit: finalUnit,
+                equipment: 'Plant System',
+                status: 'NORMAL',
+                message: `${col.displayName || col.name}: ${numVal} ${finalUnit}`,
+                rawData: { Field: col.name, Value: numVal },
+              },
+              kpiDetails: {
+                field: col.name,
+                rawValue: String(numVal),
+                category: classification.category,
+                numericValue: numVal,
+                unit: finalUnit,
+              },
+              generatorSeries: [
+                {
+                  name: 'Plant System',
+                  color: classification.colorScheme.primary,
+                  data: [numVal],
+                },
+              ],
+              timeSeries: [
+                {
+                  timestamp: 'Report KPI',
+                  values: { 'Plant System': numVal },
+                },
+              ],
+              distribution: {
+                bins: [
+                  {
+                    label: `${numVal} ${finalUnit}`,
+                    min: numVal,
+                    max: numVal,
+                    count: 1,
+                  },
+                ],
+                stats: {
+                  min: col.min !== undefined ? col.min : numVal,
+                  max: col.max !== undefined ? col.max : numVal,
+                  avg: col.avg !== undefined ? col.avg : numVal,
+                  median: numVal,
+                  stdDev: 0,
+                  totalRecords: col.distinctCount || 1,
+                  lowCount: 0,
+                  normalCount: 1,
+                  highCount: 0,
+                  lowPercent: 0,
+                  normalPercent: 100,
+                  highPercent: 0,
+                },
+              },
+              alarms: [],
+            };
+
+            metricsData[datasetKey] = kpiPayload;
+            metricsData[metricId] = kpiPayload;
+            metricsData[col.name] = kpiPayload;
+            metricsData[col.name.toLowerCase()] = kpiPayload;
+          }
+        }
       });
 
       // 1B. ALARM METRIC GROUPS (Convert pipe-separated data to real structured records)
