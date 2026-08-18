@@ -372,12 +372,12 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
       {/* 1. TOP BAR / SELECTOR ROW */}
       <div
         id="threshold_top_selector_bar"
-        className="p-5 rounded-2xl bg-[#0B0F19] border border-slate-800 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4"
+        className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4"
       >
         <div className="flex flex-col sm:flex-row sm:items-center gap-4 flex-1">
           {/* DATASET SELECTOR */}
           <div className="flex-1 min-w-[220px]">
-            <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1.5 font-semibold">
+            <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
               Dataset
             </label>
             <div className="relative">
@@ -385,7 +385,7 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
                 id="dataset_select_dropdown"
                 value={selectedDatasetId || (datasets.length > 0 ? datasets[0].id : '')}
                 onChange={(e) => setSelectedDatasetId(e.target.value)}
-                className="w-full bg-[#111827] border border-slate-700 text-white rounded-xl px-3.5 py-2.5 text-sm appearance-none pr-9 focus:outline-none focus:border-[#38BDF8] focus:ring-1 focus:ring-[#38BDF8] transition-all font-medium cursor-pointer"
+                className="w-full bg-white border border-slate-300 text-slate-900 rounded-xl px-3.5 py-2.5 text-sm appearance-none pr-9 focus:outline-none focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20 transition-all font-medium cursor-pointer shadow-xs"
               >
                 {datasets.length === 0 ? (
                   <option value="">No datasets uploaded</option>
@@ -400,13 +400,13 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
                   })
                 )}
               </select>
-              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown className="w-4 h-4 text-slate-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
           </div>
 
           {/* METRIC SELECTOR */}
           <div className="flex-1 min-w-[220px]">
-            <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1.5 font-semibold">
+            <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
               Metric
             </label>
             <div className="relative">
@@ -415,7 +415,7 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
                 value={activeMetricId || ''}
                 onChange={(e) => setActiveMetricId(e.target.value)}
                 disabled={detectedMetricsList.length === 0}
-                className="w-full bg-[#111827] border border-slate-700 text-white rounded-xl px-3.5 py-2.5 text-sm appearance-none pr-9 focus:outline-none focus:border-[#38BDF8] focus:ring-1 focus:ring-[#38BDF8] transition-all font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-white border border-slate-300 text-slate-900 rounded-xl px-3.5 py-2.5 text-sm appearance-none pr-9 focus:outline-none focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20 transition-all font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-xs"
               >
                 {detectedMetricsList.length === 0 ? (
                   <option value="">No measurable metrics found</option>
@@ -433,7 +433,7 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
                   })
                 )}
               </select>
-              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown className="w-4 h-4 text-slate-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
           </div>
         </div>
@@ -446,7 +446,7 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
               setCustomModalError(null);
               setIsCustomModalOpen(true);
             }}
-            className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl bg-[#F27D26] hover:bg-[#EA580C] text-white font-semibold text-sm transition-all shadow-md hover:shadow-lg shadow-orange-950/20 active:scale-[0.98] cursor-pointer"
+            className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl bg-[#F27D26] hover:bg-[#EA580C] text-white font-semibold text-sm transition-all shadow-sm active:scale-[0.98] cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Add Custom Metric</span>
@@ -458,9 +458,9 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
       {saveSuccessMessage && (
         <div
           id="save_success_toast"
-          className="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-500/50 text-emerald-300 text-sm flex items-center space-x-2.5 animate-fadeIn"
+          className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-sm flex items-center space-x-2.5 animate-fadeIn shadow-xs"
         >
-          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
           <span className="font-medium">{saveSuccessMessage}</span>
         </div>
       )}
@@ -468,31 +468,31 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
       {saveErrorMessage && (
         <div
           id="save_error_toast"
-          className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/50 text-rose-300 text-sm flex items-center space-x-2.5 animate-fadeIn"
+          className="p-3.5 rounded-xl bg-rose-50 border border-rose-300 text-rose-800 text-sm flex items-center space-x-2.5 animate-fadeIn shadow-xs"
         >
-          <AlertCircle className="w-5 h-5 text-rose-400 shrink-0" />
+          <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
           <span className="font-medium">{saveErrorMessage}</span>
         </div>
       )}
 
       {/* 2. MAIN CONFIGURATION CARD */}
       {isLoading ? (
-        <div className="p-12 text-center rounded-2xl bg-[#0B0F19] border border-slate-800 flex flex-col items-center justify-center space-y-3">
-          <RefreshCw className="w-7 h-7 text-[#38BDF8] animate-spin" />
-          <p className="text-slate-400 text-sm">Loading dataset metrics and thresholds...</p>
+        <div className="p-12 text-center rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col items-center justify-center space-y-3">
+          <RefreshCw className="w-7 h-7 text-[#0284C7] animate-spin" />
+          <p className="text-slate-600 text-sm">Loading dataset metrics and thresholds...</p>
         </div>
       ) : !currentMetric ? (
-        <div className="p-12 text-center rounded-2xl bg-[#0B0F19] border border-slate-800 space-y-4">
-          <Layers className="w-10 h-10 text-slate-600 mx-auto" />
+        <div className="p-12 text-center rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
+          <Layers className="w-10 h-10 text-slate-400 mx-auto" />
           <div>
-            <h3 className="text-base font-semibold text-white">No Metric Selected</h3>
-            <p className="text-sm text-slate-400 mt-1">
+            <h3 className="text-base font-semibold text-slate-900">No Metric Selected</h3>
+            <p className="text-sm text-slate-600 mt-1">
               Select a dataset and metric above, or create a new custom metric.
             </p>
           </div>
           <button
             onClick={() => setIsCustomModalOpen(true)}
-            className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-[#F27D26] text-white text-sm font-semibold hover:bg-[#EA580C] cursor-pointer"
+            className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-[#F27D26] text-white text-sm font-semibold hover:bg-[#EA580C] cursor-pointer shadow-xs"
           >
             <Plus className="w-4 h-4" />
             <span>Add First Custom Metric</span>
@@ -501,38 +501,38 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
       ) : (
         <div
           id="metric_config_card"
-          className="rounded-2xl bg-[#0B0F19] border border-slate-800 shadow-2xl overflow-hidden"
+          className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden"
         >
           {/* CARD HEADER */}
-          <div className="p-5 border-b border-slate-800/80 bg-[#0E1526] flex flex-wrap items-center justify-between gap-3">
+          <div className="p-5 border-b border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center space-x-3">
-              <div className="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700 text-[#38BDF8]">
+              <div className="p-2.5 rounded-xl bg-white border border-slate-200 text-[#0284C7] shadow-xs">
                 <Activity className="w-5 h-5" />
               </div>
               <div>
                 <div className="flex items-center space-x-2.5">
-                  <h2 className="text-lg font-bold text-white tracking-tight">
+                  <h2 className="text-lg font-bold text-slate-900 tracking-tight">
                     {currentMetric.name}
                   </h2>
                   {currentMetric.isCustom ? (
-                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-orange-950/60 text-orange-400 border border-orange-700/50">
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-orange-100 text-orange-700 border border-orange-200">
                       Custom Metric
                     </span>
                   ) : (
-                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-sky-950/60 text-sky-400 border border-sky-800/50">
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-sky-100 text-sky-700 border border-sky-200">
                       Auto-Detected Column
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-600 mt-0.5">
                   Dataset:{' '}
-                  <span className="text-slate-300 font-medium">
+                  <span className="text-slate-800 font-medium">
                     {selectedDatasetObj?.name || 'Active Dataset'}
                   </span>{' '}
-                  <span className="text-slate-400 font-mono">
+                  <span className="text-slate-500 font-mono">
                     ({(selectedDatasetObj?.totalRows ?? selectedDatasetObj?.validRows ?? 0).toLocaleString()} records)
                   </span>{' '}
-                  • Column: <span className="font-mono text-[#38BDF8]">{currentMetric.key}</span>
+                  • Column: <span className="font-mono text-[#0284C7] font-semibold">{currentMetric.key}</span>
                 </p>
               </div>
             </div>
@@ -542,7 +542,7 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
               <button
                 id="btn_delete_custom_metric"
                 onClick={() => handleDeleteCustomMetric(currentMetric.id)}
-                className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-rose-950/30 hover:bg-rose-900/40 text-rose-400 border border-rose-800/40 text-xs font-medium transition-colors cursor-pointer"
+                className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-medium transition-colors cursor-pointer shadow-xs"
                 title="Delete this custom metric"
               >
                 <Trash2 className="w-3.5 h-3.5" />
@@ -556,7 +556,7 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
             {/* ROW 1: METRIC NAME & UNIT */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   Metric Name
                 </label>
                 <input
@@ -565,12 +565,12 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
                   value={currentMetric.name || ''}
                   onChange={(e) => handleFieldChange('name', e.target.value)}
                   placeholder="Metric Display Name"
-                  className="w-full bg-[#111827] border border-slate-700 focus:border-[#38BDF8] text-white rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#38BDF8] transition-all"
+                  className="w-full bg-white border border-slate-300 focus:border-[#0284C7] text-slate-900 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 transition-all placeholder:text-slate-400"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   Unit <span className="text-slate-500 font-normal">(e.g. °C, V, kW, bar, RPM)</span>
                 </label>
                 <input
@@ -579,7 +579,7 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
                   value={currentMetric.unit || ''}
                   onChange={(e) => handleFieldChange('unit', e.target.value)}
                   placeholder="Enter unit, e.g. °C, V, kW"
-                  className="w-full bg-[#111827] border border-slate-700 focus:border-[#38BDF8] text-white rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#38BDF8] transition-all"
+                  className="w-full bg-white border border-slate-300 focus:border-[#0284C7] text-slate-900 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 transition-all placeholder:text-slate-400"
                 />
               </div>
             </div>
@@ -587,7 +587,7 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
             {/* ROW 2: THE 5 THRESHOLD LIMITS */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 font-mono">
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-700 font-mono">
                   Alarm & Operational Thresholds
                 </label>
                 <span className="text-[11px] text-slate-500 font-mono">
@@ -597,9 +597,9 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
                 {/* 1. Low Limit */}
-                <div className="p-3.5 rounded-xl bg-[#111827]/80 border border-slate-800 hover:border-slate-700 transition-colors">
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-slate-300 transition-colors">
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-medium text-sky-400">Low Limit</span>
+                    <span className="text-xs font-semibold text-sky-700">Low Limit</span>
                     <span className="text-[10px] font-mono text-slate-500">Under-Limit</span>
                   </div>
                   <div className="relative">
@@ -614,7 +614,7 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
                       }
                       onChange={(e) => handleThresholdChange('low', e.target.value)}
                       placeholder="e.g. 20"
-                      className="w-full bg-[#0B0F19] border border-slate-700 focus:border-sky-400 text-white rounded-lg px-3 py-2 text-sm focus:outline-none font-mono"
+                      className="w-full bg-white border border-slate-300 focus:border-sky-500 text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none font-mono placeholder:text-slate-400"
                     />
                     {currentMetric.unit && (
                       <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-mono text-slate-500 pointer-events-none">
@@ -625,9 +625,9 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
                 </div>
 
                 {/* 2. Normal Min */}
-                <div className="p-3.5 rounded-xl bg-[#111827]/80 border border-slate-800 hover:border-slate-700 transition-colors">
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-slate-300 transition-colors">
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-medium text-emerald-400">Normal Min</span>
+                    <span className="text-xs font-semibold text-emerald-700">Normal Min</span>
                     <span className="text-[10px] font-mono text-slate-500">Nominal</span>
                   </div>
                   <div className="relative">
@@ -642,7 +642,7 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
                       }
                       onChange={(e) => handleThresholdChange('normalMin', e.target.value)}
                       placeholder="e.g. 25"
-                      className="w-full bg-[#0B0F19] border border-slate-700 focus:border-emerald-400 text-white rounded-lg px-3 py-2 text-sm focus:outline-none font-mono"
+                      className="w-full bg-white border border-slate-300 focus:border-emerald-500 text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none font-mono placeholder:text-slate-400"
                     />
                     {currentMetric.unit && (
                       <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-mono text-slate-500 pointer-events-none">
@@ -653,9 +653,9 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
                 </div>
 
                 {/* 3. Normal Max */}
-                <div className="p-3.5 rounded-xl bg-[#111827]/80 border border-slate-800 hover:border-slate-700 transition-colors">
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-slate-300 transition-colors">
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-medium text-emerald-400">Normal Max</span>
+                    <span className="text-xs font-semibold text-emerald-700">Normal Max</span>
                     <span className="text-[10px] font-mono text-slate-500">Nominal</span>
                   </div>
                   <div className="relative">
@@ -670,7 +670,7 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
                       }
                       onChange={(e) => handleThresholdChange('normalMax', e.target.value)}
                       placeholder="e.g. 35"
-                      className="w-full bg-[#0B0F19] border border-slate-700 focus:border-emerald-400 text-white rounded-lg px-3 py-2 text-sm focus:outline-none font-mono"
+                      className="w-full bg-white border border-slate-300 focus:border-emerald-500 text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none font-mono placeholder:text-slate-400"
                     />
                     {currentMetric.unit && (
                       <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-mono text-slate-500 pointer-events-none">
@@ -681,10 +681,10 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
                 </div>
 
                 {/* 4. Warning Limit */}
-                <div className="p-3.5 rounded-xl bg-[#111827]/80 border border-slate-800 hover:border-slate-700 transition-colors">
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-slate-300 transition-colors">
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-medium text-amber-400">Warning Limit</span>
-                    <span className="text-[10px] font-mono text-amber-500/80">Advisory</span>
+                    <span className="text-xs font-semibold text-amber-700">Warning Limit</span>
+                    <span className="text-[10px] font-mono text-amber-600">Advisory</span>
                   </div>
                   <div className="relative">
                     <input
@@ -698,7 +698,7 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
                       }
                       onChange={(e) => handleThresholdChange('warningLimit', e.target.value)}
                       placeholder="e.g. 40"
-                      className="w-full bg-[#0B0F19] border border-slate-700 focus:border-amber-400 text-white rounded-lg px-3 py-2 text-sm focus:outline-none font-mono"
+                      className="w-full bg-white border border-slate-300 focus:border-amber-500 text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none font-mono placeholder:text-slate-400"
                     />
                     {currentMetric.unit && (
                       <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-mono text-slate-500 pointer-events-none">
@@ -709,10 +709,10 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
                 </div>
 
                 {/* 5. Critical Limit */}
-                <div className="p-3.5 rounded-xl bg-[#111827]/80 border border-slate-800 hover:border-slate-700 transition-colors">
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-slate-300 transition-colors">
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-medium text-rose-400">Critical Limit</span>
-                    <span className="text-[10px] font-mono text-rose-500/80">Alarm Trip</span>
+                    <span className="text-xs font-semibold text-rose-700">Critical Limit</span>
+                    <span className="text-[10px] font-mono text-rose-600">Alarm Trip</span>
                   </div>
                   <div className="relative">
                     <input
@@ -726,7 +726,7 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
                       }
                       onChange={(e) => handleThresholdChange('criticalLimit', e.target.value)}
                       placeholder="e.g. 45"
-                      className="w-full bg-[#0B0F19] border border-slate-700 focus:border-rose-400 text-white rounded-lg px-3 py-2 text-sm focus:outline-none font-mono"
+                      className="w-full bg-white border border-slate-300 focus:border-rose-500 text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none font-mono placeholder:text-slate-400"
                     />
                     {currentMetric.unit && (
                       <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-mono text-slate-500 pointer-events-none">
@@ -739,7 +739,7 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
             </div>
 
             {/* ROW 3: ALARM TOGGLE & VALIDATION WARNING */}
-            <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-slate-800/80">
+            <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-slate-200">
               {/* ALARM TOGGLE SWITCH */}
               <div className="flex items-center space-x-3.5">
                 <button
@@ -747,11 +747,11 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
                   type="button"
                   onClick={() => handleToggleAlarm(currentMetric.thresholds.alarmEnabled === false)}
                   className={`w-12 h-6.5 rounded-full transition-colors relative cursor-pointer focus:outline-none ${
-                    currentMetric.thresholds.alarmEnabled !== false ? 'bg-emerald-600' : 'bg-slate-700'
+                    currentMetric.thresholds.alarmEnabled !== false ? 'bg-emerald-600' : 'bg-slate-300'
                   }`}
                 >
                   <span
-                    className={`block w-5 h-5 rounded-full bg-white transition-transform transform ${
+                    className={`block w-5 h-5 rounded-full bg-white shadow-xs transition-transform transform ${
                       currentMetric.thresholds.alarmEnabled !== false
                         ? 'translate-x-6'
                         : 'translate-x-1'
@@ -760,18 +760,18 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
                 </button>
                 <div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-sm font-semibold text-white">Alarm Monitoring:</span>
+                    <span className="text-sm font-semibold text-slate-900">Alarm Monitoring:</span>
                     <span
                       className={`text-xs font-mono font-bold uppercase px-2 py-0.5 rounded ${
                         currentMetric.thresholds.alarmEnabled !== false
-                          ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/50'
-                          : 'bg-slate-800 text-slate-400 border border-slate-700'
+                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                          : 'bg-slate-100 text-slate-700 border border-slate-300'
                       }`}
                     >
                       {currentMetric.thresholds.alarmEnabled !== false ? 'Enabled' : 'Disabled'}
                     </span>
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-slate-600 mt-0.5">
                     {currentMetric.thresholds.alarmEnabled !== false
                       ? 'System continuously checks uploaded records and triggers alerts for threshold breaches.'
                       : 'Alarms suppressed for this metric.'}
@@ -784,7 +784,7 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
                 id="btn_save_metric_settings"
                 onClick={handleSaveSettings}
                 disabled={isSaving}
-                className="inline-flex items-center justify-center space-x-2 px-6 py-2.5 rounded-xl bg-[#0284C7] hover:bg-[#0369A1] text-white font-bold text-sm transition-all shadow-md shadow-sky-950/30 active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center space-x-2 px-6 py-2.5 rounded-xl bg-[#0284C7] hover:bg-[#0369A1] text-white font-bold text-sm transition-all shadow-sm active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSaving ? (
                   <>
@@ -802,8 +802,8 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
 
             {/* VALIDATION WARNING IF ANY */}
             {validationWarning && (
-              <div className="p-3 rounded-xl bg-amber-950/30 border border-amber-500/40 text-amber-300 text-xs flex items-center space-x-2">
-                <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+              <div className="p-3 rounded-xl bg-amber-50 border border-amber-300 text-amber-800 text-xs flex items-center space-x-2 shadow-xs">
+                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
                 <span>
                   <strong>Threshold Order Notice:</strong> {validationWarning}
                 </span>
@@ -820,17 +820,17 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
               return (
                 <div
                   id="metric_real_telemetry_box"
-                  className="mt-4 p-4 rounded-xl bg-[#080D1A] border border-slate-800/80 flex flex-wrap items-center justify-between gap-4 text-xs font-mono"
+                  className="mt-4 p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-4 text-xs font-mono"
                 >
-                  <div className="flex items-center space-x-2 text-slate-400">
-                    <Database className="w-4 h-4 text-[#38BDF8]" />
-                    <span className="font-semibold text-slate-300">Dataset Records Telemetry:</span>
+                  <div className="flex items-center space-x-2 text-slate-700">
+                    <Database className="w-4 h-4 text-[#0284C7]" />
+                    <span className="font-bold text-slate-900">Dataset Records Telemetry:</span>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-6">
                     <div>
-                      <span className="text-slate-500">Min Recorded: </span>
-                      <strong className="text-sky-400 font-bold">
+                      <span className="text-slate-600">Min Recorded: </span>
+                      <strong className="text-sky-700 font-bold">
                         {stats.min !== undefined
                           ? `${stats.min} ${currentMetric.unit || ''}`
                           : 'N/A'}
@@ -838,8 +838,8 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
                     </div>
 
                     <div>
-                      <span className="text-slate-500">Max Recorded: </span>
-                      <strong className="text-rose-400 font-bold">
+                      <span className="text-slate-600">Max Recorded: </span>
+                      <strong className="text-rose-700 font-bold">
                         {stats.max !== undefined
                           ? `${stats.max} ${currentMetric.unit || ''}`
                           : 'N/A'}
@@ -847,8 +847,8 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
                     </div>
 
                     <div>
-                      <span className="text-slate-500">Average: </span>
-                      <strong className="text-emerald-400 font-bold">
+                      <span className="text-slate-600">Average: </span>
+                      <strong className="text-emerald-700 font-bold">
                         {stats.avg !== undefined
                           ? `${stats.avg} ${currentMetric.unit || ''}`
                           : 'N/A'}
@@ -856,19 +856,19 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
                     </div>
 
                     <div>
-                      <span className="text-slate-500">Total Records: </span>
-                      <strong className="text-white font-bold">
+                      <span className="text-slate-600">Total Records: </span>
+                      <strong className="text-slate-900 font-bold">
                         {totalRecs.toLocaleString()} records
                       </strong>
                     </div>
 
                     <div>
-                      <span className="text-slate-500">Active Breaches: </span>
+                      <span className="text-slate-600">Active Breaches: </span>
                       <span
                         className={`px-2.5 py-0.5 rounded font-bold ${
                           breachCount > 0
-                            ? 'bg-rose-950/60 text-rose-400 border border-rose-800/40'
-                            : 'bg-emerald-950/40 text-emerald-400 border border-emerald-800/30'
+                            ? 'bg-rose-100 text-rose-700 border border-rose-300'
+                            : 'bg-emerald-100 text-emerald-700 border border-emerald-300'
                         }`}
                       >
                         {breachCount} breaches
@@ -886,29 +886,29 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
       {isCustomModalOpen && (
         <div
           id="custom_metric_modal_overlay"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fadeIn"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn"
         >
           <div
             id="custom_metric_modal_content"
-            className="w-full max-w-lg rounded-2xl bg-[#0B0F19] border border-slate-700 shadow-2xl overflow-hidden"
+            className="w-full max-w-lg rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden"
           >
             {/* MODAL HEADER */}
-            <div className="p-5 border-b border-slate-800 flex items-center justify-between bg-[#0E1526]">
+            <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
               <div>
-                <h3 className="text-base font-bold text-white flex items-center space-x-2">
+                <h3 className="text-base font-bold text-slate-900 flex items-center space-x-2">
                   <Plus className="w-4 h-4 text-[#F27D26]" />
                   <span>Add Custom Metric</span>
                 </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-600 mt-0.5">
                   Link to dataset:{' '}
-                  <span className="text-slate-200 font-semibold">
+                  <span className="text-slate-900 font-semibold">
                     {selectedDatasetObj?.name || 'Selected Dataset'}
                   </span>
                 </p>
               </div>
               <button
                 onClick={() => setIsCustomModalOpen(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -917,8 +917,8 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
             {/* MODAL FORM */}
             <form onSubmit={handleSaveCustomMetric} className="p-6 space-y-4">
               {customModalError && (
-                <div className="p-3 rounded-xl bg-rose-950/50 border border-rose-500/50 text-rose-300 text-xs flex items-center space-x-2">
-                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-300 text-rose-800 text-xs flex items-center space-x-2">
+                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
                   <span>{customModalError}</span>
                 </div>
               )}
@@ -926,8 +926,8 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
               {/* NAME & UNIT */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">
-                    Metric Name <span className="text-rose-400">*</span>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Metric Name <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -935,12 +935,12 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
                     value={customForm.name}
                     onChange={(e) => setCustomForm({ ...customForm, name: e.target.value })}
                     placeholder="e.g. Bearing Vibration"
-                    className="w-full bg-[#111827] border border-slate-700 focus:border-[#F27D26] text-white rounded-xl px-3.5 py-2 text-sm focus:outline-none"
+                    className="w-full bg-white border border-slate-300 focus:border-[#F27D26] text-slate-900 rounded-xl px-3.5 py-2 text-sm focus:outline-none placeholder:text-slate-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Unit <span className="text-slate-500 font-normal">(optional)</span>
                   </label>
                   <input
@@ -948,91 +948,91 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
                     value={customForm.unit}
                     onChange={(e) => setCustomForm({ ...customForm, unit: e.target.value })}
                     placeholder="e.g. mm/s, bar, °C"
-                    className="w-full bg-[#111827] border border-slate-700 focus:border-[#F27D26] text-white rounded-xl px-3.5 py-2 text-sm focus:outline-none"
+                    className="w-full bg-white border border-slate-300 focus:border-[#F27D26] text-slate-900 rounded-xl px-3.5 py-2 text-sm focus:outline-none placeholder:text-slate-400"
                   />
                 </div>
               </div>
 
               {/* LIMITS */}
               <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 font-mono">
                   Threshold Limits
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                   <div>
-                    <span className="block text-[11px] text-sky-400 mb-1 font-medium">Low Limit</span>
+                    <span className="block text-[11px] text-sky-700 mb-1 font-semibold">Low Limit</span>
                     <input
                       type="number"
                       step="any"
                       value={customForm.low}
                       onChange={(e) => setCustomForm({ ...customForm, low: e.target.value })}
                       placeholder="e.g. 10"
-                      className="w-full bg-[#111827] border border-slate-700 text-white rounded-lg px-2.5 py-1.5 text-xs font-mono focus:outline-none"
+                      className="w-full bg-white border border-slate-300 text-slate-900 rounded-lg px-2.5 py-1.5 text-xs font-mono focus:outline-none placeholder:text-slate-400"
                     />
                   </div>
 
                   <div>
-                    <span className="block text-[11px] text-emerald-400 mb-1 font-medium">Normal Min</span>
+                    <span className="block text-[11px] text-emerald-700 mb-1 font-semibold">Normal Min</span>
                     <input
                       type="number"
                       step="any"
                       value={customForm.normalMin}
                       onChange={(e) => setCustomForm({ ...customForm, normalMin: e.target.value })}
                       placeholder="e.g. 20"
-                      className="w-full bg-[#111827] border border-slate-700 text-white rounded-lg px-2.5 py-1.5 text-xs font-mono focus:outline-none"
+                      className="w-full bg-white border border-slate-300 text-slate-900 rounded-lg px-2.5 py-1.5 text-xs font-mono focus:outline-none placeholder:text-slate-400"
                     />
                   </div>
 
                   <div>
-                    <span className="block text-[11px] text-emerald-400 mb-1 font-medium">Normal Max</span>
+                    <span className="block text-[11px] text-emerald-700 mb-1 font-semibold">Normal Max</span>
                     <input
                       type="number"
                       step="any"
                       value={customForm.normalMax}
                       onChange={(e) => setCustomForm({ ...customForm, normalMax: e.target.value })}
                       placeholder="e.g. 30"
-                      className="w-full bg-[#111827] border border-slate-700 text-white rounded-lg px-2.5 py-1.5 text-xs font-mono focus:outline-none"
+                      className="w-full bg-white border border-slate-300 text-slate-900 rounded-lg px-2.5 py-1.5 text-xs font-mono focus:outline-none placeholder:text-slate-400"
                     />
                   </div>
 
                   <div>
-                    <span className="block text-[11px] text-amber-400 mb-1 font-medium">Warning Limit</span>
+                    <span className="block text-[11px] text-amber-700 mb-1 font-semibold">Warning Limit</span>
                     <input
                       type="number"
                       step="any"
                       value={customForm.warningLimit}
                       onChange={(e) => setCustomForm({ ...customForm, warningLimit: e.target.value })}
                       placeholder="e.g. 35"
-                      className="w-full bg-[#111827] border border-slate-700 text-white rounded-lg px-2.5 py-1.5 text-xs font-mono focus:outline-none"
+                      className="w-full bg-white border border-slate-300 text-slate-900 rounded-lg px-2.5 py-1.5 text-xs font-mono focus:outline-none placeholder:text-slate-400"
                     />
                   </div>
 
                   <div>
-                    <span className="block text-[11px] text-rose-400 mb-1 font-medium">Critical Limit</span>
+                    <span className="block text-[11px] text-rose-700 mb-1 font-semibold">Critical Limit</span>
                     <input
                       type="number"
                       step="any"
                       value={customForm.criticalLimit}
                       onChange={(e) => setCustomForm({ ...customForm, criticalLimit: e.target.value })}
                       placeholder="e.g. 40"
-                      className="w-full bg-[#111827] border border-slate-700 text-white rounded-lg px-2.5 py-1.5 text-xs font-mono focus:outline-none"
+                      className="w-full bg-white border border-slate-300 text-slate-900 rounded-lg px-2.5 py-1.5 text-xs font-mono focus:outline-none placeholder:text-slate-400"
                     />
                   </div>
                 </div>
               </div>
 
               {/* ALARM SWITCH */}
-              <div className="pt-2 flex items-center justify-between border-t border-slate-800">
-                <span className="text-xs font-medium text-slate-300">Alarm Monitoring</span>
+              <div className="pt-2 flex items-center justify-between border-t border-slate-200">
+                <span className="text-xs font-semibold text-slate-700">Alarm Monitoring</span>
                 <button
                   type="button"
                   onClick={() => setCustomForm({ ...customForm, alarmEnabled: !customForm.alarmEnabled })}
                   className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${
-                    customForm.alarmEnabled ? 'bg-emerald-600' : 'bg-slate-700'
+                    customForm.alarmEnabled ? 'bg-emerald-600' : 'bg-slate-300'
                   }`}
                 >
                   <span
-                    className={`block w-4 h-4 rounded-full bg-white transition-transform transform ${
+                    className={`block w-4 h-4 rounded-full bg-white shadow-xs transition-transform transform ${
                       customForm.alarmEnabled ? 'translate-x-6' : 'translate-x-1'
                     }`}
                   />
@@ -1040,18 +1040,18 @@ export const AdminThresholdAlarmsPanel: React.FC = () => {
               </div>
 
               {/* MODAL ACTIONS */}
-              <div className="pt-3 flex items-center justify-end space-x-3 border-t border-slate-800">
+              <div className="pt-3 flex items-center justify-end space-x-3 border-t border-slate-200">
                 <button
                   type="button"
                   onClick={() => setIsCustomModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 text-xs font-medium transition-colors cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-xs font-semibold transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmittingCustom}
-                  className="inline-flex items-center space-x-1.5 px-5 py-2 rounded-xl bg-[#F27D26] hover:bg-[#EA580C] text-white text-xs font-bold transition-all shadow-md cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center space-x-1.5 px-5 py-2 rounded-xl bg-[#F27D26] hover:bg-[#EA580C] text-white text-xs font-bold transition-all shadow-sm cursor-pointer disabled:opacity-50"
                 >
                   {isSubmittingCustom ? (
                     <>

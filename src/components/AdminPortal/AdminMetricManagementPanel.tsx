@@ -197,17 +197,17 @@ export const AdminMetricManagementPanel: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="p-5 rounded-xl bg-slate-900/90 border border-slate-800 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <div className="p-2.5 bg-amber-500/20 text-amber-400 rounded-xl border border-amber-500/30">
+            <div className="p-2.5 bg-sky-50 text-[#0284C7] rounded-xl border border-sky-200 shadow-xs">
               <Sliders className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-black text-white uppercase tracking-wider">
+              <h3 className="text-base font-bold text-slate-900 uppercase tracking-wider font-mono">
                 Metric & Visualization Schema Management
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-600 mt-0.5 font-normal">
                 Configure separate 3D surface parameters, display names, units, monitoring status, and alarm thresholds per auto-detected metric.
               </p>
             </div>
@@ -218,7 +218,7 @@ export const AdminMetricManagementPanel: React.FC = () => {
           <select
             value={selectedDatasetId || ''}
             onChange={(e) => setSelectedDatasetId(e.target.value)}
-            className="bg-slate-950 border border-slate-700 text-white rounded-xl px-3 py-2 text-xs font-mono"
+            className="bg-white border border-slate-300 text-slate-800 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:border-[#0284C7] shadow-xs cursor-pointer"
           >
             {datasets.map((d) => (
               <option key={d.id} value={d.id}>
@@ -230,16 +230,16 @@ export const AdminMetricManagementPanel: React.FC = () => {
           <button
             onClick={fetchOverview}
             disabled={isLoading}
-            className="p-2.5 bg-slate-800 text-slate-300 hover:text-white rounded-xl border border-slate-700"
+            className="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 rounded-lg border border-slate-300 cursor-pointer transition-colors shadow-xs"
             title="Refresh Metrics"
           >
-            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-amber-400' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-[#0284C7]' : ''}`} />
           </button>
 
           <button
             onClick={handleSaveAll}
             disabled={isSaving || metrics.length === 0}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-slate-950 font-bold text-xs rounded-xl shadow-lg transition-all"
+            className="flex items-center gap-2 px-4 py-2 bg-[#0284C7] hover:bg-[#0369A1] text-white font-bold text-xs rounded-lg shadow-sm transition-all cursor-pointer font-mono uppercase tracking-wider"
           >
             <Save className="w-4 h-4" />
             {isSaving ? 'Saving All...' : 'Save All Configurations'}
@@ -249,9 +249,9 @@ export const AdminMetricManagementPanel: React.FC = () => {
 
       {/* Success Notification */}
       {saveSuccessMessage && (
-        <div className="p-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-xs font-mono flex items-center gap-2 animate-in fade-in">
-          <CheckCircle2 className="w-4 h-4 shrink-0" />
-          <span>{saveSuccessMessage}</span>
+        <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-mono flex items-center gap-2 animate-in fade-in shadow-xs">
+          <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+          <span className="font-semibold">{saveSuccessMessage}</span>
         </div>
       )}
 
@@ -259,11 +259,11 @@ export const AdminMetricManagementPanel: React.FC = () => {
       {isLoading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-36 bg-slate-900/60 rounded-xl border border-slate-800 animate-pulse" />
+            <div key={i} className="h-36 bg-slate-100 rounded-xl border border-slate-200 animate-pulse" />
           ))}
         </div>
       ) : metrics.length === 0 ? (
-        <div className="p-8 text-center bg-slate-900/60 rounded-xl border border-slate-800 text-slate-400 text-xs font-mono">
+        <div className="p-8 text-center bg-white rounded-xl border border-slate-200 text-slate-500 text-xs font-mono shadow-sm">
           No metrics detected in the selected dataset.
         </div>
       ) : (
@@ -276,12 +276,12 @@ export const AdminMetricManagementPanel: React.FC = () => {
             return (
               <div
                 key={m.id}
-                className="bg-slate-900/90 border border-slate-800/90 rounded-2xl p-5 shadow-xl hover:border-slate-700 transition-all space-y-4"
+                className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:border-slate-300 transition-all space-y-4"
               >
                 {/* Metric Title & Toggles */}
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800/80 pb-3">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-200 pb-3">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-slate-800 rounded-xl border border-slate-700">
+                    <div className="p-2 bg-slate-100 rounded-xl border border-slate-200 text-slate-700">
                       {getCategoryIcon(current.category)}
                     </div>
                     <div>
@@ -290,48 +290,48 @@ export const AdminMetricManagementPanel: React.FC = () => {
                           type="text"
                           value={current.name}
                           onChange={(e) => handleFieldChange(m.id, 'name', e.target.value)}
-                          className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-sm font-bold text-white focus:border-amber-500 font-sans max-w-[280px]"
+                          className="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-sm font-bold text-slate-900 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20 font-sans max-w-[280px] shadow-xs"
                         />
-                        <span className="text-[11px] font-mono text-slate-400 bg-slate-800 px-2 py-0.5 rounded">
+                        <span className="text-[11px] font-mono text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded font-semibold">
                           Field: {m.key}
                         </span>
                       </div>
-                      <p className="text-[11px] font-mono text-slate-400 mt-0.5">
-                        Category: <b className="text-slate-300 uppercase">{current.category}</b> • Data: {m.dataType}
+                      <p className="text-[11px] font-mono text-slate-500 mt-0.5">
+                        Category: <b className="text-slate-800 uppercase">{current.category}</b> • Data: {m.dataType}
                       </p>
                     </div>
                   </div>
 
                   <div className="flex items-center flex-wrap gap-4">
                     {/* Unit */}
-                    <div className="flex items-center gap-1.5 text-xs font-mono text-slate-400">
+                    <div className="flex items-center gap-1.5 text-xs font-mono text-slate-700 font-semibold">
                       <span>Unit:</span>
                       <input
                         type="text"
                         value={current.unit}
                         onChange={(e) => handleFieldChange(m.id, 'unit', e.target.value)}
-                        className="w-16 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs text-cyan-400 font-bold font-mono focus:border-cyan-500 text-center"
+                        className="w-16 bg-white border border-slate-300 rounded-lg px-2 py-1 text-xs text-[#0284C7] font-bold font-mono focus:border-[#0284C7] text-center shadow-xs"
                       />
                     </div>
 
                     {/* Monitoring Switch */}
-                    <label className="flex items-center gap-2 text-xs font-mono text-slate-300 cursor-pointer">
+                    <label className="flex items-center gap-2 text-xs font-mono text-slate-700 font-semibold cursor-pointer">
                       <input
                         type="checkbox"
                         checked={current.isVisible}
                         onChange={(e) => handleFieldChange(m.id, 'isVisible', e.target.checked)}
-                        className="w-4 h-4 rounded text-amber-500 bg-slate-800 border-slate-700"
+                        className="w-4 h-4 rounded text-[#0284C7] bg-white border-slate-300 accent-[#0284C7]"
                       />
                       Show Graph
                     </label>
 
                     {/* 3D Surface Switch */}
-                    <label className="flex items-center gap-2 text-xs font-mono text-slate-300 cursor-pointer">
+                    <label className="flex items-center gap-2 text-xs font-mono text-slate-700 font-semibold cursor-pointer">
                       <input
                         type="checkbox"
                         checked={current.show3D}
                         onChange={(e) => handleFieldChange(m.id, 'show3D', e.target.checked)}
-                        className="w-4 h-4 rounded text-cyan-500 bg-slate-800 border-slate-700"
+                        className="w-4 h-4 rounded text-[#0284C7] bg-white border-slate-300 accent-[#0284C7]"
                       />
                       Enable 3D Surface
                     </label>
@@ -340,19 +340,19 @@ export const AdminMetricManagementPanel: React.FC = () => {
                     <button
                       onClick={() => handleSaveMetric(m.id)}
                       disabled={isSaving}
-                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 text-xs font-mono font-bold rounded-lg transition-colors flex items-center gap-1.5"
+                      className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 text-xs font-mono font-bold rounded-lg transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
                     >
-                      <Save className="w-3.5 h-3.5" />
+                      <Save className="w-3.5 h-3.5 text-[#0284C7]" />
                       Save
                     </button>
                   </div>
                 </div>
 
                 {/* Configuration Controls Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 bg-slate-950/60 p-4 rounded-xl border border-slate-800/60">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
                   {/* Low Warning Threshold */}
                   <div>
-                    <label className="text-[11px] font-mono text-cyan-400 font-bold block mb-1">
+                    <label className="text-[11px] font-mono text-sky-700 font-bold block mb-1">
                       Low Warning Threshold ({current.unit})
                     </label>
                     <input
@@ -360,13 +360,13 @@ export const AdminMetricManagementPanel: React.FC = () => {
                       step="any"
                       value={thresh.low ?? ''}
                       onChange={(e) => handleThresholdChange(m.id, 'low', parseFloat(e.target.value))}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white font-mono"
+                      className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 font-mono focus:border-sky-500 focus:outline-none shadow-xs"
                     />
                   </div>
 
                   {/* High Alarm Threshold */}
                   <div>
-                    <label className="text-[11px] font-mono text-rose-400 font-bold block mb-1">
+                    <label className="text-[11px] font-mono text-rose-700 font-bold block mb-1">
                       High Alarm Threshold ({current.unit})
                     </label>
                     <input
@@ -374,19 +374,19 @@ export const AdminMetricManagementPanel: React.FC = () => {
                       step="any"
                       value={thresh.high ?? ''}
                       onChange={(e) => handleThresholdChange(m.id, 'high', parseFloat(e.target.value))}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white font-mono"
+                      className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 font-mono focus:border-rose-500 focus:outline-none shadow-xs"
                     />
                   </div>
 
                   {/* Alarm Severity */}
                   <div>
-                    <label className="text-[11px] font-mono text-slate-400 block mb-1">
+                    <label className="text-[11px] font-mono text-slate-700 font-semibold block mb-1">
                       Alarm Breach Severity
                     </label>
                     <select
                       value={thresh.alarmSeverity || 'CRITICAL'}
                       onChange={(e) => handleThresholdChange(m.id, 'alarmSeverity', e.target.value as AlarmLevel)}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white font-mono"
+                      className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 font-mono focus:border-[#0284C7] focus:outline-none shadow-xs cursor-pointer font-bold"
                     >
                       <option value="CRITICAL">CRITICAL</option>
                       <option value="WARNING">WARNING</option>
@@ -396,7 +396,7 @@ export const AdminMetricManagementPanel: React.FC = () => {
 
                   {/* 3D Vertical Scale */}
                   <div>
-                    <label className="text-[11px] font-mono text-slate-400 block mb-1">
+                    <label className="text-[11px] font-mono text-slate-700 font-semibold block mb-1">
                       3D Vertical Elevation Scale ({threeD.verticalScale}x)
                     </label>
                     <input
@@ -406,7 +406,7 @@ export const AdminMetricManagementPanel: React.FC = () => {
                       step="0.1"
                       value={threeD.verticalScale || 1.0}
                       onChange={(e) => handleThreeDChange(m.id, 'verticalScale', parseFloat(e.target.value))}
-                      className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+                      className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0284C7] mt-2"
                     />
                   </div>
                 </div>

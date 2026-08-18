@@ -48,6 +48,12 @@ export const RecordEditorModal: React.FC<RecordEditorModalProps> = ({ dataset, i
   const displayColumns = dataset.columns || [];
 
   const loadRecords = useCallback(async () => {
+    if (!dataset?.id) {
+      setRecords([]);
+      setTotalCount(0);
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     try {
       const offset = (page - 1) * pageSize;
@@ -59,14 +65,16 @@ export const RecordEditorModal: React.FC<RecordEditorModalProps> = ({ dataset, i
         limit: pageSize,
         offset,
       });
-      setRecords(res.records);
-      setTotalCount(res.total);
+      setRecords(res?.records || []);
+      setTotalCount(res?.total || 0);
     } catch (err) {
       console.error('Failed to load dataset records:', err);
+      setRecords([]);
+      setTotalCount(0);
     } finally {
       setIsLoading(false);
     }
-  }, [dataset.id, page, searchQuery, selectedEquipment, sortBy, sortOrder, fetchDatasetRecords]);
+  }, [dataset?.id, page, searchQuery, selectedEquipment, sortBy, sortOrder, fetchDatasetRecords]);
 
   useEffect(() => {
     if (isOpen) {
@@ -152,25 +160,25 @@ export const RecordEditorModal: React.FC<RecordEditorModalProps> = ({ dataset, i
   );
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
-      <div className="w-full max-w-6xl p-5 sm:p-6 rounded-sm bg-[#0C0C0C] border border-[#262626] border-t-2 border-t-[#F27D26] shadow-2xl space-y-4 animate-in fade-in zoom-in-95 my-6 max-h-[94vh] flex flex-col">
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+      <div className="w-full max-w-6xl p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 my-6 max-h-[94vh] flex flex-col">
         {/* Header */}
-        <div className="flex justify-between items-start border-b border-[#222] pb-3 shrink-0">
+        <div className="flex justify-between items-start border-b border-slate-200 pb-3 shrink-0">
           <div>
-            <div className="inline-flex items-center space-x-2 text-xs font-mono text-[#F27D26] mb-0.5">
+            <div className="inline-flex items-center space-x-2 text-xs font-mono text-[#0284C7] mb-0.5 font-bold">
               <Database className="w-3.5 h-3.5" />
-              <span className="uppercase tracking-widest font-semibold">DATABASE RECORD EDITOR</span>
+              <span className="uppercase tracking-widest">DATABASE RECORD EDITOR</span>
             </div>
-            <h3 className="text-lg font-bold text-white uppercase font-mono tracking-tight flex items-center gap-2">
+            <h3 className="text-lg font-bold text-slate-900 uppercase font-sans tracking-tight flex items-center gap-2">
               <span>{dataset.name}</span>
-              <span className="text-xs font-mono px-2 py-0.5 rounded-xs bg-[#1A1A1A] border border-[#333] text-[#AAA]">
+              <span className="text-xs font-mono px-2.5 py-0.5 rounded-lg bg-slate-100 border border-slate-300 text-slate-700 font-semibold">
                 {totalCount} Total Records
               </span>
             </h3>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-xs text-[#888] hover:text-white cursor-pointer"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -179,27 +187,27 @@ export const RecordEditorModal: React.FC<RecordEditorModalProps> = ({ dataset, i
         {/* Notification Toast */}
         {notification && (
           <div
-            className={`p-2.5 rounded-xs border text-xs font-mono flex items-center space-x-2 shrink-0 ${
+            className={`p-3 rounded-lg border text-xs font-mono flex items-center space-x-2 shrink-0 shadow-xs ${
               notification.type === 'success'
-                ? 'bg-emerald-950/60 border-emerald-800 text-emerald-300'
-                : 'bg-rose-950/60 border-rose-800 text-rose-300'
+                ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                : 'bg-rose-50 border-rose-300 text-rose-800'
             }`}
           >
             {notification.type === 'success' ? (
-              <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+              <Check className="w-4 h-4 text-emerald-600 shrink-0" />
             ) : (
-              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+              <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
             )}
-            <span>{notification.message}</span>
+            <span className="font-semibold">{notification.message}</span>
           </div>
         )}
 
         {/* Filter & Action Controls */}
-        <div className="flex flex-wrap items-center justify-between gap-2.5 p-3 rounded-xs bg-[#121212] border border-[#222] shrink-0 font-mono text-xs">
+        <div className="flex flex-wrap items-center justify-between gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200 shrink-0 font-mono text-xs shadow-xs">
           <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[280px]">
             {/* Search Input */}
             <div className="relative flex-1 min-w-[180px]">
-              <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-[#777]" />
+              <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 value={searchQuery}
@@ -208,7 +216,7 @@ export const RecordEditorModal: React.FC<RecordEditorModalProps> = ({ dataset, i
                   setPage(1);
                 }}
                 placeholder="Search values, equipment, timestamps..."
-                className="w-full pl-8 pr-3 py-1.5 rounded-xs bg-[#181818] border border-[#333] text-white focus:outline-none focus:border-[#F27D26]"
+                className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#0284C7] shadow-xs"
               />
             </div>
 
@@ -220,7 +228,7 @@ export const RecordEditorModal: React.FC<RecordEditorModalProps> = ({ dataset, i
                   setSelectedEquipment(e.target.value);
                   setPage(1);
                 }}
-                className="px-2.5 py-1.5 rounded-xs bg-[#181818] border border-[#333] text-white focus:outline-none focus:border-[#F27D26]"
+                className="px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-800 font-semibold focus:outline-none focus:border-[#0284C7] shadow-xs cursor-pointer"
               >
                 <option value="ALL">All Equipment Units</option>
                 {equipmentOptions.map((eq) => (
@@ -234,22 +242,22 @@ export const RecordEditorModal: React.FC<RecordEditorModalProps> = ({ dataset, i
             {/* Refresh Button */}
             <button
               onClick={loadRecords}
-              className="p-1.5 rounded-xs bg-[#181818] border border-[#333] text-[#AAA] hover:text-white cursor-pointer"
+              className="p-2 rounded-lg bg-white border border-slate-300 text-slate-700 hover:text-slate-900 hover:bg-slate-100 cursor-pointer transition-colors shadow-xs"
               title="Refresh Records"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin text-[#F27D26]' : ''}`} />
+              <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin text-[#0284C7]' : ''}`} />
             </button>
           </div>
 
           {/* Bulk Action Buttons */}
           {selectedRecordIds.size > 0 && (
             <div className="flex items-center space-x-2">
-              <span className="text-[#AAA] font-mono text-[11px]">
+              <span className="text-slate-600 font-mono text-[11px] font-semibold">
                 {selectedRecordIds.size} selected
               </span>
               <button
                 onClick={handleBulkDelete}
-                className="px-3 py-1.5 rounded-xs bg-rose-900/60 hover:bg-rose-900 text-rose-200 border border-rose-700 flex items-center space-x-1 cursor-pointer text-xs font-mono uppercase"
+                className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold flex items-center space-x-1 cursor-pointer text-xs font-mono uppercase shadow-sm transition-all"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span>Delete Selected</span>
@@ -259,19 +267,19 @@ export const RecordEditorModal: React.FC<RecordEditorModalProps> = ({ dataset, i
         </div>
 
         {/* Data Table */}
-        <div className="table-responsive-container flex-1 w-full max-w-full overflow-auto border border-[#222] rounded-xs bg-[#0E0E0E]">
+        <div className="table-responsive-container flex-1 w-full max-w-full overflow-auto border border-slate-200 rounded-xl bg-white shadow-sm">
           <table className="w-full text-left text-xs font-mono border-collapse min-w-[650px]">
-            <thead className="sticky top-0 bg-[#161616] text-[#AAA] border-b border-[#2A2A2A] z-10">
+            <thead className="sticky top-0 bg-slate-50 text-slate-700 border-b border-slate-200 z-10 font-semibold">
               <tr>
-                <th className="p-2 w-8 text-center">
+                <th className="p-2.5 w-8 text-center">
                   <input
                     type="checkbox"
                     checked={records.length > 0 && selectedRecordIds.size === records.length}
                     onChange={toggleSelectAll}
-                    className="accent-[#F27D26] cursor-pointer"
+                    className="accent-[#0284C7] cursor-pointer"
                   />
                 </th>
-                <th className="p-2 w-12 text-[#777]">#</th>
+                <th className="p-2.5 w-12 text-slate-500">#</th>
                 {displayColumns.slice(0, 8).map((col) => (
                   <th
                     key={col.name}
@@ -283,32 +291,32 @@ export const RecordEditorModal: React.FC<RecordEditorModalProps> = ({ dataset, i
                         setSortOrder('asc');
                       }
                     }}
-                    className="p-2 font-semibold text-white whitespace-nowrap cursor-pointer hover:bg-[#202020]"
+                    className="p-2.5 font-semibold text-slate-800 whitespace-nowrap cursor-pointer hover:bg-slate-100"
                   >
                     <div className="flex items-center space-x-1">
                       <span>{col.displayName || col.name}</span>
                       {sortBy === col.name && (
-                        <ArrowUpDown className="w-3 h-3 text-[#F27D26]" />
+                        <ArrowUpDown className="w-3 h-3 text-[#0284C7]" />
                       )}
                     </div>
                   </th>
                 ))}
-                <th className="p-2 text-right pr-4 text-[#888]">Actions</th>
+                <th className="p-2.5 text-right pr-4 text-slate-600">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1A1A1A]">
+            <tbody className="divide-y divide-slate-100">
               {isLoading ? (
                 <tr>
-                  <td colSpan={displayColumns.length + 3} className="p-8 text-center text-[#777]">
+                  <td colSpan={displayColumns.length + 3} className="p-8 text-center text-slate-500">
                     <div className="flex items-center justify-center space-x-2">
-                      <RefreshCw className="w-4 h-4 animate-spin text-[#F27D26]" />
+                      <RefreshCw className="w-4 h-4 animate-spin text-[#0284C7]" />
                       <span>Loading records from database...</span>
                     </div>
                   </td>
                 </tr>
               ) : records.length === 0 ? (
                 <tr>
-                  <td colSpan={displayColumns.length + 3} className="p-8 text-center text-[#777]">
+                  <td colSpan={displayColumns.length + 3} className="p-8 text-center text-slate-500">
                     No records found matching current query.
                   </td>
                 </tr>
@@ -320,19 +328,19 @@ export const RecordEditorModal: React.FC<RecordEditorModalProps> = ({ dataset, i
                   return (
                     <tr
                       key={record.id}
-                      className={`hover:bg-[#141414] transition-colors ${
-                        isSelected ? 'bg-[#F27D26]/5' : ''
+                      className={`hover:bg-slate-50/80 transition-colors ${
+                        isSelected ? 'bg-[#0284C7]/5' : ''
                       }`}
                     >
-                      <td className="p-2 text-center">
+                      <td className="p-2.5 text-center">
                         <input
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => toggleSelectRecord(record.id)}
-                          className="accent-[#F27D26] cursor-pointer"
+                          className="accent-[#0284C7] cursor-pointer"
                         />
                       </td>
-                      <td className="p-2 text-[#666]">{record.rowIndex || rIdx + 1}</td>
+                      <td className="p-2.5 text-slate-400 font-semibold">{record.rowIndex || rIdx + 1}</td>
 
                       {displayColumns.slice(0, 8).map((col) => {
                         const cellVal = isEditing
@@ -340,7 +348,7 @@ export const RecordEditorModal: React.FC<RecordEditorModalProps> = ({ dataset, i
                           : record.data[col.name];
 
                         return (
-                          <td key={col.name} className="p-2 whitespace-nowrap text-white">
+                          <td key={col.name} className="p-2.5 whitespace-nowrap text-slate-900">
                             {isEditing ? (
                               <input
                                 type={col.dataType === 'numeric' ? 'number' : 'text'}
@@ -355,7 +363,7 @@ export const RecordEditorModal: React.FC<RecordEditorModalProps> = ({ dataset, i
                                         : e.target.value,
                                   })
                                 }
-                                className="px-2 py-0.5 rounded-xs bg-[#202020] border border-[#444] text-white w-28 text-xs focus:outline-none focus:border-[#F27D26]"
+                                className="px-2 py-1 rounded-lg bg-white border border-slate-300 text-slate-900 w-28 text-xs focus:outline-none focus:border-[#0284C7] shadow-xs font-mono"
                               />
                             ) : (
                               <span>
@@ -366,39 +374,47 @@ export const RecordEditorModal: React.FC<RecordEditorModalProps> = ({ dataset, i
                         );
                       })}
 
-                      <td className="p-2 text-right pr-4 whitespace-nowrap">
+                      <td className="p-2.5 text-right pr-4 whitespace-nowrap">
                         {isEditing ? (
-                          <div className="flex items-center justify-end space-x-1.5">
+                          <div className="inline-flex items-center justify-end space-x-1.5">
                             <button
+                              type="button"
                               onClick={() => handleSaveEdit(record.id)}
-                              className="p-1 rounded-xs bg-emerald-900/70 hover:bg-emerald-800 text-emerald-300 cursor-pointer"
+                              className="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer transition-colors shadow-xs"
                               title="Save Record"
+                              aria-label="Save Record"
                             >
-                              <Save className="w-3.5 h-3.5" />
+                              <Save className="w-3.5 h-3.5 shrink-0" />
                             </button>
                             <button
+                              type="button"
                               onClick={handleCancelEdit}
-                              className="p-1 rounded-xs bg-[#222] hover:bg-[#333] text-[#AAA] cursor-pointer"
-                              title="Cancel"
+                              className="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 cursor-pointer transition-colors shadow-xs"
+                              title="Cancel Edit"
+                              aria-label="Cancel Edit"
                             >
-                              <X className="w-3.5 h-3.5" />
+                              <X className="w-3.5 h-3.5 shrink-0" />
                             </button>
                           </div>
                         ) : (
-                          <div className="flex items-center justify-end space-x-1.5">
+                          <div className="inline-flex items-center justify-end space-x-1.5">
                             <button
+                              type="button"
                               onClick={() => handleStartEdit(record)}
-                              className="p-1 rounded-xs bg-[#1C1C1C] hover:bg-[#2A2A2A] text-[#AAA] hover:text-white cursor-pointer"
+                              className="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-slate-100 border border-slate-300 hover:border-[#0284C7] text-[#0284C7] hover:bg-[#0284C7] hover:text-white cursor-pointer transition-colors shadow-xs"
                               title="Edit Record"
+                              aria-label="Edit Record"
                             >
-                              <Edit2 className="w-3.5 h-3.5" />
+                              <Edit2 className="w-3.5 h-3.5 shrink-0" />
                             </button>
                             <button
+                              type="button"
                               onClick={() => handleDeleteSingle(record.id)}
-                              className="p-1 rounded-xs bg-[#1C1C1C] hover:bg-rose-950 text-[#AAA] hover:text-rose-400 cursor-pointer"
+                              className="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-slate-100 border border-slate-300 hover:border-rose-600 text-rose-600 hover:bg-rose-600 hover:text-white cursor-pointer transition-colors shadow-xs"
                               title="Delete Record"
+                              aria-label="Delete Record"
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <Trash2 className="w-3.5 h-3.5 shrink-0" />
                             </button>
                           </div>
                         )}
@@ -412,28 +428,28 @@ export const RecordEditorModal: React.FC<RecordEditorModalProps> = ({ dataset, i
         </div>
 
         {/* Pagination & Footer */}
-        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 shrink-0 font-mono text-xs text-[#888] border-t border-[#222]">
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 shrink-0 font-mono text-xs text-slate-600 border-t border-slate-200">
           <div>
             Showing {(page - 1) * pageSize + 1} - {Math.min(page * pageSize, totalCount)} of{' '}
-            <strong className="text-white">{totalCount}</strong> records
+            <strong className="text-slate-900 font-bold">{totalCount}</strong> records
           </div>
 
           <div className="flex items-center space-x-1.5">
             <button
               onClick={() => setPage((p) => Math.max(p - 1, 1))}
               disabled={page === 1}
-              className="px-2.5 py-1 rounded-xs bg-[#181818] border border-[#333] text-white disabled:opacity-30 cursor-pointer flex items-center space-x-1"
+              className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 disabled:opacity-30 cursor-pointer flex items-center space-x-1 font-semibold shadow-xs transition-colors"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
               <span>Prev</span>
             </button>
-            <span className="px-2 text-white">
+            <span className="px-2 text-slate-900 font-bold">
               {page} / {totalPages}
             </span>
             <button
               onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
               disabled={page >= totalPages}
-              className="px-2.5 py-1 rounded-xs bg-[#181818] border border-[#333] text-white disabled:opacity-30 cursor-pointer flex items-center space-x-1"
+              className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 disabled:opacity-30 cursor-pointer flex items-center space-x-1 font-semibold shadow-xs transition-colors"
             >
               <span>Next</span>
               <ChevronRight className="w-3.5 h-3.5" />

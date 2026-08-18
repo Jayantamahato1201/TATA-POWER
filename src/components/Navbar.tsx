@@ -57,7 +57,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
   const datasetRef = useRef<HTMLDivElement | null>(null);
   const profileRef = useRef<HTMLDivElement | null>(null);
 
-  // Close dropdowns on outside click
+  // Close dropdowns on outside click or Escape key
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (alertsRef.current && !alertsRef.current.contains(e.target as Node)) {
@@ -70,8 +70,22 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
         setProfileDropdownOpen(false);
       }
     };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setAlertsDropdownOpen(false);
+        setDatasetDropdownOpen(false);
+        setProfileDropdownOpen(false);
+        setMobileMenuOpen(false);
+      }
+    };
+
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   const activeDataset = datasets.find((d) => d.id === selectedDatasetId) || datasets[0];

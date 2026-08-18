@@ -373,8 +373,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           ...authHeaders,
         },
       });
-      const data = await res.json();
-      if (res.ok) {
+      const data = await safeParseResponse<{ dataset?: any }>(res, {});
+      if (res.ok && data.dataset?.id) {
         setSelectedDatasetId(data.dataset.id);
         await refreshData();
       }
@@ -436,7 +436,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: JSON.stringify({ ids }),
       });
       if (res.ok) {
-        const data = await res.json();
+        const data = await safeParseResponse<{ clearedCount?: number }>(res, {});
         await fetchAlarms();
         return { success: true, clearedCount: data.clearedCount || 0 };
       }
@@ -454,7 +454,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: JSON.stringify(filter || {}),
       });
       if (res.ok) {
-        const data = await res.json();
+        const data = await safeParseResponse<{ clearedCount?: number }>(res, {});
         await fetchAlarms();
         return { success: true, clearedCount: data.clearedCount || 0 };
       }
@@ -565,8 +565,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: JSON.stringify({ widgets }),
       });
       if (res.ok) {
-        const data = await res.json();
-        setLayout(data.layout);
+        const data = await safeParseResponse<{ layout?: DashboardLayout }>(res, {});
+        if (data.layout) setLayout(data.layout);
         return true;
       }
       return false;
@@ -581,16 +581,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const replaceDataset = async (datasetId: string, file: File): Promise<{ success: boolean; error?: string }> => {
+    if (!datasetId) return { success: false, error: 'No dataset ID specified.' };
     setIsUploading(true);
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const res = await fetch(`/api/datasets/${datasetId}/replace`, {
+      const res = await fetch(`/api/datasets/${encodeURIComponent(datasetId)}/replace`, {
         method: 'POST',
         headers: authHeaders,
         body: formData,
       });
-      const data = await res.json();
+      const data = await safeParseResponse<{ error?: string }>(res, {});
       if (res.ok) {
         await refreshData();
         return { success: true };
@@ -609,17 +610,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     file: File,
     duplicateStrategy: 'skip' | 'overwrite' = 'skip'
   ): Promise<{ success: boolean; error?: string; added?: number; duplicatesSkipped?: number }> => {
+    if (!datasetId) return { success: false, error: 'No dataset ID specified.' };
     setIsUploading(true);
     try {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('duplicateStrategy', duplicateStrategy);
-      const res = await fetch(`/api/datasets/${datasetId}/append`, {
+      const res = await fetch(`/api/datasets/${encodeURIComponent(datasetId)}/append`, {
         method: 'POST',
         headers: authHeaders,
         body: formData,
       });
-      const data = await res.json();
+      const data = await safeParseResponse<{ added?: number; duplicatesSkipped?: number; error?: string }>(res, {});
       if (res.ok) {
         await refreshData();
         return {
@@ -638,8 +640,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updateDatasetMeta = async (datasetId: string, updates: Partial<Dataset>): Promise<boolean> => {
+    if (!datasetId) return false;
     try {
-      const res = await fetch(`/api/datasets/${datasetId}`, {
+      const res = await fetch(`/api/datasets/${encodeURIComponent(datasetId)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify(updates),
@@ -668,6 +671,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       offset?: number;
     }
   ): Promise<{ records: any[]; total: number }> => {
+    if (!datasetId || datasetId === 'undefined' || datasetId === 'null') {
+      return { records: [], total: 0 };
+    }
     try {
       const searchParams = new URLSearchParams();
       if (params?.search) searchParams.append('search', params.search);
@@ -680,17 +686,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (params?.offset !== undefined) searchParams.append('offset', String(params.offset));
 
       const queryStr = searchParams.toString() ? `?${searchParams.toString()}` : '';
-      const res = await fetch(`/api/datasets/${datasetId}/records${queryStr}`, {
+      const res = await fetch(`/api/datasets/${encodeURIComponent(datasetId)}/records${queryStr}`, {
         headers: authHeaders,
       });
-      if (res.ok) {
-        const data = await res.json();
-        return {
-          records: data.records || [],
-          total: data.pagination?.total || 0,
-        };
-      }
-      return { records: [], total: 0 };
+      const data = await safeParseResponse<{ records?: any[]; pagination?: { total?: number } }>(res, { records: [], pagination: { total: 0 } });
+      return {
+        records: data.records || [],
+        total: data.pagination?.total || (data.records ? data.records.length : 0),
+      };
     } catch (err) {
       console.error('Failed to fetch dataset records:', err);
       return { records: [], total: 0 };
@@ -701,8 +704,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     datasetId: string,
     data: Record<string, any>
   ): Promise<boolean> => {
+    if (!datasetId) return false;
     try {
-      const res = await fetch(`/api/datasets/${datasetId}/records`, {
+      const res = await fetch(`/api/datasets/${encodeURIComponent(datasetId)}/records`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({ data }),
@@ -723,8 +727,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     recordId: string,
     data: Record<string, any>
   ): Promise<boolean> => {
+    if (!datasetId || !recordId) return false;
     try {
-      const res = await fetch(`/api/datasets/${datasetId}/records/${recordId}`, {
+      const res = await fetch(`/api/datasets/${encodeURIComponent(datasetId)}/records/${encodeURIComponent(recordId)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({ data }),
@@ -741,8 +746,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteRecord = async (datasetId: string, recordId: string): Promise<boolean> => {
+    if (!datasetId || !recordId) return false;
     try {
-      const res = await fetch(`/api/datasets/${datasetId}/records/${recordId}`, {
+      const res = await fetch(`/api/datasets/${encodeURIComponent(datasetId)}/records/${encodeURIComponent(recordId)}`, {
         method: 'DELETE',
         headers: authHeaders,
       });
@@ -762,14 +768,15 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     action: 'delete' | 'update',
     payload: any
   ): Promise<{ success: boolean; affected: number }> => {
+    if (!datasetId) return { success: false, affected: 0 };
     try {
-      const res = await fetch(`/api/datasets/${datasetId}/records/bulk-update`, {
+      const res = await fetch(`/api/datasets/${encodeURIComponent(datasetId)}/records/bulk-update`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({ action, ...payload }),
       });
       if (res.ok) {
-        const data = await res.json();
+        const data = await safeParseResponse<{ affected?: number }>(res, {});
         await refreshData();
         return { success: true, affected: data.affected || 0 };
       }

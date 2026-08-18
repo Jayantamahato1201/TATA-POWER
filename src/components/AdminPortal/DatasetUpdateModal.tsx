@@ -113,23 +113,23 @@ export const DatasetUpdateModal: React.FC<DatasetUpdateModalProps> = ({ dataset,
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-      <div className="w-full max-w-xl p-6 sm:p-7 rounded-sm bg-[#0C0C0C] border border-[#262626] border-t-2 border-t-[#F27D26] shadow-2xl space-y-5 animate-in fade-in zoom-in-95 my-6">
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+      <div className="w-full max-w-xl p-6 sm:p-7 rounded-2xl bg-white border border-slate-200 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 my-6">
         {/* Header */}
-        <div className="flex justify-between items-start border-b border-[#222] pb-3">
+        <div className="flex justify-between items-start border-b border-slate-200 pb-3">
           <div>
-            <div className="inline-flex items-center space-x-2 text-xs font-mono text-[#F27D26] mb-0.5">
+            <div className="inline-flex items-center space-x-2 text-xs font-mono text-[#0284C7] mb-0.5 font-bold">
               <RefreshCw className="w-3.5 h-3.5" />
-              <span className="uppercase tracking-widest font-semibold">DATASET SYNCHRONIZATION</span>
+              <span className="uppercase tracking-widest">DATASET SYNCHRONIZATION</span>
             </div>
-            <h3 className="text-lg font-bold text-white uppercase font-mono tracking-tight flex items-center gap-2">
+            <h3 className="text-lg font-bold text-slate-900 uppercase font-sans tracking-tight flex items-center gap-2">
               <span>Update Dataset</span>
             </h3>
-            <p className="text-xs text-[#888] font-mono mt-0.5">
-              Target: <strong className="text-white">{dataset.name}</strong> ({dataset.totalRows} current records)
+            <p className="text-xs text-slate-500 font-mono mt-0.5">
+              Target: <strong className="text-slate-900">{dataset.name}</strong> ({dataset.totalRows} current records)
             </p>
           </div>
-          <button onClick={onClose} className="p-1 rounded-xs text-[#888] hover:text-white cursor-pointer">
+          <button onClick={onClose} className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -137,31 +137,31 @@ export const DatasetUpdateModal: React.FC<DatasetUpdateModalProps> = ({ dataset,
         {/* Status Toast */}
         {statusMessage && (
           <div
-            className={`p-3 rounded-xs border text-xs font-mono flex items-center space-x-2 ${
+            className={`p-3 rounded-lg border text-xs font-mono flex items-center space-x-2 shadow-xs ${
               statusMessage.type === 'success'
-                ? 'bg-emerald-950/60 border-emerald-800 text-emerald-300'
-                : 'bg-rose-950/60 border-rose-800 text-rose-300'
+                ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                : 'bg-rose-50 border-rose-300 text-rose-800'
             }`}
           >
             {statusMessage.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             ) : (
-              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+              <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
             )}
-            <span>{statusMessage.message}</span>
+            <span className="font-semibold">{statusMessage.message}</span>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Mode Selector */}
-          <div className="grid grid-cols-2 gap-2 p-1 bg-[#141414] rounded-xs border border-[#262626] font-mono text-xs">
+          <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl border border-slate-200 font-mono text-xs shadow-xs">
             <button
               type="button"
               onClick={() => setMode('append')}
-              className={`py-2 px-3 rounded-xs flex items-center justify-center space-x-2 cursor-pointer transition-all ${
+              className={`py-2 px-3 rounded-lg flex items-center justify-center space-x-2 cursor-pointer transition-all ${
                 mode === 'append'
-                  ? 'bg-[#F27D26] text-black font-bold shadow-sm'
-                  : 'text-[#888] hover:text-white'
+                  ? 'bg-[#0284C7] text-white font-bold shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
               }`}
             >
               <PlusCircle className="w-3.5 h-3.5" />
@@ -170,10 +170,10 @@ export const DatasetUpdateModal: React.FC<DatasetUpdateModalProps> = ({ dataset,
             <button
               type="button"
               onClick={() => setMode('replace')}
-              className={`py-2 px-3 rounded-xs flex items-center justify-center space-x-2 cursor-pointer transition-all ${
+              className={`py-2 px-3 rounded-lg flex items-center justify-center space-x-2 cursor-pointer transition-all ${
                 mode === 'replace'
-                  ? 'bg-rose-600 text-white font-bold shadow-sm'
-                  : 'text-[#888] hover:text-white'
+                  ? 'bg-rose-600 text-white font-bold shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
               }`}
             >
               <RefreshCw className="w-3.5 h-3.5" />
@@ -182,14 +182,14 @@ export const DatasetUpdateModal: React.FC<DatasetUpdateModalProps> = ({ dataset,
           </div>
 
           {/* Mode Descriptions */}
-          <div className="p-3 bg-[#111] rounded-xs border border-[#222] text-xs font-mono text-[#AAA]">
+          <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs font-mono text-slate-600 shadow-xs">
             {mode === 'append' ? (
               <p>
-                <strong className="text-white">Append Data:</strong> Adds new telemetry records to the existing dataset. Duplicate records will be automatically detected by fingerprint.
+                <strong className="text-slate-900">Append Data:</strong> Adds new telemetry records to the existing dataset. Duplicate records will be automatically detected by fingerprint.
               </p>
             ) : (
-              <p className="text-rose-300">
-                <strong className="text-rose-200">Replace Dataset:</strong> Completely replaces all {dataset.totalRows} existing records with the new file contents while preserving alarms and dashboard bindings.
+              <p className="text-rose-700">
+                <strong className="text-rose-900">Replace Dataset:</strong> Completely replaces all {dataset.totalRows} existing records with the new file contents while preserving alarms and dashboard bindings.
               </p>
             )}
           </div>
@@ -197,11 +197,11 @@ export const DatasetUpdateModal: React.FC<DatasetUpdateModalProps> = ({ dataset,
           {/* Duplicate Strategy for Append */}
           {mode === 'append' && (
             <div className="space-y-1 font-mono text-xs">
-              <label className="block text-[#AAA] uppercase">Duplicate Detection Handling</label>
+              <label className="block text-slate-700 uppercase font-semibold">Duplicate Detection Handling</label>
               <select
                 value={duplicateStrategy}
                 onChange={(e) => setDuplicateStrategy(e.target.value as any)}
-                className="w-full px-3 py-2 rounded-xs bg-[#141414] border border-[#333] text-white focus:outline-none focus:border-[#F27D26]"
+                className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 focus:outline-none focus:border-[#0284C7] shadow-xs cursor-pointer"
               >
                 <option value="skip">Skip Identical Duplicate Rows (Preserve Historical Original)</option>
                 <option value="overwrite">Overwrite Identical Rows with New Telemetry Values</option>
@@ -218,12 +218,12 @@ export const DatasetUpdateModal: React.FC<DatasetUpdateModalProps> = ({ dataset,
             onDragLeave={() => setIsDragOver(false)}
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
-            className={`p-6 rounded-xs border-2 border-dashed transition-all text-center flex flex-col items-center justify-center cursor-pointer ${
+            className={`p-6 rounded-xl border-2 border-dashed transition-all text-center flex flex-col items-center justify-center cursor-pointer shadow-xs ${
               isDragOver
-                ? 'border-[#F27D26] bg-[#F27D26]/10'
+                ? 'border-[#0284C7] bg-[#0284C7]/5'
                 : file
-                ? 'border-[#00FF41]/50 bg-[#00FF41]/5'
-                : 'border-[#333] bg-[#141414] hover:border-[#F27D26]/40'
+                ? 'border-emerald-500 bg-emerald-50/50'
+                : 'border-slate-300 bg-slate-50 hover:bg-slate-100 hover:border-slate-400'
             }`}
           >
             <input
@@ -236,57 +236,57 @@ export const DatasetUpdateModal: React.FC<DatasetUpdateModalProps> = ({ dataset,
 
             {file ? (
               <div className="space-y-1">
-                <CheckCircle2 className="w-8 h-8 text-[#00FF41] mx-auto" />
-                <div className="text-sm font-bold text-white font-mono">{file.name}</div>
-                <div className="text-xs text-[#888] font-mono">
+                <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto" />
+                <div className="text-sm font-bold text-slate-900 font-mono">{file.name}</div>
+                <div className="text-xs text-slate-500 font-mono">
                   {(file.size / 1024).toFixed(1)} KB | Click to select another file
                 </div>
               </div>
             ) : (
               <div className="space-y-2">
-                <FileSpreadsheet className="w-8 h-8 text-[#F27D26] mx-auto" />
-                <div className="text-sm font-semibold text-white uppercase font-mono">
+                <FileSpreadsheet className="w-8 h-8 text-[#0284C7] mx-auto" />
+                <div className="text-sm font-semibold text-slate-800 uppercase font-mono">
                   Select or drop new telemetry file
                 </div>
-                <div className="text-xs text-[#888] font-mono">CSV, XLSX, XLS</div>
+                <div className="text-xs text-slate-500 font-mono">CSV, XLSX, XLS</div>
               </div>
             )}
           </div>
 
           {/* Preview Details */}
           {isPreviewLoading && (
-            <div className="p-3 rounded-xs bg-[#141414] border border-[#222] text-center font-mono text-xs text-[#AAA] flex items-center justify-center space-x-2">
-              <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#F27D26]" />
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center font-mono text-xs text-slate-600 flex items-center justify-center space-x-2 shadow-xs">
+              <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#0284C7]" />
               <span>Analyzing records in uploaded file...</span>
             </div>
           )}
 
           {previewData && (
-            <div className="p-3 rounded-xs bg-[#141414] border border-[#222] font-mono text-xs space-y-1">
-              <div className="text-[#F27D26] font-semibold uppercase">Inspection Summary:</div>
-              <div className="text-[#CCC]">
-                <strong>{previewData.totalRows}</strong> candidate rows detected across{' '}
-                <strong>{previewData.columns.length}</strong> columns.
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 font-mono text-xs space-y-1 shadow-xs">
+              <div className="text-[#0284C7] font-bold uppercase">Inspection Summary:</div>
+              <div className="text-slate-700">
+                <strong className="text-slate-900">{previewData.totalRows}</strong> candidate rows detected across{' '}
+                <strong className="text-slate-900">{previewData.columns.length}</strong> columns.
               </div>
             </div>
           )}
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-end space-x-2 pt-3 border-t border-[#222]">
+          <div className="flex items-center justify-end space-x-2 pt-3 border-t border-slate-200">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xs bg-[#181818] border border-[#333] text-[#888] hover:text-white text-xs font-mono uppercase cursor-pointer"
+              className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 text-xs font-mono font-bold uppercase cursor-pointer transition-colors shadow-xs"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isUploading || !file}
-              className={`px-5 py-2 rounded-xs font-bold text-xs uppercase font-mono tracking-wider cursor-pointer disabled:opacity-40 flex items-center gap-1.5 ${
+              className={`px-5 py-2 rounded-lg font-bold text-xs uppercase font-mono tracking-wider cursor-pointer disabled:opacity-40 flex items-center gap-1.5 shadow-sm transition-all ${
                 mode === 'replace'
-                  ? 'bg-rose-600 hover:bg-rose-500 text-white'
-                  : 'bg-[#F27D26] hover:bg-[#ff8e38] text-black shadow-[0_0_15px_rgba(242,125,38,0.3)]'
+                  ? 'bg-rose-600 hover:bg-rose-700 text-white'
+                  : 'bg-[#0284C7] hover:bg-[#0369A1] text-white'
               }`}
             >
               {isUploading ? (

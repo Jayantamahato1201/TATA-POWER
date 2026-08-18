@@ -23,6 +23,12 @@ import {
   Sparkles,
   Radio,
   Layers,
+  Activity,
+  RefreshCw,
+  Clock,
+  UserCheck,
+  FileText,
+  Search,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
@@ -60,6 +66,8 @@ export const AdminPortalView: React.FC = () => {
   });
 
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
+  const [isLoadingLogs, setIsLoadingLogs] = useState(false);
+  const [logFilterQuery, setLogFilterQuery] = useState('');
 
   // Update AudioContext status indicator
   useEffect(() => {
@@ -115,6 +123,7 @@ export const AdminPortalView: React.FC = () => {
 
   // Fetch audit logs
   const fetchAuditLogs = async () => {
+    setIsLoadingLogs(true);
     try {
       const res = await fetch('/api/users/logs', {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -125,6 +134,8 @@ export const AdminPortalView: React.FC = () => {
       }
     } catch (err) {
       console.error('Error fetching audit logs:', err);
+    } finally {
+      setIsLoadingLogs(false);
     }
   };
 
@@ -151,6 +162,7 @@ export const AdminPortalView: React.FC = () => {
         setIsCreatingUser(false);
         setNewUser({ username: '', password: '', name: '', role: 'OPERATOR' });
         fetchUsers();
+        fetchAuditLogs();
       } else {
         const err = await res.json();
         alert(err.error || 'Failed to create user');
@@ -169,6 +181,7 @@ export const AdminPortalView: React.FC = () => {
       });
       if (res.ok) {
         fetchUsers();
+        fetchAuditLogs();
       }
     } catch (err) {
       console.error('Error deleting user:', err);
@@ -186,33 +199,44 @@ export const AdminPortalView: React.FC = () => {
     updateDashboardLayout(updated);
   };
 
+  const filteredLogs = auditLogs.filter((log) => {
+    if (!logFilterQuery) return true;
+    const query = logFilterQuery.toLowerCase();
+    return (
+      (log.action && log.action.toLowerCase().includes(query)) ||
+      (log.userName && log.userName.toLowerCase().includes(query)) ||
+      (log.username && log.username.toLowerCase().includes(query)) ||
+      (log.details && JSON.stringify(log.details).toLowerCase().includes(query))
+    );
+  });
+
   return (
-    <div id="admin-portal-page" className="py-6 space-y-8 pb-16">
+    <div id="admin-portal-page" className="py-6 space-y-6 pb-16 max-w-7xl mx-auto px-2 sm:px-4">
       {/* HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
         <div>
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-xs bg-[#111] border-l-2 border-l-[#F27D26] border-y border-r border-[#222] text-[#F27D26] text-xs font-mono mb-2">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#0284C7]/10 border border-[#0284C7]/25 text-[#0284C7] text-xs font-mono mb-2">
             <Shield className="w-3.5 h-3.5" />
             <span className="uppercase tracking-widest font-semibold">OPERATIONAL SECURITY & CONFIGURATION</span>
           </div>
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight uppercase">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight uppercase font-sans">
             {isAdmin ? 'Admin Portal & RBAC Control' : 'Staff Operations Portal'}
           </h2>
-          <p className="text-sm text-[#AAA] mt-1 font-light">
-            Access management, customizable layout configurations, and system audit monitoring.
+          <p className="text-sm text-slate-600 mt-1 font-normal">
+            Access management, customizable layout configurations, and system audit monitoring for Tata Power Jojobera.
           </p>
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
           {isAdmin && (
             <button
               onClick={() => {
                 window.open('/api/export/backup/json', '_blank');
               }}
-              className="px-3.5 py-2 rounded-xs bg-[#111] hover:bg-[#1a1a1a] text-[#AAA] hover:text-white border border-[#333] text-xs font-mono flex items-center space-x-1.5 cursor-pointer uppercase tracking-wider"
+              className="px-3.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-300 text-xs font-mono flex items-center space-x-1.5 cursor-pointer uppercase tracking-wider transition-colors shadow-xs"
             >
-              <Download className="w-3.5 h-3.5" />
+              <Download className="w-3.5 h-3.5 text-[#0284C7]" />
               <span>Export System Backup</span>
             </button>
           )}
@@ -220,7 +244,7 @@ export const AdminPortalView: React.FC = () => {
           {isAdmin && (
             <button
               onClick={() => setIsCreatingUser(true)}
-              className="px-4 py-2 rounded-xs bg-[#F27D26] hover:bg-[#ff8e38] text-black font-bold text-xs uppercase font-mono tracking-wider flex items-center space-x-1.5 cursor-pointer shadow-[0_0_15px_rgba(242,125,38,0.3)]"
+              className="px-4 py-2 rounded-lg bg-[#0284C7] hover:bg-[#0369A1] text-white font-bold text-xs uppercase font-mono tracking-wider flex items-center space-x-1.5 cursor-pointer shadow-sm transition-all"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" />
               <span>Add Staff Account</span>
@@ -230,118 +254,118 @@ export const AdminPortalView: React.FC = () => {
       </div>
 
       {/* TABS */}
-      <div className="flex items-center border-b border-[#222] pb-2 space-x-2 sm:space-x-4 overflow-x-auto">
+      <div className="flex items-center border-b border-slate-200 pb-2 space-x-2 sm:space-x-3 overflow-x-auto w-full max-w-full">
         <button
-          id="admin-tab-dashboard"
-          onClick={() => setActiveTab('dashboard')}
-          className={`pb-2 text-xs font-mono uppercase tracking-wider font-semibold transition-all border-b-2 cursor-pointer flex items-center space-x-2 shrink-0 ${
-            activeTab === 'dashboard'
-              ? 'border-[#F27D26] text-[#F27D26]'
-              : 'border-transparent text-[#888] hover:text-white'
+          id="admin-tab-thresholds"
+          onClick={() => setActiveTab('thresholds')}
+          className={`pb-2.5 px-3 text-xs font-mono uppercase tracking-wider font-semibold transition-all border-b-2 cursor-pointer flex items-center space-x-2 shrink-0 ${
+            activeTab === 'thresholds'
+              ? 'border-[#0284C7] text-[#0284C7] font-bold'
+              : 'border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300'
           }`}
         >
-          <Sliders className="w-4 h-4 text-[#F27D26]" />
-          <span>Dashboard</span>
+          <Bell className="w-4 h-4 text-[#0284C7]" />
+          <span>Thresholds & Alarms</span>
         </button>
 
         <button
           id="admin-tab-datasets"
           onClick={() => setActiveTab('datasets')}
-          className={`pb-2 text-xs font-mono uppercase tracking-wider font-semibold transition-all border-b-2 cursor-pointer flex items-center space-x-2 shrink-0 ${
+          className={`pb-2.5 px-3 text-xs font-mono uppercase tracking-wider font-semibold transition-all border-b-2 cursor-pointer flex items-center space-x-2 shrink-0 ${
             activeTab === 'datasets'
-              ? 'border-[#F27D26] text-[#F27D26]'
-              : 'border-transparent text-[#888] hover:text-white'
+              ? 'border-[#0284C7] text-[#0284C7] font-bold'
+              : 'border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300'
           }`}
         >
-          <Database className="w-4 h-4 text-[#F27D26]" />
+          <Database className="w-4 h-4 text-[#0284C7]" />
           <span>Datasets</span>
         </button>
 
         <button
           id="admin-tab-metrics"
           onClick={() => setActiveTab('metrics')}
-          className={`pb-2 text-xs font-mono uppercase tracking-wider font-semibold transition-all border-b-2 cursor-pointer flex items-center space-x-2 shrink-0 ${
+          className={`pb-2.5 px-3 text-xs font-mono uppercase tracking-wider font-semibold transition-all border-b-2 cursor-pointer flex items-center space-x-2 shrink-0 ${
             activeTab === 'metrics'
-              ? 'border-[#F27D26] text-[#F27D26]'
-              : 'border-transparent text-[#888] hover:text-white'
+              ? 'border-[#0284C7] text-[#0284C7] font-bold'
+              : 'border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300'
           }`}
         >
-          <Layers className="w-4 h-4 text-[#F27D26]" />
+          <Layers className="w-4 h-4 text-[#0284C7]" />
           <span>Metrics</span>
         </button>
 
         <button
-          id="admin-tab-thresholds"
-          onClick={() => setActiveTab('thresholds')}
-          className={`pb-2 text-xs font-mono uppercase tracking-wider font-semibold transition-all border-b-2 cursor-pointer flex items-center space-x-2 shrink-0 ${
-            activeTab === 'thresholds'
-              ? 'border-[#F27D26] text-[#F27D26]'
-              : 'border-transparent text-[#888] hover:text-white'
+          id="admin-tab-dashboard"
+          onClick={() => setActiveTab('dashboard')}
+          className={`pb-2.5 px-3 text-xs font-mono uppercase tracking-wider font-semibold transition-all border-b-2 cursor-pointer flex items-center space-x-2 shrink-0 ${
+            activeTab === 'dashboard'
+              ? 'border-[#0284C7] text-[#0284C7] font-bold'
+              : 'border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300'
           }`}
         >
-          <Bell className="w-4 h-4 text-[#F27D26]" />
-          <span>Thresholds & Alarms</span>
+          <Sliders className="w-4 h-4 text-[#0284C7]" />
+          <span>Dashboard Specs</span>
         </button>
 
         {isAdmin && (
           <button
             id="admin-tab-users"
             onClick={() => setActiveTab('users')}
-            className={`pb-2 text-xs font-mono uppercase tracking-wider font-semibold transition-all border-b-2 cursor-pointer flex items-center space-x-2 shrink-0 ${
+            className={`pb-2.5 px-3 text-xs font-mono uppercase tracking-wider font-semibold transition-all border-b-2 cursor-pointer flex items-center space-x-2 shrink-0 ${
               activeTab === 'users'
-                ? 'border-[#F27D26] text-[#F27D26]'
-                : 'border-transparent text-[#888] hover:text-white'
+                ? 'border-[#0284C7] text-[#0284C7] font-bold'
+                : 'border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300'
             }`}
           >
-            <Users className="w-4 h-4" />
-            <span>Users ({users.length})</span>
+            <Users className="w-4 h-4 text-[#0284C7]" />
+            <span>Staff Users ({users.length})</span>
           </button>
         )}
 
         <button
           id="admin-tab-audit"
           onClick={() => setActiveTab('audit')}
-          className={`pb-2 text-xs font-mono uppercase tracking-wider font-semibold transition-all border-b-2 cursor-pointer flex items-center space-x-2 shrink-0 ${
+          className={`pb-2.5 px-3 text-xs font-mono uppercase tracking-wider font-semibold transition-all border-b-2 cursor-pointer flex items-center space-x-2 shrink-0 ${
             activeTab === 'audit'
-              ? 'border-[#F27D26] text-[#F27D26]'
-              : 'border-transparent text-[#888] hover:text-white'
+              ? 'border-[#0284C7] text-[#0284C7] font-bold'
+              : 'border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300'
           }`}
         >
-          <Shield className="w-4 h-4" />
-          <span>Activity Logs</span>
+          <Activity className="w-4 h-4 text-[#0284C7]" />
+          <span>Activity Logs ({auditLogs.length})</span>
         </button>
 
         <button
           id="admin-tab-settings"
           onClick={() => setActiveTab('settings')}
-          className={`pb-2 text-xs font-mono uppercase tracking-wider font-semibold transition-all border-b-2 cursor-pointer flex items-center space-x-2 shrink-0 ${
+          className={`pb-2.5 px-3 text-xs font-mono uppercase tracking-wider font-semibold transition-all border-b-2 cursor-pointer flex items-center space-x-2 shrink-0 ${
             activeTab === 'settings'
-              ? 'border-[#F27D26] text-[#F27D26]'
-              : 'border-transparent text-[#888] hover:text-white'
+              ? 'border-[#0284C7] text-[#0284C7] font-bold'
+              : 'border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300'
           }`}
         >
           {audioSettings.masterEnabled ? (
-            <Volume2 className="w-4 h-4 text-[#00FF41]" />
+            <Volume2 className="w-4 h-4 text-emerald-600" />
           ) : (
-            <VolumeX className="w-4 h-4 text-rose-400" />
+            <VolumeX className="w-4 h-4 text-rose-600" />
           )}
-          <span>Settings</span>
+          <span>Audio Engine</span>
           <span
-            className={`px-1.5 py-0.2 text-[9px] font-mono rounded-xs font-bold ${
+            className={`px-1.5 py-0.5 text-[9px] font-mono rounded font-bold ${
               audioSettings.masterEnabled
-                ? 'bg-[#00FF41]/15 text-[#00FF41] border border-[#00FF41]/30'
-                : 'bg-rose-950/40 text-rose-400 border border-rose-800'
+                ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                : 'bg-rose-100 text-rose-800 border border-rose-300'
             }`}
           >
-            {audioSettings.masterEnabled ? 'ACTIVE' : 'MUTED'}
+            {audioSettings.masterEnabled ? 'ARMED' : 'MUTED'}
           </span>
         </button>
       </div>
 
       {/* SUCCESS / SAVED BANNER */}
       {audioSavedBanner && (
-        <div className="p-3 rounded-xs bg-[#00FF41]/10 border border-[#00FF41]/40 text-[#00FF41] flex items-center space-x-2 text-xs font-mono animate-in fade-in">
-          <CheckCircle2 className="w-4 h-4 shrink-0" />
+        <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-300 text-emerald-800 flex items-center space-x-2 text-xs font-mono animate-in fade-in shadow-xs">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>Audio Alert configuration saved & synchronized with browser audio synthesizer.</span>
         </div>
       )}
@@ -364,31 +388,140 @@ export const AdminPortalView: React.FC = () => {
         <AdminMetricManagementPanel />
       )}
 
+      {/* TAB: ACTIVITY LOGS & AUDIT TRAIL */}
+      {activeTab === 'audit' && (
+        <div id="admin-activity-logs-panel" className="space-y-4">
+          <div className="p-6 rounded-xl bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h3 className="text-base font-bold text-slate-900 font-mono uppercase tracking-tight flex items-center space-x-2">
+                <Shield className="w-4 h-4 text-[#0284C7]" />
+                <span>Administrative & Security Audit Trail</span>
+              </h3>
+              <p className="text-xs text-slate-600 mt-1 font-normal">
+                Chronological record of staff actions, alarm threshold adjustments, and operational events.
+              </p>
+            </div>
+
+            <div className="flex items-center space-x-3">
+              <div className="relative">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Filter logs..."
+                  value={logFilterQuery}
+                  onChange={(e) => setLogFilterQuery(e.target.value)}
+                  className="pl-8 pr-3 py-1.5 rounded-lg bg-white border border-slate-300 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20 font-mono w-48 sm:w-64"
+                />
+              </div>
+
+              <button
+                onClick={fetchAuditLogs}
+                disabled={isLoadingLogs}
+                className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-300 text-xs font-mono flex items-center space-x-1.5 cursor-pointer transition-colors shadow-xs"
+                title="Refresh Activity Logs"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 text-[#0284C7] ${isLoadingLogs ? 'animate-spin' : ''}`} />
+                <span>Refresh</span>
+              </button>
+            </div>
+          </div>
+
+          {filteredLogs.length > 0 ? (
+            <div className="table-responsive-container rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+              <table className="w-full text-left text-xs font-mono min-w-[700px]">
+                <thead className="bg-slate-50 text-slate-700 border-b border-slate-200 uppercase tracking-wider font-semibold">
+                  <tr>
+                    <th className="p-4">Timestamp</th>
+                    <th className="p-4">Staff User</th>
+                    <th className="p-4">Action / Event</th>
+                    <th className="p-4">Details / Target</th>
+                    <th className="p-4 text-right">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredLogs.map((log, idx) => (
+                    <tr key={log.id || idx} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="p-4 text-slate-600 whitespace-nowrap">
+                        <div className="flex items-center space-x-2">
+                          <Clock className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{new Date(log.timestamp || log.createdAt || Date.now()).toLocaleString()}</span>
+                        </div>
+                      </td>
+                      <td className="p-4 font-semibold text-slate-900">
+                        <div className="flex items-center space-x-1.5">
+                          <UserCheck className="w-3.5 h-3.5 text-[#0284C7]" />
+                          <span>{log.userName || log.username || 'System Administrator'}</span>
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-[#0284C7]/10 text-[#0284C7] border border-[#0284C7]/30">
+                          {log.action || log.event || 'AUDIT_LOG'}
+                        </span>
+                      </td>
+                      <td className="p-4 text-slate-600 max-w-xs truncate">
+                        {typeof log.details === 'object'
+                          ? JSON.stringify(log.details)
+                          : log.details || log.target || 'Operation executed'}
+                      </td>
+                      <td className="p-4 text-right">
+                        <span className="inline-flex items-center space-x-1 text-emerald-600 font-semibold text-[11px]">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>Logged</span>
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="p-12 rounded-xl bg-white border border-slate-200 text-center space-y-4 shadow-sm">
+              <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center mx-auto text-[#0284C7]">
+                <Shield className="w-6 h-6" />
+              </div>
+              <div className="space-y-1 max-w-md mx-auto">
+                <h4 className="text-base font-bold text-slate-900 font-mono">No Activity Recorded Yet</h4>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Administrative actions, rule changes, dataset ingestions, and operational security events will appear here automatically as they occur.
+                </p>
+              </div>
+              <button
+                onClick={fetchAuditLogs}
+                className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-mono inline-flex items-center space-x-2 cursor-pointer transition-colors border border-slate-300 shadow-xs"
+              >
+                <RefreshCw className="w-3.5 h-3.5 text-[#0284C7]" />
+                <span>Check for Updates</span>
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* TAB: SETTINGS & AUDIO ALERTS */}
       {activeTab === 'settings' && (
         <div id="admin-audio-settings-panel" className="space-y-6">
           {/* Main Master Toggle Banner */}
-          <div className="p-5 rounded-sm bg-[#0A0A0A] border border-[#222] shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="p-6 rounded-xl bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1">
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-3">
                 <div
-                  className={`p-2 rounded-xs ${
+                  className={`p-2.5 rounded-lg ${
                     audioSettings.masterEnabled
-                      ? 'bg-[#00FF41]/15 text-[#00FF41] border border-[#00FF41]/30'
-                      : 'bg-rose-950/40 text-rose-400 border border-rose-800'
+                      ? 'bg-emerald-100 text-emerald-700 border border-emerald-300'
+                      : 'bg-rose-100 text-rose-700 border border-rose-300'
                   }`}
                 >
-                  {audioSettings.masterEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+                  {audioSettings.masterEnabled ? <Volume2 className="w-6 h-6" /> : <VolumeX className="w-6 h-6 text-rose-600" />}
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white font-mono uppercase tracking-tight">
+                  <h3 className="text-base font-bold text-slate-900 font-mono uppercase tracking-tight">
                     Browser Audio Alarm Engine
                   </h3>
                   <div className="flex items-center space-x-2 mt-0.5 text-xs font-mono">
-                    <span className="text-[#888]">Master Acoustic Status:</span>
+                    <span className="text-slate-600">Master Acoustic Status:</span>
                     <span
                       className={`font-bold ${
-                        audioSettings.masterEnabled ? 'text-[#00FF41]' : 'text-rose-400'
+                        audioSettings.masterEnabled ? 'text-emerald-700' : 'text-rose-700'
                       }`}
                     >
                       {audioSettings.masterEnabled ? 'ENABLED (ARMED)' : 'MUTED (DISABLED)'}
@@ -396,7 +529,7 @@ export const AdminPortalView: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <p className="text-xs text-[#888] font-light max-w-2xl pt-1">
+              <p className="text-xs text-slate-600 font-normal max-w-2xl pt-1">
                 Enables or disables native Web Audio synthesizer alarms in this browser for Critical breaches and Warning deviations.
               </p>
             </div>
@@ -406,10 +539,10 @@ export const AdminPortalView: React.FC = () => {
               <button
                 id="btn-toggle-master-audio"
                 onClick={() => handleAudioSettingToggle('masterEnabled', !audioSettings.masterEnabled)}
-                className={`px-5 py-2.5 rounded-xs font-bold text-xs uppercase font-mono tracking-wider transition-all flex items-center space-x-2 cursor-pointer shadow-lg ${
+                className={`px-5 py-2.5 rounded-lg font-bold text-xs uppercase font-mono tracking-wider transition-all flex items-center space-x-2 cursor-pointer shadow-sm ${
                   audioSettings.masterEnabled
-                    ? 'bg-[#00FF41] hover:bg-[#00e63a] text-black shadow-[0_0_15px_rgba(0,255,65,0.25)]'
-                    : 'bg-rose-600 hover:bg-rose-500 text-white shadow-[0_0_15px_rgba(225,29,72,0.3)]'
+                    ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20'
+                    : 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/20'
                 }`}
               >
                 {audioSettings.masterEnabled ? (
@@ -432,22 +565,22 @@ export const AdminPortalView: React.FC = () => {
             {/* Setting 1: Critical Alarms Audio */}
             <div
               id="card-setting-critical-audio"
-              className={`p-5 rounded-sm bg-[#0A0A0A] border transition-all space-y-4 ${
+              className={`p-6 rounded-xl bg-white border transition-all space-y-4 shadow-sm ${
                 audioSettings.criticalAudioEnabled && audioSettings.masterEnabled
-                  ? 'border-rose-800/80 border-l-4 border-l-rose-500 shadow-[0_0_20px_rgba(244,63,94,0.08)]'
-                  : 'border-[#222] opacity-75'
+                  ? 'border-rose-300 border-l-4 border-l-rose-500 shadow-rose-500/5'
+                  : 'border-slate-200 opacity-90'
               }`}
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className="p-2.5 rounded-xs bg-rose-950/60 border border-rose-800 text-rose-400">
+                  <div className="p-2.5 rounded-lg bg-rose-100 border border-rose-200 text-rose-600">
                     <AlertTriangle className="w-5 h-5 animate-pulse" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-white font-mono uppercase">
+                    <h4 className="text-sm font-bold text-slate-900 font-mono uppercase">
                       Critical Alarms Audio
                     </h4>
-                    <span className="text-[11px] font-mono text-rose-400 font-semibold">
+                    <span className="text-[11px] font-mono text-rose-600 font-semibold">
                       Severity: CRITICAL / HIGH EMERGENCY
                     </span>
                   </div>
@@ -461,30 +594,30 @@ export const AdminPortalView: React.FC = () => {
                       !audioSettings.criticalAudioEnabled
                     )
                   }
-                  className={`px-3 py-1.5 rounded-xs text-xs font-mono uppercase tracking-wider font-bold transition-all cursor-pointer border ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono uppercase tracking-wider font-bold transition-all cursor-pointer border ${
                     audioSettings.criticalAudioEnabled
-                      ? 'bg-rose-600 text-white border-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.3)]'
-                      : 'bg-[#111] text-[#777] border-[#333]'
+                      ? 'bg-rose-600 text-white border-rose-600 shadow-xs'
+                      : 'bg-slate-100 text-slate-600 border-slate-300 hover:bg-slate-200'
                   }`}
                 >
                   {audioSettings.criticalAudioEnabled ? 'ENABLED' : 'DISABLED'}
                 </button>
               </div>
 
-              <p className="text-xs text-[#999] leading-relaxed font-light">
+              <p className="text-xs text-slate-600 leading-relaxed font-normal">
                 Generates a high-urgency pulsating dual-tone siren when critical boiler, turbine, or plant telemetry breaches critical safety limits (e.g., &gt; 35°C or emergency threshold rules).
               </p>
 
-              <div className="pt-2 border-t border-[#222] flex items-center justify-between">
-                <div className="text-[11px] font-mono text-[#777]">
-                  Active Criticals: <span className="text-rose-400 font-bold">{alarmSummary.critical}</span>
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                <div className="text-[11px] font-mono text-slate-600">
+                  Active Criticals: <span className="text-rose-600 font-bold">{alarmSummary.critical}</span>
                 </div>
 
                 <button
                   id="btn-test-critical-sound"
                   onClick={() => handleTestSound('CRITICAL')}
-                  className={`px-3.5 py-1.5 rounded-xs bg-[#111] hover:bg-rose-950/40 text-rose-300 hover:text-white border border-rose-800/60 text-xs font-mono flex items-center space-x-1.5 cursor-pointer uppercase transition-all ${
-                    audioTestingState === 'CRITICAL' ? 'ring-2 ring-rose-500 bg-rose-950' : ''
+                  className={`px-3.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-mono flex items-center space-x-1.5 cursor-pointer uppercase transition-all shadow-xs ${
+                    audioTestingState === 'CRITICAL' ? 'ring-2 ring-rose-500 bg-rose-100' : ''
                   }`}
                 >
                   <Play className={`w-3.5 h-3.5 ${audioTestingState === 'CRITICAL' ? 'animate-spin' : ''}`} />
@@ -496,22 +629,22 @@ export const AdminPortalView: React.FC = () => {
             {/* Setting 2: Warning Alarms Audio */}
             <div
               id="card-setting-warning-audio"
-              className={`p-5 rounded-sm bg-[#0A0A0A] border transition-all space-y-4 ${
+              className={`p-6 rounded-xl bg-white border transition-all space-y-4 shadow-sm ${
                 audioSettings.warningAudioEnabled && audioSettings.masterEnabled
-                  ? 'border-amber-700/80 border-l-4 border-l-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.08)]'
-                  : 'border-[#222] opacity-75'
+                  ? 'border-amber-300 border-l-4 border-l-amber-500 shadow-amber-500/5'
+                  : 'border-slate-200 opacity-90'
               }`}
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className="p-2.5 rounded-xs bg-amber-950/60 border border-amber-800 text-amber-400">
+                  <div className="p-2.5 rounded-lg bg-amber-100 border border-amber-200 text-amber-600">
                     <Bell className="w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-white font-mono uppercase">
+                    <h4 className="text-sm font-bold text-slate-900 font-mono uppercase">
                       Warning Alarms Audio
                     </h4>
-                    <span className="text-[11px] font-mono text-amber-400 font-semibold">
+                    <span className="text-[11px] font-mono text-amber-600 font-semibold">
                       Severity: WARNING / ADVISORY
                     </span>
                   </div>
@@ -525,30 +658,30 @@ export const AdminPortalView: React.FC = () => {
                       !audioSettings.warningAudioEnabled
                     )
                   }
-                  className={`px-3 py-1.5 rounded-xs text-xs font-mono uppercase tracking-wider font-bold transition-all cursor-pointer border ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono uppercase tracking-wider font-bold transition-all cursor-pointer border ${
                     audioSettings.warningAudioEnabled
-                      ? 'bg-amber-500 text-black border-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.3)]'
-                      : 'bg-[#111] text-[#777] border-[#333]'
+                      ? 'bg-amber-500 text-slate-950 border-amber-500 font-bold shadow-xs'
+                      : 'bg-slate-100 text-slate-600 border-slate-300 hover:bg-slate-200'
                   }`}
                 >
                   {audioSettings.warningAudioEnabled ? 'ENABLED' : 'DISABLED'}
                 </button>
               </div>
 
-              <p className="text-xs text-[#999] leading-relaxed font-light">
+              <p className="text-xs text-slate-600 leading-relaxed font-normal">
                 Generates a moderate harmonic dual-chime for advisory warnings and early operational temperature/pressure deviations before reaching critical limits.
               </p>
 
-              <div className="pt-2 border-t border-[#222] flex items-center justify-between">
-                <div className="text-[11px] font-mono text-[#777]">
-                  Active Warnings: <span className="text-amber-400 font-bold">{alarmSummary.warning}</span>
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                <div className="text-[11px] font-mono text-slate-600">
+                  Active Warnings: <span className="text-amber-600 font-bold">{alarmSummary.warning}</span>
                 </div>
 
                 <button
                   id="btn-test-warning-sound"
                   onClick={() => handleTestSound('WARNING')}
-                  className={`px-3.5 py-1.5 rounded-xs bg-[#111] hover:bg-amber-950/40 text-amber-300 hover:text-white border border-amber-800/60 text-xs font-mono flex items-center space-x-1.5 cursor-pointer uppercase transition-all ${
-                    audioTestingState === 'WARNING' ? 'ring-2 ring-amber-500 bg-amber-950' : ''
+                  className={`px-3.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-mono flex items-center space-x-1.5 cursor-pointer uppercase transition-all shadow-xs ${
+                    audioTestingState === 'WARNING' ? 'ring-2 ring-amber-500 bg-amber-100' : ''
                   }`}
                 >
                   <Play className={`w-3.5 h-3.5 ${audioTestingState === 'WARNING' ? 'animate-spin' : ''}`} />
@@ -559,36 +692,36 @@ export const AdminPortalView: React.FC = () => {
           </div>
 
           {/* Audio Tuning & Playback Configuration Card */}
-          <div className="p-6 rounded-sm bg-[#0A0A0A] border border-[#222] shadow-xl space-y-6">
-            <div className="flex items-center justify-between border-b border-[#222] pb-3">
+          <div className="p-6 rounded-xl bg-white border border-slate-200 shadow-sm space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 pb-4 gap-3">
               <div>
-                <h4 className="text-sm font-bold text-white font-mono uppercase">
+                <h4 className="text-sm font-bold text-slate-900 font-mono uppercase">
                   Acoustic Synthesis & Playback Tuning
                 </h4>
-                <p className="text-xs text-[#888] font-light mt-0.5">
+                <p className="text-xs text-slate-600 font-normal mt-0.5">
                   Adjust volume levels, acoustic sound profiles, and re-trigger intervals
                 </p>
               </div>
 
               <button
                 onClick={handleResetAudioDefaults}
-                className="px-3 py-1.5 rounded-xs bg-[#111] hover:bg-[#1a1a1a] text-[#888] hover:text-white border border-[#333] text-xs font-mono flex items-center space-x-1.5 cursor-pointer"
+                className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-300 text-xs font-mono flex items-center space-x-1.5 cursor-pointer transition-colors shadow-xs"
                 title="Reset to Factory Defaults"
               >
-                <RotateCcw className="w-3.5 h-3.5" />
+                <RotateCcw className="w-3.5 h-3.5 text-[#0284C7]" />
                 <span>Reset Defaults</span>
               </button>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-xs font-mono">
               {/* Control 1: Master Volume */}
-              <div className="space-y-3 p-4 rounded-xs bg-[#111] border border-[#222]">
+              <div className="space-y-3 p-4 rounded-lg bg-slate-50 border border-slate-200">
                 <div className="flex justify-between items-center">
-                  <span className="text-[#AAA] uppercase flex items-center space-x-1.5">
-                    <Volume1 className="w-4 h-4 text-[#F27D26]" />
+                  <span className="text-slate-700 font-semibold uppercase flex items-center space-x-1.5">
+                    <Volume1 className="w-4 h-4 text-[#0284C7]" />
                     <span>Alarm Volume</span>
                   </span>
-                  <span className="text-white font-bold px-2 py-0.5 rounded-xs bg-[#1a1a1a] border border-[#333]">
+                  <span className="text-slate-900 font-bold px-2 py-0.5 rounded bg-white border border-slate-300">
                     {Math.round(audioSettings.volume * 100)}%
                   </span>
                 </div>
@@ -600,31 +733,31 @@ export const AdminPortalView: React.FC = () => {
                   step="0.05"
                   value={audioSettings.volume}
                   onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
-                  className="w-full h-1.5 bg-[#222] rounded-lg appearance-none cursor-pointer accent-[#F27D26]"
+                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0284C7]"
                 />
 
-                <div className="flex justify-between text-[10px] text-[#666]">
+                <div className="flex justify-between text-[10px] text-slate-500">
                   <button
                     onClick={() => handleVolumeChange(0.25)}
-                    className="hover:text-white cursor-pointer px-1 py-0.5"
+                    className="hover:text-slate-900 cursor-pointer px-1 py-0.5"
                   >
                     25% Low
                   </button>
                   <button
                     onClick={() => handleVolumeChange(0.5)}
-                    className="hover:text-white cursor-pointer px-1 py-0.5"
+                    className="hover:text-slate-900 cursor-pointer px-1 py-0.5"
                   >
                     50% Med
                   </button>
                   <button
                     onClick={() => handleVolumeChange(0.75)}
-                    className="hover:text-white cursor-pointer px-1 py-0.5"
+                    className="hover:text-slate-900 cursor-pointer px-1 py-0.5"
                   >
                     75% Std
                   </button>
                   <button
                     onClick={() => handleVolumeChange(1.0)}
-                    className="hover:text-white cursor-pointer px-1 py-0.5"
+                    className="hover:text-slate-900 cursor-pointer px-1 py-0.5"
                   >
                     100% Max
                   </button>
@@ -632,9 +765,9 @@ export const AdminPortalView: React.FC = () => {
               </div>
 
               {/* Control 2: Sound Profile Selection */}
-              <div className="space-y-3 p-4 rounded-xs bg-[#111] border border-[#222]">
-                <span className="text-[#AAA] uppercase flex items-center space-x-1.5">
-                  <Radio className="w-4 h-4 text-[#F27D26]" />
+              <div className="space-y-3 p-4 rounded-lg bg-slate-50 border border-slate-200">
+                <span className="text-slate-700 font-semibold uppercase flex items-center space-x-1.5">
+                  <Radio className="w-4 h-4 text-[#0284C7]" />
                   <span>Acoustic Profile</span>
                 </span>
 
@@ -645,22 +778,22 @@ export const AdminPortalView: React.FC = () => {
                       soundType: e.target.value as any,
                     })
                   }
-                  className="w-full px-3 py-2 rounded-xs bg-[#181818] border border-[#333] text-white focus:outline-none focus:border-[#F27D26] cursor-pointer"
+                  className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 focus:outline-none focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20 cursor-pointer"
                 >
                   <option value="industrial_siren">Industrial Pulsating Siren (Heavy Plant)</option>
                   <option value="urgent_beep">Rapid High-Pitch Dual Beep (Control Room)</option>
                   <option value="chime">Harmonic Multi-Tone Chimes (Executive)</option>
                 </select>
 
-                <p className="text-[10px] text-[#777]">
+                <p className="text-[10px] text-slate-500">
                   Pure Web Audio API waveform generation without external audio dependencies.
                 </p>
               </div>
 
               {/* Control 3: Trigger Behavior & Periodic Reminder */}
-              <div className="space-y-3 p-4 rounded-xs bg-[#111] border border-[#222]">
-                <span className="text-[#AAA] uppercase flex items-center space-x-1.5">
-                  <Sliders className="w-4 h-4 text-[#F27D26]" />
+              <div className="space-y-3 p-4 rounded-lg bg-slate-50 border border-slate-200">
+                <span className="text-slate-700 font-semibold uppercase flex items-center space-x-1.5">
+                  <Sliders className="w-4 h-4 text-[#0284C7]" />
                   <span>Alert Repeat Mode</span>
                 </span>
 
@@ -671,13 +804,13 @@ export const AdminPortalView: React.FC = () => {
                       playbackMode: e.target.value as any,
                     })
                   }
-                  className="w-full px-3 py-2 rounded-xs bg-[#181818] border border-[#333] text-white focus:outline-none focus:border-[#F27D26] cursor-pointer"
+                  className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 focus:outline-none focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20 cursor-pointer"
                 >
                   <option value="on_event">On-Event Only (Chimes upon new breach)</option>
                   <option value="continuous">Periodic Reminder (Repeats every 15s)</option>
                 </select>
 
-                <div className="flex items-center justify-between text-[10px] text-[#777]">
+                <div className="flex items-center justify-between text-[10px] text-slate-500">
                   <span>Audio Engine: {audioContextState.toUpperCase()}</span>
                   <button
                     onClick={() => {
@@ -685,7 +818,7 @@ export const AdminPortalView: React.FC = () => {
                       if (ctx && ctx.state === 'suspended') ctx.resume();
                       handleTestSound('WARNING');
                     }}
-                    className="text-[#F27D26] hover:underline cursor-pointer"
+                    className="text-[#0284C7] hover:underline cursor-pointer font-semibold"
                   >
                     Unlock Audio
                   </button>
@@ -703,14 +836,14 @@ export const AdminPortalView: React.FC = () => {
           {isCreatingUser && (
             <form
               onSubmit={handleCreateUser}
-              className="p-6 rounded-sm bg-[#0A0A0A] border border-[#F27D26]/50 shadow-2xl space-y-4 animate-in fade-in"
+              className="p-6 rounded-xl bg-white border border-[#0284C7]/40 shadow-xl space-y-4 animate-in fade-in"
             >
-              <div className="flex justify-between items-center pb-3 border-b border-[#222]">
-                <h3 className="text-base font-bold text-white uppercase font-mono">Create Staff / Operator Account</h3>
+              <div className="flex justify-between items-center pb-3 border-b border-slate-200">
+                <h3 className="text-base font-bold text-slate-900 uppercase font-mono">Create Staff / Operator Account</h3>
                 <button
                   type="button"
                   onClick={() => setIsCreatingUser(false)}
-                  className="text-[#888] hover:text-white text-xs cursor-pointer font-mono uppercase"
+                  className="text-slate-500 hover:text-slate-900 text-xs cursor-pointer font-mono uppercase font-semibold"
                 >
                   ✕ Cancel
                 </button>
@@ -718,47 +851,47 @@ export const AdminPortalView: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-mono">
                 <div>
-                  <label className="block text-[#AAA] mb-1 uppercase">Full Name</label>
+                  <label className="block text-slate-700 mb-1 uppercase font-semibold">Full Name</label>
                   <input
                     type="text"
                     required
                     value={newUser.name}
                     onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
                     placeholder="e.g. Vikram Sharma"
-                    className="w-full px-3 py-2 rounded-xs bg-[#111] border border-[#333] text-white focus:outline-none focus:border-[#F27D26]"
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 focus:outline-none focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20 placeholder:text-slate-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[#AAA] mb-1 uppercase">Username / ID</label>
+                  <label className="block text-slate-700 mb-1 uppercase font-semibold">Username / ID</label>
                   <input
                     type="text"
                     required
                     value={newUser.username}
                     onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
                     placeholder="e.g. vsharma"
-                    className="w-full px-3 py-2 rounded-xs bg-[#111] border border-[#333] text-white focus:outline-none focus:border-[#F27D26]"
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 focus:outline-none focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20 placeholder:text-slate-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[#AAA] mb-1 uppercase">Password</label>
+                  <label className="block text-slate-700 mb-1 uppercase font-semibold">Password</label>
                   <input
                     type="password"
                     required
                     value={newUser.password}
                     onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
                     placeholder="••••••••"
-                    className="w-full px-3 py-2 rounded-xs bg-[#111] border border-[#333] text-white focus:outline-none focus:border-[#F27D26]"
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 focus:outline-none focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20 placeholder:text-slate-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[#AAA] mb-1 uppercase">System Role</label>
+                  <label className="block text-slate-700 mb-1 uppercase font-semibold">System Role</label>
                   <select
                     value={newUser.role}
                     onChange={(e) => setNewUser({ ...newUser, role: e.target.value as UserRole })}
-                    className="w-full px-3 py-2 rounded-xs bg-[#111] border border-[#333] text-white focus:outline-none focus:border-[#F27D26] cursor-pointer"
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 focus:outline-none focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20 cursor-pointer"
                   >
                     <option value="ADMIN">ADMIN (Full Security & Controls)</option>
                     <option value="ENGINEER">ENGINEER (Rules & Custom Charts)</option>
@@ -772,13 +905,13 @@ export const AdminPortalView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsCreatingUser(false)}
-                  className="px-4 py-2 rounded-xs bg-[#111] text-[#888] text-xs font-mono uppercase cursor-pointer border border-[#333]"
+                  className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-mono uppercase cursor-pointer border border-slate-300 font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xs bg-[#F27D26] hover:bg-[#ff8e38] text-black font-bold text-xs uppercase font-mono tracking-wider cursor-pointer"
+                  className="px-5 py-2 rounded-lg bg-[#0284C7] hover:bg-[#0369A1] text-white font-bold text-xs uppercase font-mono tracking-wider cursor-pointer shadow-sm"
                 >
                   Create User
                 </button>
@@ -787,9 +920,9 @@ export const AdminPortalView: React.FC = () => {
           )}
 
           {/* Users Table */}
-          <div className="table-responsive-container w-full max-w-full overflow-x-auto rounded-sm border border-[#222] bg-[#0A0A0A] shadow-xl">
-            <table className="w-full text-left text-xs font-mono min-w-[600px]">
-              <thead className="bg-[#111] text-[#888] border-b border-[#222] uppercase tracking-wider">
+          <div className="table-responsive-container rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+            <table className="w-full text-left text-xs font-mono min-w-[650px]">
+              <thead className="bg-slate-50 text-slate-700 border-b border-slate-200 uppercase tracking-wider font-semibold">
                 <tr>
                   <th className="p-4">Staff Member</th>
                   <th className="p-4">Username</th>
@@ -798,30 +931,30 @@ export const AdminPortalView: React.FC = () => {
                   <th className="p-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#222]">
+              <tbody className="divide-y divide-slate-100">
                 {users.map((u) => (
-                  <tr key={u.id} className="hover:bg-[#111] transition-colors">
-                    <td className="p-4 font-bold text-white font-sans">{u.name}</td>
-                    <td className="p-4 text-[#F27D26]">@{u.username}</td>
+                  <tr key={u.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="p-4 font-bold text-slate-900 font-sans">{u.name}</td>
+                    <td className="p-4 text-[#0284C7] font-semibold">@{u.username}</td>
                     <td className="p-4">
                       <span
-                        className={`px-2.5 py-0.5 rounded-xs text-[10px] font-bold ${
+                        className={`px-2.5 py-0.5 rounded text-[10px] font-bold ${
                           u.role === 'ADMIN'
-                            ? 'bg-rose-950 text-rose-300 border border-rose-800'
+                            ? 'bg-rose-100 text-rose-700 border border-rose-300'
                             : u.role === 'ENGINEER'
-                            ? 'bg-[#F27D26]/10 text-[#F27D26] border border-[#F27D26]/30'
-                            : 'bg-[#222] text-[#AAA]'
+                            ? 'bg-[#0284C7]/10 text-[#0284C7] border border-[#0284C7]/30'
+                            : 'bg-slate-100 text-slate-700 border border-slate-300'
                         }`}
                       >
                         {u.role}
                       </span>
                     </td>
-                    <td className="p-4 text-[#888]">{new Date(u.createdAt).toLocaleDateString()}</td>
+                    <td className="p-4 text-slate-600">{new Date(u.createdAt).toLocaleDateString()}</td>
                     <td className="p-4 text-right">
                       {u.id !== currentUser?.id && (
                         <button
                           onClick={() => handleDeleteUser(u.id)}
-                          className="p-1.5 rounded-xs bg-[#111] hover:bg-rose-950/40 text-[#888] hover:text-rose-400 border border-[#333] cursor-pointer"
+                          className="p-1.5 rounded-lg bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 border border-slate-300 hover:border-rose-300 cursor-pointer transition-colors shadow-xs"
                           title="Delete User"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -840,42 +973,42 @@ export const AdminPortalView: React.FC = () => {
       {activeTab === 'dashboard' && (
         <div className="space-y-6">
           {/* Plant Specs */}
-          <div className="p-6 rounded-sm bg-[#0A0A0A] border border-[#222] shadow-xl space-y-6">
+          <div className="p-6 rounded-xl bg-white border border-slate-200 shadow-sm space-y-6">
             <div>
-              <h3 className="text-base font-bold text-white uppercase font-mono">Tata Power Jojobera Parameters</h3>
-              <p className="text-xs text-[#888] mt-1 font-light">Verified operational baseline ratings</p>
+              <h3 className="text-base font-bold text-slate-900 uppercase font-mono">Tata Power Jojobera Parameters</h3>
+              <p className="text-xs text-slate-600 mt-1 font-normal">Verified operational baseline ratings</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs font-mono">
-              <div className="p-4 rounded-xs bg-[#111] border border-[#222] border-l-2 border-l-[#F27D26]">
-                <span className="text-[#888] uppercase">Plant Generating Capacity:</span>
-                <div className="text-lg font-bold text-white mt-1">427.5 MW</div>
+              <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 border-l-4 border-l-[#0284C7]">
+                <span className="text-slate-600 uppercase font-semibold">Plant Generating Capacity:</span>
+                <div className="text-lg font-bold text-slate-900 mt-1">427.5 MW</div>
               </div>
-              <div className="p-4 rounded-xs bg-[#111] border border-[#222] border-l-2 border-l-[#00FF41]">
-                <span className="text-[#888] uppercase">DE-NOx Technology:</span>
-                <div className="text-lg font-bold text-[#00FF41] mt-1">Selective Catalytic Reduction</div>
+              <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 border-l-4 border-l-emerald-500">
+                <span className="text-slate-600 uppercase font-semibold">DE-NOx Technology:</span>
+                <div className="text-lg font-bold text-emerald-700 mt-1">Selective Catalytic Reduction</div>
               </div>
-              <div className="p-4 rounded-xs bg-[#111] border border-[#222] border-l-2 border-l-sky-500">
-                <span className="text-[#888] uppercase">Operating Since:</span>
-                <div className="text-lg font-bold text-sky-400 mt-1">1997</div>
+              <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 border-l-4 border-l-sky-500">
+                <span className="text-slate-600 uppercase font-semibold">Operating Since:</span>
+                <div className="text-lg font-bold text-sky-700 mt-1">1997</div>
               </div>
-              <div className="p-4 rounded-xs bg-[#111] border border-[#222] border-l-2 border-l-amber-500">
-                <span className="text-[#888] uppercase">Grid Substation Rating:</span>
-                <div className="text-lg font-bold text-amber-400 mt-1">220 kV Bus</div>
+              <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 border-l-4 border-l-amber-500">
+                <span className="text-slate-600 uppercase font-semibold">Grid Substation Rating:</span>
+                <div className="text-lg font-bold text-amber-700 mt-1">220 kV Bus</div>
               </div>
-              <div className="p-4 rounded-xs bg-[#111] border border-[#222] border-l-2 border-l-[#AAA] sm:col-span-2">
-                <span className="text-[#888] uppercase">Location:</span>
-                <div className="text-sm font-bold text-white mt-1">Jojobera, PO-Rahargora, Jamshedpur – 831016</div>
+              <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 border-l-4 border-l-[#0284C7] sm:col-span-2">
+                <span className="text-slate-600 uppercase font-semibold">Location:</span>
+                <div className="text-sm font-bold text-slate-900 mt-1">Jojobera, PO-Rahargora, Jamshedpur – 831016</div>
               </div>
             </div>
           </div>
 
           {/* Widget Layout Customizer */}
-          <div className="p-6 rounded-sm bg-[#0A0A0A] border border-[#222] shadow-xl space-y-6">
-            <div className="flex justify-between items-center pb-3 border-b border-[#222]">
+          <div className="p-6 rounded-xl bg-white border border-slate-200 shadow-sm space-y-6">
+            <div className="flex justify-between items-center pb-3 border-b border-slate-200">
               <div>
-                <h3 className="text-sm font-bold text-white uppercase font-mono">Dynamic Dashboard Layout Configuration</h3>
-                <p className="text-xs text-[#888] mt-0.5 font-light">Toggle visibility and position of dashboard widgets</p>
+                <h3 className="text-sm font-bold text-slate-900 uppercase font-mono">Dynamic Dashboard Layout Configuration</h3>
+                <p className="text-xs text-slate-600 mt-0.5 font-normal">Toggle visibility and position of dashboard widgets</p>
               </div>
             </div>
 
@@ -883,31 +1016,31 @@ export const AdminPortalView: React.FC = () => {
               {dashboardLayout?.widgets.map((widget) => (
                 <div
                   key={widget.id}
-                  className={`p-4 rounded-xs border transition-all ${
+                  className={`p-4 rounded-lg border transition-all ${
                     widget.isVisible
-                      ? 'bg-[#0A0A0A] border-[#333] border-l-2 border-l-[#F27D26]'
-                      : 'bg-[#0A0A0A]/60 border-[#222] opacity-60'
+                      ? 'bg-slate-50 border-slate-200 border-l-4 border-l-[#0284C7]'
+                      : 'bg-slate-50/50 border-slate-200 opacity-60'
                   }`}
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <h4 className="text-sm font-bold text-white font-mono">{widget.title}</h4>
-                      <span className="text-[10px] font-mono text-[#F27D26] uppercase tracking-wider">
+                      <h4 className="text-sm font-bold text-slate-900 font-mono">{widget.title}</h4>
+                      <span className="text-[10px] font-mono text-[#0284C7] uppercase tracking-wider font-semibold">
                         Type: {widget.type}
                       </span>
                     </div>
                     <button
                       onClick={() => handleToggleWidget(widget.id)}
-                      className={`p-1.5 rounded-xs border text-xs cursor-pointer ${
+                      className={`p-1.5 rounded-lg border text-xs cursor-pointer transition-colors shadow-xs ${
                         widget.isVisible
-                          ? 'bg-[#00FF41]/10 border-[#00FF41]/30 text-[#00FF41]'
-                          : 'bg-[#111] border-[#333] text-[#888]'
+                          ? 'bg-emerald-100 border-emerald-300 text-emerald-700'
+                          : 'bg-slate-100 border-slate-300 text-slate-600'
                       }`}
                     >
                       {widget.isVisible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
                     </button>
                   </div>
-                  <div className="mt-3 pt-2 border-t border-[#222] flex justify-between text-xs font-mono text-[#888]">
+                  <div className="mt-3 pt-2 border-t border-slate-200 flex justify-between text-xs font-mono text-slate-600">
                     <span>Width: {widget.w} col</span>
                     <span>Height: {widget.h} rows</span>
                   </div>

@@ -41,61 +41,61 @@ export const LoginModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="w-full max-w-md p-6 sm:p-8 rounded-sm bg-[#0A1124] border border-[#1E293B] border-t-2 border-t-[#205CA5] shadow-2xl space-y-6 animate-in fade-in zoom-in-95">
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="w-full max-w-md p-6 sm:p-8 rounded-2xl bg-white border border-slate-200 shadow-2xl space-y-6 animate-in fade-in zoom-in-95">
         {/* Header */}
         <div className="flex justify-between items-start">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 rounded-xs bg-[#070D18] border border-[#1E293B] text-[#38BDF8]">
+            <div className="p-2.5 rounded-xl bg-sky-50 border border-sky-100 text-[#0284C7]">
               <Shield className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white uppercase font-mono tracking-tight">Staff & Admin Access</h3>
-              <p className="text-xs text-[#94A3B8] font-mono uppercase tracking-wider">Role-Based Security Portal</p>
+              <h3 className="text-lg font-bold text-slate-900 uppercase font-mono tracking-tight">Staff & Admin Access</h3>
+              <p className="text-xs text-slate-500 font-mono uppercase tracking-wider font-semibold">Role-Based Security Portal</p>
             </div>
           </div>
           <button
             onClick={() => setIsLoginModalOpen(false)}
-            className="p-1 rounded-xs text-[#94A3B8] hover:text-white cursor-pointer"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {error && (
-          <div className="p-3 rounded-xs bg-rose-950/50 border border-rose-800 text-xs text-rose-300 flex items-center space-x-2 font-mono">
-            <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
-            <span>{error}</span>
+          <div className="p-3 rounded-lg bg-rose-50 border border-rose-300 text-xs text-rose-800 flex items-center space-x-2 font-mono shadow-xs">
+            <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span className="font-semibold">{error}</span>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4 text-xs font-mono">
           <div className="space-y-1">
-            <label className="block text-[#94A3B8] uppercase">Username / Staff ID</label>
+            <label className="block text-slate-700 uppercase font-semibold">Username / Staff ID</label>
             <div className="relative">
-              <User className="w-4 h-4 text-[#64748B] absolute left-3 top-1/2 -translate-y-1/2" />
+              <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="e.g. admin or operator"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xs bg-[#070D18] border border-[#1E293B] text-white focus:outline-none focus:border-[#205CA5]"
+                className="w-full pl-9 pr-3 py-2.5 rounded-lg bg-white border border-slate-300 text-slate-900 focus:outline-none focus:border-[#0284C7] shadow-xs"
               />
             </div>
           </div>
 
           <div className="space-y-1">
-            <label className="block text-[#94A3B8] uppercase">Password</label>
+            <label className="block text-slate-700 uppercase font-semibold">Password</label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-[#64748B] absolute left-3 top-1/2 -translate-y-1/2" />
+              <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xs bg-[#070D18] border border-[#1E293B] text-white focus:outline-none focus:border-[#205CA5]"
+                className="w-full pl-9 pr-3 py-2.5 rounded-lg bg-white border border-slate-300 text-slate-900 focus:outline-none focus:border-[#0284C7] shadow-xs"
               />
             </div>
           </div>
@@ -103,36 +103,36 @@ export const LoginModal: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 rounded-xs bg-[#205CA5] hover:bg-[#2B68B8] text-white font-bold text-xs uppercase font-mono tracking-wider cursor-pointer transition-all shadow-[0_0_18px_rgba(32,92,165,0.4)] disabled:opacity-50"
+            className="w-full py-2.5 rounded-lg bg-[#0284C7] hover:bg-[#0369A1] text-white font-bold text-xs uppercase font-mono tracking-wider cursor-pointer transition-all shadow-sm disabled:opacity-50"
           >
             {loading ? 'Authenticating...' : 'Sign In to Operations Portal'}
           </button>
         </form>
 
         {/* Quick Demo Logins for Instant Evaluation */}
-        <div className="pt-3 border-t border-[#1E293B] space-y-2 text-xs">
-          <div className="text-[11px] font-mono text-[#94A3B8] text-center uppercase tracking-wider">Quick Switch Credentials:</div>
+        <div className="pt-3 border-t border-slate-200 space-y-2 text-xs">
+          <div className="text-[11px] font-mono text-slate-500 text-center uppercase tracking-wider font-semibold">Quick Switch Credentials:</div>
           <div className="grid grid-cols-3 gap-2 font-mono">
             <button
               onClick={() => handleQuickDemoLogin('admin', 'admin123')}
-              className="p-2 rounded-xs bg-[#070D18] hover:bg-[#0F172A] border border-[#1E293B] text-[#38BDF8] hover:border-[#205CA5]/60 text-center cursor-pointer"
+              className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-[#0284C7] text-center cursor-pointer shadow-xs transition-colors"
             >
               <div className="font-bold uppercase">Admin</div>
-              <div className="text-[9px] text-[#64748B]">admin / admin123</div>
+              <div className="text-[9px] text-slate-500">admin / admin123</div>
             </button>
             <button
               onClick={() => handleQuickDemoLogin('operator', 'operator123')}
-              className="p-2 rounded-xs bg-[#070D18] hover:bg-[#0F172A] border border-[#1E293B] text-sky-300 hover:border-sky-500/60 text-center cursor-pointer"
+              className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-sky-700 text-center cursor-pointer shadow-xs transition-colors"
             >
               <div className="font-bold uppercase">Operator</div>
-              <div className="text-[9px] text-[#64748B]">operator / op123</div>
+              <div className="text-[9px] text-slate-500">operator / op123</div>
             </button>
             <button
               onClick={() => handleQuickDemoLogin('viewer', 'viewer123')}
-              className="p-2 rounded-xs bg-[#070D18] hover:bg-[#0F172A] border border-[#1E293B] text-[#94A3B8] hover:border-[#38BDF8]/40 text-center cursor-pointer"
+              className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-center cursor-pointer shadow-xs transition-colors"
             >
               <div className="font-bold uppercase">Viewer</div>
-              <div className="text-[9px] text-[#64748B]">viewer / view123</div>
+              <div className="text-[9px] text-slate-500">viewer / view123</div>
             </button>
           </div>
         </div>
