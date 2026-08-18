@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactECharts from 'echarts-for-react';
 import { MetricAnalyticsPayload } from '../../types';
+import { useTheme } from '../../context/ThemeContext';
 
 interface MetricMultiSeries2DProps {
   payload: MetricAnalyticsPayload;
@@ -11,10 +12,19 @@ export const MetricMultiSeries2D: React.FC<MetricMultiSeries2DProps> = ({
   payload,
   height = 360,
 }) => {
+  const { isDark } = useTheme();
   const { metric, timeSeries, generatorSeries, distribution } = payload;
   const { unit, thresholds, colorScheme } = metric;
 
   const categories = timeSeries.map((t) => t.timestamp);
+
+  const tooltipBg = isDark ? 'rgba(15, 23, 42, 0.95)' : '#FFFFFF';
+  const tooltipBorder = isDark ? '#334155' : '#CBD5E1';
+  const tooltipText = isDark ? '#f8fafc' : '#0F172A';
+  const axisLineColor = isDark ? '#334155' : '#CBD5E1';
+  const splitLineColor = isDark ? '#1e293b' : '#E2E8F0';
+  const labelColor = isDark ? '#94a3b8' : '#475569';
+  const valColor = isDark ? '#FFFFFF' : '#0F172A';
 
   const series = generatorSeries.map((gen) => {
     const data = timeSeries.map((t) => t.values[gen.name] ?? null);
@@ -113,24 +123,24 @@ export const MetricMultiSeries2D: React.FC<MetricMultiSeries2DProps> = ({
     },
     tooltip: {
       trigger: 'axis',
-      backgroundColor: 'rgba(15, 23, 42, 0.95)',
-      borderColor: '#334155',
-      textStyle: { color: '#f8fafc', fontFamily: 'monospace', fontSize: 12 },
+      backgroundColor: tooltipBg,
+      borderColor: tooltipBorder,
+      textStyle: { color: tooltipText, fontFamily: 'monospace', fontSize: 12 },
       axisPointer: {
         type: 'cross',
         lineStyle: { color: colorScheme.primary || '#38BDF8', width: 1 },
       },
       formatter: (params: any[]) => {
         if (!params || !params.length) return '';
-        let res = `<div style="font-weight: bold; margin-bottom: 4px; border-bottom: 1px solid #334155; padding-bottom: 2px;">${params[0].axisValue}</div>`;
+        let res = `<div style="font-weight: bold; margin-bottom: 4px; border-bottom: 1px solid ${tooltipBorder}; padding-bottom: 2px;">${params[0].axisValue}</div>`;
         params.forEach((item) => {
           const val = item.value !== null && item.value !== undefined ? `${item.value} ${unit}` : 'N/A';
           res += `<div style="display: flex; justify-content: space-between; gap: 16px; margin: 2px 0;">
-            <span style="display: inline-flex; align-items: center; gap: 4px;">
+            <span style="display: inline-flex; align-items: center; gap: 4px; color: ${labelColor};">
               <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${item.color};"></span>
               ${item.seriesName}:
             </span>
-            <span style="font-weight: bold; color: #fff;">${val}</span>
+            <span style="font-weight: bold; color: ${valColor};">${val}</span>
           </div>`;
         });
         return res;
@@ -138,22 +148,22 @@ export const MetricMultiSeries2D: React.FC<MetricMultiSeries2DProps> = ({
     },
     legend: {
       top: '0%',
-      textStyle: { color: '#94a3b8', fontFamily: 'monospace', fontSize: 11 },
+      textStyle: { color: labelColor, fontFamily: 'monospace', fontSize: 11 },
       icon: 'roundRect',
     },
     xAxis: {
       type: 'category',
       data: categories,
-      axisLine: { lineStyle: { color: '#334155' } },
-      axisLabel: { color: '#94a3b8', fontSize: 10, rotate: 20 },
+      axisLine: { lineStyle: { color: axisLineColor } },
+      axisLabel: { color: labelColor, fontSize: 10, rotate: 20 },
     },
     yAxis: {
       type: 'value',
       name: unit ? `(${unit})` : '',
-      nameTextStyle: { color: '#94a3b8', fontSize: 11 },
-      axisLine: { lineStyle: { color: '#334155' } },
-      splitLine: { lineStyle: { color: '#1e293b' } },
-      axisLabel: { color: '#94a3b8', fontSize: 11 },
+      nameTextStyle: { color: labelColor, fontSize: 11 },
+      axisLine: { lineStyle: { color: axisLineColor } },
+      splitLine: { lineStyle: { color: splitLineColor } },
+      axisLabel: { color: labelColor, fontSize: 11 },
       min: (val: any) => Math.max(0, Math.floor(val.min * 0.95)),
       max: (val: any) => Math.ceil(val.max * 1.05) || undefined,
     },
@@ -167,10 +177,10 @@ export const MetricMultiSeries2D: React.FC<MetricMultiSeries2DProps> = ({
         type: 'slider',
         bottom: 0,
         height: 18,
-        borderColor: '#1e293b',
-        backgroundColor: 'rgba(15, 23, 42, 0.6)',
-        fillerColor: 'rgba(56, 189, 248, 0.15)',
-        textStyle: { color: '#64748b', fontSize: 9 },
+        borderColor: axisLineColor,
+        backgroundColor: isDark ? 'rgba(15, 23, 42, 0.6)' : 'rgba(241, 245, 249, 0.8)',
+        fillerColor: isDark ? 'rgba(56, 189, 248, 0.15)' : 'rgba(32, 92, 165, 0.15)',
+        textStyle: { color: labelColor, fontSize: 9 },
       },
     ],
     series: series,

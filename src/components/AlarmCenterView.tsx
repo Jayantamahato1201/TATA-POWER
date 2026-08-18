@@ -421,16 +421,16 @@ export const AlarmCenterView: React.FC = () => {
           </div>
 
           {/* Search / Add Rule */}
-          <div className="flex items-center space-x-2">
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
             {activeTab === 'events' ? (
-              <div className="relative">
+              <div className="relative w-full sm:w-auto">
                 <Search className="w-3.5 h-3.5 text-[#64748B] absolute left-2.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   placeholder="Search alerts by metric or generator..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-56 sm:w-64 pl-8 pr-3 py-1.5 rounded-lg bg-[#070D18] border border-[#1E293B] text-xs text-white placeholder-[#64748B] focus:outline-none focus:border-[#0284C7]"
+                  className="w-full sm:w-64 pl-8 pr-3 py-1.5 rounded-lg bg-[#070D18] border border-[#1E293B] text-xs text-white placeholder-[#64748B] focus:outline-none focus:border-[#0284C7] min-h-[36px]"
                 />
               </div>
             ) : (
@@ -450,7 +450,7 @@ export const AlarmCenterView: React.FC = () => {
                     });
                     setIsEditingRule(true);
                   }}
-                  className="px-3 py-1.5 rounded-lg bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold flex items-center space-x-1.5 transition-colors cursor-pointer"
+                  className="w-full sm:w-auto px-3 py-1.5 rounded-lg bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold flex items-center justify-center space-x-1.5 transition-colors cursor-pointer min-h-[36px]"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Create Threshold Rule</span>
@@ -480,12 +480,12 @@ export const AlarmCenterView: React.FC = () => {
               )}
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-wrap items-center gap-2">
               {selectedIds.length > 0 && (
                 <button
                   onClick={handleClearSelected}
                   disabled={isClearing}
-                  className="px-2.5 py-1 rounded bg-rose-950/60 hover:bg-rose-900 border border-rose-700/50 text-rose-300 font-medium transition-colors cursor-pointer flex items-center space-x-1"
+                  className="px-2.5 py-1.5 rounded bg-rose-950/60 hover:bg-rose-900 border border-rose-700/50 text-rose-300 font-medium transition-colors cursor-pointer flex items-center space-x-1 min-h-[32px]"
                 >
                   <Trash2 className="w-3 h-3" />
                   <span>Clear Selected ({selectedIds.length})</span>
@@ -494,7 +494,7 @@ export const AlarmCenterView: React.FC = () => {
               <button
                 onClick={handleClearAllFiltered}
                 disabled={isClearing}
-                className="px-2.5 py-1 rounded bg-[#070D18] hover:bg-[#1E293B] border border-[#1E293B] text-[#94A3B8] hover:text-white transition-colors cursor-pointer"
+                className="px-2.5 py-1.5 rounded bg-[#070D18] hover:bg-[#1E293B] border border-[#1E293B] text-[#94A3B8] hover:text-white transition-colors cursor-pointer min-h-[32px]"
               >
                 Clear All in View
               </button>
@@ -526,7 +526,7 @@ export const AlarmCenterView: React.FC = () => {
               return (
                 <div
                   key={`${event.id || 'evt'}_${eventIdx}`}
-                  className={`p-4 rounded-xl border transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 ${
+                  className={`p-3.5 sm:p-4 rounded-xl border transition-all flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 min-w-0 ${
                     isCleared
                       ? 'bg-[#0B132B]/40 border-slate-800 opacity-75'
                       : isResolved
@@ -537,16 +537,16 @@ export const AlarmCenterView: React.FC = () => {
                   }`}
                 >
                   {/* Left: Checkbox, Metric Icon, Name, Equipment & Description */}
-                  <div className="flex items-start space-x-3">
+                  <div className="flex items-start space-x-2.5 sm:space-x-3 min-w-0">
                     <input
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => handleToggleSelect(event.id)}
-                      className="mt-3 rounded border-[#334155] bg-[#070D18] text-[#0284C7] focus:ring-0 cursor-pointer"
+                      className="mt-2.5 rounded border-[#334155] bg-[#070D18] text-[#0284C7] focus:ring-0 cursor-pointer shrink-0"
                     />
 
                     <div
-                      className={`p-2.5 rounded-lg border shrink-0 ${
+                      className={`p-2 rounded-lg border shrink-0 ${
                         isCleared
                           ? 'bg-slate-800/40 border-slate-700 text-slate-400'
                           : isResolved
@@ -559,8 +559,8 @@ export const AlarmCenterView: React.FC = () => {
                       {getMetricIcon(event.metricColumn || '')}
                     </div>
 
-                    <div className="space-y-1">
-                      <div className="flex flex-wrap items-center gap-2">
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                         {/* Severity Badge */}
                         <span
                           className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full uppercase ${
@@ -576,10 +576,10 @@ export const AlarmCenterView: React.FC = () => {
                           {isCleared ? 'CLEARED' : isResolved ? 'RESOLVED' : isCritical ? 'CRITICAL' : 'WARNING'}
                         </span>
 
-                        <span className="text-sm font-bold text-white">{event.ruleName}</span>
+                        <span className="text-xs sm:text-sm font-bold text-white truncate max-w-full">{event.ruleName}</span>
 
                         {event.equipmentId && (
-                          <span className="text-xs font-mono px-2 py-0.5 rounded bg-[#070D18] text-[#38BDF8] border border-[#1E293B]">
+                          <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#070D18] text-[#38BDF8] border border-[#1E293B]">
                             {event.equipmentId}
                           </span>
                         )}
@@ -597,12 +597,12 @@ export const AlarmCenterView: React.FC = () => {
                         )}
                       </div>
 
-                      <p className="text-xs text-[#CBD5E1]">
+                      <p className="text-xs text-[#CBD5E1] break-words">
                         {event.message}
                       </p>
 
                       {/* Threshold info, Dataset & Timestamp */}
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-mono text-[#94A3B8] pt-1">
+                      <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 text-[11px] font-mono text-[#94A3B8] pt-1">
                         {(event.actualValue !== undefined || event.value !== undefined) && (
                           <span>
                             Actual Value: <strong className={isCritical ? 'text-rose-400 font-bold' : 'text-amber-400 font-bold'}>{event.actualValue ?? event.value}</strong>
@@ -619,7 +619,7 @@ export const AlarmCenterView: React.FC = () => {
                           </span>
                         )}
                         <span className="flex items-center space-x-1 text-slate-400">
-                          <Clock className="w-3 h-3 text-[#64748B]" />
+                          <Clock className="w-3 h-3 text-[#64748B] shrink-0" />
                           <span>{event.timestamp ? new Date(event.timestamp).toLocaleString() : (event.triggeredAt || 'Recent')}</span>
                         </span>
                       </div>
@@ -627,11 +627,11 @@ export const AlarmCenterView: React.FC = () => {
                   </div>
 
                   {/* Right: Actions */}
-                  <div className="flex items-center space-x-2 shrink-0 self-end md:self-center">
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 shrink-0 self-start md:self-center pt-2 md:pt-0">
                     {!isResolved && !isCleared && !isAck && (
                       <button
                         onClick={() => acknowledgeAlarm(event.id)}
-                        className="px-3 py-1.5 rounded-lg bg-[#070D18] hover:bg-[#1E293B] border border-[#1E293B] text-[#38BDF8] text-xs font-medium transition-colors cursor-pointer"
+                        className="px-3 py-1.5 rounded-lg bg-[#070D18] hover:bg-[#1E293B] border border-[#1E293B] text-[#38BDF8] text-xs font-medium transition-colors cursor-pointer min-h-[34px]"
                       >
                         Acknowledge
                       </button>
@@ -643,7 +643,7 @@ export const AlarmCenterView: React.FC = () => {
                           setResolveModalOpen(event.id);
                           setResolveNotes('');
                         }}
-                        className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors cursor-pointer"
+                        className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors cursor-pointer min-h-[34px]"
                       >
                         Resolve
                       </button>
@@ -653,7 +653,7 @@ export const AlarmCenterView: React.FC = () => {
                       <button
                         onClick={() => clearAlarm(event.id)}
                         title="Clear alert and update database"
-                        className="px-2.5 py-1.5 rounded-lg bg-[#070D18] hover:bg-rose-950/40 border border-[#1E293B] hover:border-rose-800/50 text-[#94A3B8] hover:text-rose-400 text-xs font-medium transition-colors cursor-pointer flex items-center space-x-1"
+                        className="px-2.5 py-1.5 rounded-lg bg-[#070D18] hover:bg-rose-950/40 border border-[#1E293B] hover:border-rose-800/50 text-[#94A3B8] hover:text-rose-400 text-xs font-medium transition-colors cursor-pointer flex items-center space-x-1 min-h-[34px]"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                         <span>Clear</span>
@@ -661,14 +661,14 @@ export const AlarmCenterView: React.FC = () => {
                     )}
 
                     {isResolved && !isCleared && (
-                      <span className="text-xs font-mono text-emerald-400 flex items-center space-x-1 px-2 py-1 bg-emerald-950/30 rounded border border-emerald-900/40">
+                      <span className="text-xs font-mono text-emerald-400 flex items-center space-x-1 px-2.5 py-1.5 bg-emerald-950/30 rounded border border-emerald-900/40 min-h-[34px]">
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         <span>Resolved</span>
                       </span>
                     )}
 
                     {isCleared && (
-                      <span className="text-xs font-mono text-slate-400 flex items-center space-x-1 px-2 py-1 bg-slate-900 rounded border border-slate-700">
+                      <span className="text-xs font-mono text-slate-400 flex items-center space-x-1 px-2.5 py-1.5 bg-slate-900 rounded border border-slate-700 min-h-[34px]">
                         <Check className="w-3.5 h-3.5" />
                         <span>Cleared</span>
                       </span>
@@ -684,8 +684,8 @@ export const AlarmCenterView: React.FC = () => {
       {/* TAB CONTENT: THRESHOLD RULES LIST */}
       {activeTab === 'rules' && (
         <div className="space-y-3">
-          <div className="overflow-x-auto rounded-xl border border-[#1E293B] bg-[#0F172A]">
-            <table className="w-full text-left text-xs">
+          <div className="table-responsive-container w-full max-w-full overflow-x-auto rounded-xl border border-[#1E293B] bg-[#0F172A]">
+            <table className="w-full text-left text-xs min-w-[650px]">
               <thead className="bg-[#0A1124] text-[#94A3B8] font-mono uppercase text-[11px] border-b border-[#1E293B]">
                 <tr>
                   <th className="px-4 py-3 font-semibold">Rule Name</th>

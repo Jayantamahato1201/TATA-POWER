@@ -12,6 +12,7 @@ import {
   Maximize2,
 } from 'lucide-react';
 import { TemperatureAnalyticsPayload, TemperatureDataPoint } from '../../types';
+import { useTheme } from '../../context/ThemeContext';
 
 interface ThreeDLayeredInfographicProps {
   analytics: TemperatureAnalyticsPayload;
@@ -24,6 +25,7 @@ export const ThreeDLayeredInfographic: React.FC<ThreeDLayeredInfographicProps> =
   onSelectPoint,
   height = 560,
 }) => {
+  const { isDark } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -47,10 +49,12 @@ export const ThreeDLayeredInfographic: React.FC<ThreeDLayeredInfographicProps> =
     const width = container.clientWidth || 800;
     const heightPx = typeof height === 'number' ? height : container.clientHeight || 560;
 
+    const bgColor = isDark ? 0x06080d : 0xf1f5f9;
+
     // Scene
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x06080d);
-    scene.fog = new THREE.FogExp2(0x06080d, 0.012);
+    scene.background = new THREE.Color(bgColor);
+    scene.fog = new THREE.FogExp2(bgColor, 0.012);
     sceneRef.current = scene;
 
     // Camera
@@ -80,10 +84,10 @@ export const ThreeDLayeredInfographic: React.FC<ThreeDLayeredInfographicProps> =
     controlsRef.current = controls;
 
     // Futuristic Atmospheric Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    const ambientLight = new THREE.AmbientLight(0xffffff, isDark ? 0.7 : 1.0);
     scene.add(ambientLight);
 
-    const mainLight = new THREE.DirectionalLight(0xffffff, 1.4);
+    const mainLight = new THREE.DirectionalLight(0xffffff, isDark ? 1.4 : 1.5);
     mainLight.position.set(30, 50, 30);
     mainLight.castShadow = true;
     scene.add(mainLight);
@@ -194,7 +198,7 @@ export const ThreeDLayeredInfographic: React.FC<ThreeDLayeredInfographicProps> =
       container.removeEventListener('click', handlePointerClick);
       renderer.dispose();
     };
-  }, [height]);
+  }, [height, isDark]);
 
   // Build the 3 Layered Platforms & Extruded Nodes
   const buildLayeredInfographic = useCallback(() => {

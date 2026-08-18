@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactECharts from 'echarts-for-react';
 import { MetricAnalyticsPayload } from '../../types';
+import { useTheme } from '../../context/ThemeContext';
 
 interface MetricHistogramDistributionProps {
   payload: MetricAnalyticsPayload;
@@ -11,12 +12,20 @@ export const MetricHistogramDistribution: React.FC<MetricHistogramDistributionPr
   payload,
   height = 320,
 }) => {
+  const { isDark } = useTheme();
   const { metric, distribution } = payload;
   const { unit, colorScheme } = metric;
   const { bins, stats } = distribution;
 
   const categories = bins.map((b) => b.label);
   const data = bins.map((b) => b.count);
+
+  const tooltipBg = isDark ? 'rgba(15, 23, 42, 0.95)' : '#FFFFFF';
+  const tooltipBorder = isDark ? '#334155' : '#CBD5E1';
+  const tooltipText = isDark ? '#f8fafc' : '#0F172A';
+  const axisLineColor = isDark ? '#334155' : '#CBD5E1';
+  const splitLineColor = isDark ? '#1e293b' : '#E2E8F0';
+  const labelColor = isDark ? '#94a3b8' : '#475569';
 
   const option = {
     backgroundColor: 'transparent',
@@ -29,9 +38,9 @@ export const MetricHistogramDistribution: React.FC<MetricHistogramDistributionPr
     },
     tooltip: {
       trigger: 'axis',
-      backgroundColor: 'rgba(15, 23, 42, 0.95)',
-      borderColor: '#334155',
-      textStyle: { color: '#f8fafc', fontFamily: 'monospace', fontSize: 12 },
+      backgroundColor: tooltipBg,
+      borderColor: tooltipBorder,
+      textStyle: { color: tooltipText, fontFamily: 'monospace', fontSize: 12 },
       formatter: (params: any[]) => {
         if (!params || !params.length) return '';
         const item = params[0];
@@ -42,16 +51,16 @@ export const MetricHistogramDistribution: React.FC<MetricHistogramDistributionPr
     xAxis: {
       type: 'category',
       data: categories,
-      axisLine: { lineStyle: { color: '#334155' } },
-      axisLabel: { color: '#94a3b8', fontSize: 10, rotate: 15 },
+      axisLine: { lineStyle: { color: axisLineColor } },
+      axisLabel: { color: labelColor, fontSize: 10, rotate: 15 },
     },
     yAxis: {
       type: 'value',
       name: 'Records',
-      nameTextStyle: { color: '#94a3b8', fontSize: 11 },
-      axisLine: { lineStyle: { color: '#334155' } },
-      splitLine: { lineStyle: { color: '#1e293b' } },
-      axisLabel: { color: '#94a3b8', fontSize: 11 },
+      nameTextStyle: { color: labelColor, fontSize: 11 },
+      axisLine: { lineStyle: { color: axisLineColor } },
+      splitLine: { lineStyle: { color: splitLineColor } },
+      axisLabel: { color: labelColor, fontSize: 11 },
     },
     series: [
       {

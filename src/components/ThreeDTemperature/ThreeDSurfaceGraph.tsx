@@ -15,6 +15,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { TemperatureAnalyticsPayload, TemperatureDataPoint } from '../../types';
+import { useTheme } from '../../context/ThemeContext';
 
 interface ThreeDSurfaceGraphProps {
   analytics: TemperatureAnalyticsPayload;
@@ -29,6 +30,7 @@ export const ThreeDSurfaceGraph: React.FC<ThreeDSurfaceGraphProps> = ({
   height = 560,
   wireframeOverride,
 }) => {
+  const { isDark } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -55,10 +57,12 @@ export const ThreeDSurfaceGraph: React.FC<ThreeDSurfaceGraphProps> = ({
     const width = container.clientWidth || 800;
     const heightPx = typeof height === 'number' ? height : container.clientHeight || 560;
 
+    const bgColor = isDark ? 0x07090e : 0xf1f5f9;
+
     // Scene
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x07090e);
-    scene.fog = new THREE.FogExp2(0x07090e, 0.015);
+    scene.background = new THREE.Color(bgColor);
+    scene.fog = new THREE.FogExp2(bgColor, 0.012);
     sceneRef.current = scene;
 
     // Camera
@@ -88,10 +92,10 @@ export const ThreeDSurfaceGraph: React.FC<ThreeDSurfaceGraphProps> = ({
     controlsRef.current = controls;
 
     // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    const ambientLight = new THREE.AmbientLight(0xffffff, isDark ? 0.8 : 1.1);
     scene.add(ambientLight);
 
-    const dirLight1 = new THREE.DirectionalLight(0xffffff, 1.2);
+    const dirLight1 = new THREE.DirectionalLight(0xffffff, isDark ? 1.2 : 1.4);
     dirLight1.position.set(25, 40, 20);
     dirLight1.castShadow = true;
     scene.add(dirLight1);
@@ -187,7 +191,7 @@ export const ThreeDSurfaceGraph: React.FC<ThreeDSurfaceGraphProps> = ({
       container.removeEventListener('click', handlePointerClick);
       renderer.dispose();
     };
-  }, [height]);
+  }, [height, isDark]);
 
   // Re-build Graph on Data or Settings Change
   const build3DGraph = useCallback(() => {

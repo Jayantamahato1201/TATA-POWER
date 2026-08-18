@@ -119,7 +119,7 @@ export async function migrateJsonToMongo(force = false): Promise<{
   // 1. Users
   if (Array.isArray(raw.users) && raw.users.length > 0) {
     for (const u of raw.users) {
-      await UserModel.findOneAndUpdate({ id: u.id }, u, { upsert: true, returnDocument: 'after' });
+      await UserModel.findOneAndUpdate({ id: u.id }, u, { upsert: true, new: true });
       usersCount++;
     }
   }
@@ -127,7 +127,7 @@ export async function migrateJsonToMongo(force = false): Promise<{
   // 2. Datasets
   if (Array.isArray(raw.datasets) && raw.datasets.length > 0) {
     for (const d of raw.datasets) {
-      await DatasetModel.findOneAndUpdate({ id: d.id }, d, { upsert: true, returnDocument: 'after' });
+      await DatasetModel.findOneAndUpdate({ id: d.id }, d, { upsert: true, new: true });
       datasetsCount++;
     }
   }
@@ -152,7 +152,7 @@ export async function migrateJsonToMongo(force = false): Promise<{
   // 4. Alarm Rules
   if (Array.isArray(raw.alarmRules) && raw.alarmRules.length > 0) {
     for (const r of raw.alarmRules) {
-      await AlarmRuleModel.findOneAndUpdate({ id: r.id }, r, { upsert: true, returnDocument: 'after' });
+      await AlarmRuleModel.findOneAndUpdate({ id: r.id }, r, { upsert: true, new: true });
       alarmRulesCount++;
     }
   }
@@ -160,7 +160,7 @@ export async function migrateJsonToMongo(force = false): Promise<{
   // 5. Alarm Events
   if (Array.isArray(raw.alarmEvents) && raw.alarmEvents.length > 0) {
     for (const e of raw.alarmEvents) {
-      await AlarmEventModel.findOneAndUpdate({ id: e.id }, e, { upsert: true, returnDocument: 'after' });
+      await AlarmEventModel.findOneAndUpdate({ id: e.id }, e, { upsert: true, new: true });
       alarmEventsCount++;
     }
   }
@@ -169,7 +169,7 @@ export async function migrateJsonToMongo(force = false): Promise<{
   if (raw.metricConfigs && typeof raw.metricConfigs === 'object') {
     for (const [k, v] of Object.entries(raw.metricConfigs)) {
       const doc = { metricKey: k, ...(v as any) };
-      await MetricConfigModel.findOneAndUpdate({ metricKey: k }, doc, { upsert: true, returnDocument: 'after' });
+      await MetricConfigModel.findOneAndUpdate({ metricKey: k }, doc, { upsert: true, new: true });
       metricConfigsCount++;
     }
   }
@@ -177,7 +177,7 @@ export async function migrateJsonToMongo(force = false): Promise<{
   // 7. Temperature Configs
   if (Array.isArray(raw.temperatureConfigs) && raw.temperatureConfigs.length > 0) {
     for (const t of raw.temperatureConfigs) {
-      await TemperatureConfigModel.findOneAndUpdate({ id: t.id }, t, { upsert: true, returnDocument: 'after' });
+      await TemperatureConfigModel.findOneAndUpdate({ id: t.id }, t, { upsert: true, new: true });
       tempConfigsCount++;
     }
   }
@@ -185,7 +185,7 @@ export async function migrateJsonToMongo(force = false): Promise<{
   // 8. Chart Configs
   if (Array.isArray(raw.chartConfigs) && raw.chartConfigs.length > 0) {
     for (const c of raw.chartConfigs) {
-      await ChartConfigModel.findOneAndUpdate({ id: c.id }, c, { upsert: true, returnDocument: 'after' });
+      await ChartConfigModel.findOneAndUpdate({ id: c.id }, c, { upsert: true, new: true });
       chartConfigsCount++;
     }
   }
@@ -193,7 +193,7 @@ export async function migrateJsonToMongo(force = false): Promise<{
   // 9. Dashboard Layouts
   if (Array.isArray(raw.dashboardLayouts) && raw.dashboardLayouts.length > 0) {
     for (const l of raw.dashboardLayouts) {
-      await DashboardLayoutModel.findOneAndUpdate({ id: l.id }, l, { upsert: true, returnDocument: 'after' });
+      await DashboardLayoutModel.findOneAndUpdate({ id: l.id }, l, { upsert: true, new: true });
       layoutCount++;
     }
   }
@@ -201,7 +201,7 @@ export async function migrateJsonToMongo(force = false): Promise<{
   // 10. Activity Logs
   if (Array.isArray(raw.activityLogs) && raw.activityLogs.length > 0) {
     for (const log of raw.activityLogs) {
-      await ActivityLogModel.findOneAndUpdate({ id: log.id }, log, { upsert: true, returnDocument: 'after' });
+      await ActivityLogModel.findOneAndUpdate({ id: log.id }, log, { upsert: true, new: true });
       logsCount++;
     }
   }

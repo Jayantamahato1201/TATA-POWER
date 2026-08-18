@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from 'react';
+import { useTheme } from '../../context/ThemeContext';
 
 export const HeroEnergyCanvas: React.FC = () => {
+  const { isDark } = useTheme();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -96,7 +98,7 @@ export const HeroEnergyCanvas: React.FC = () => {
       ctx.clearRect(0, 0, width, height);
 
       // Subtle isometric grid lines
-      ctx.strokeStyle = 'rgba(30, 41, 59, 0.25)';
+      ctx.strokeStyle = isDark ? 'rgba(30, 41, 59, 0.25)' : 'rgba(203, 213, 225, 0.4)';
       ctx.lineWidth = 1;
       const gridSize = 60;
 
@@ -210,7 +212,7 @@ export const HeroEnergyCanvas: React.FC = () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [isDark]);
 
   return (
     <canvas

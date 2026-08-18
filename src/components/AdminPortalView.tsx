@@ -128,14 +128,12 @@ export const AdminPortalView: React.FC = () => {
     }
   };
 
-  // These lists are only needed in their respective tabs. Deferring them
-  // prevents the Admin Portal from opening with two unnecessary serverless
-  // requests, especially noticeable after a Vercel cold start.
   useEffect(() => {
-    if (!token) return;
-    if (activeTab === 'users') void fetchUsers();
-    if (activeTab === 'audit') void fetchAuditLogs();
-  }, [token, activeTab]);
+    if (token) {
+      fetchUsers();
+      fetchAuditLogs();
+    }
+  }, [token]);
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -789,8 +787,8 @@ export const AdminPortalView: React.FC = () => {
           )}
 
           {/* Users Table */}
-          <div className="overflow-x-auto rounded-sm border border-[#222] bg-[#0A0A0A] shadow-xl">
-            <table className="w-full text-left text-xs font-mono">
+          <div className="table-responsive-container w-full max-w-full overflow-x-auto rounded-sm border border-[#222] bg-[#0A0A0A] shadow-xl">
+            <table className="w-full text-left text-xs font-mono min-w-[600px]">
               <thead className="bg-[#111] text-[#888] border-b border-[#222] uppercase tracking-wider">
                 <tr>
                   <th className="p-4">Staff Member</th>

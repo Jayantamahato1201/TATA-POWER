@@ -43,7 +43,7 @@ export const AboutJojoberaView: React.FC = () => {
             <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight uppercase mt-2">
               Tata Power at a Glance
             </h2>
-            <p className="text-xs sm:text-sm text-[#94A3B8] max-w-2xl font-light">
+            <p className="text-xs sm:text-sm text-[#CBD5E1] max-w-2xl font-normal">
               Official company-wide reference metrics representing Tata Power's nationwide utility footprint.
             </p>
           </div>
@@ -56,46 +56,46 @@ export const AboutJojoberaView: React.FC = () => {
         {/* Corporate Metrics Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 font-mono">
           <div className="p-5 rounded-xs bg-[#070D18] border border-[#1E293B] hover:border-[#205CA5]/70 transition-all space-y-2">
-            <div className="text-[#94A3B8] text-[10px] uppercase">Total Generation</div>
+            <div className="text-[#94A3B8] text-[10px] uppercase font-semibold">Total Generation</div>
             <div className="text-2xl sm:text-3xl font-black text-white">
-              16,716 <span className="text-sm text-[#38BDF8] font-sans">MW</span>
+              16,716 <span className="text-sm text-[#38BDF8] font-sans font-bold">MW</span>
             </div>
-            <p className="text-[11px] text-[#94A3B8] font-sans">Total Generation Operational Capacity</p>
-            <div className="text-[9px] text-[#64748B] pt-1 border-t border-[#1E293B]">FY2025-26 VERIFIED</div>
+            <p className="text-[11px] text-[#CBD5E1] font-sans">Total Generation Operational Capacity</p>
+            <div className="text-[9px] text-[#94A3B8] pt-1 border-t border-[#1E293B]">FY2025-26 VERIFIED</div>
           </div>
 
           <div className="p-5 rounded-xs bg-[#070D18] border border-[#1E293B] hover:border-[#00FF41]/60 transition-all space-y-2">
-            <div className="text-[#94A3B8] text-[10px] uppercase">Clean & Green</div>
+            <div className="text-[#94A3B8] text-[10px] uppercase font-semibold">Clean & Green</div>
             <div className="text-2xl sm:text-3xl font-black text-[#00FF41]">
-              7,856 <span className="text-sm font-sans">MW</span>
+              7,856 <span className="text-sm font-sans font-bold">MW</span>
             </div>
-            <p className="text-[11px] text-[#94A3B8] font-sans">Clean and Green Operational Capacity</p>
-            <div className="text-[9px] text-[#64748B] pt-1 border-t border-[#1E293B]">FY2025-26 VERIFIED</div>
+            <p className="text-[11px] text-[#CBD5E1] font-sans">Clean and Green Operational Capacity</p>
+            <div className="text-[9px] text-[#94A3B8] pt-1 border-t border-[#1E293B]">FY2025-26 VERIFIED</div>
           </div>
 
           <div className="p-5 rounded-xs bg-[#070D18] border border-[#1E293B] hover:border-teal-500/60 transition-all space-y-2">
-            <div className="text-[#94A3B8] text-[10px] uppercase">Clean Energy Share</div>
+            <div className="text-[#94A3B8] text-[10px] uppercase font-semibold">Clean Energy Share</div>
             <div className="text-2xl sm:text-3xl font-black text-teal-300">47%</div>
-            <p className="text-[11px] text-[#94A3B8] font-sans">Share in Operational Portfolio</p>
-            <div className="text-[9px] text-[#64748B] pt-1 border-t border-[#1E293B]">OPERATIONAL PORTFOLIO</div>
+            <p className="text-[11px] text-[#CBD5E1] font-sans">Share in Operational Portfolio</p>
+            <div className="text-[9px] text-[#94A3B8] pt-1 border-t border-[#1E293B]">OPERATIONAL PORTFOLIO</div>
           </div>
 
           <div className="p-5 rounded-xs bg-[#070D18] border border-[#1E293B] hover:border-sky-500/60 transition-all space-y-2">
-            <div className="text-[#94A3B8] text-[10px] uppercase">Customer Base</div>
+            <div className="text-[#94A3B8] text-[10px] uppercase font-semibold">Customer Base</div>
             <div className="text-2xl sm:text-3xl font-black text-sky-400">
-              13.1+ <span className="text-sm font-sans">M</span>
+              13.1+ <span className="text-sm font-sans font-bold">M</span>
             </div>
-            <p className="text-[11px] text-[#94A3B8] font-sans">Distribution Customer Base</p>
-            <div className="text-[9px] text-[#64748B] pt-1 border-t border-[#1E293B]">DISTRIBUTION NETWORK</div>
+            <p className="text-[11px] text-[#CBD5E1] font-sans">Distribution Customer Base</p>
+            <div className="text-[9px] text-[#94A3B8] pt-1 border-t border-[#1E293B]">DISTRIBUTION NETWORK</div>
           </div>
 
           <div className="p-5 rounded-xs bg-[#070D18] border border-[#1E293B] hover:border-[#205CA5]/70 transition-all space-y-2 sm:col-span-2 lg:col-span-1">
-            <div className="text-[#94A3B8] text-[10px] uppercase">Transmission Network</div>
+            <div className="text-[#94A3B8] text-[10px] uppercase font-semibold">Transmission Network</div>
             <div className="text-2xl sm:text-3xl font-black text-[#93C5FD]">
-              7,403 <span className="text-sm font-sans">ckm</span>
+              7,403 <span className="text-sm font-sans font-bold">ckm</span>
             </div>
-            <p className="text-[11px] text-[#94A3B8] font-sans">Total Transmission Portfolio*</p>
-            <div className="text-[9px] text-[#64748B] pt-1 border-t border-[#1E293B]">*INCL. UNDER-CONSTRUCTION</div>
+            <p className="text-[11px] text-[#CBD5E1] font-sans">Total Transmission Portfolio*</p>
+            <div className="text-[9px] text-[#94A3B8] pt-1 border-t border-[#1E293B]">*INCL. UNDER-CONSTRUCTION</div>
           </div>
         </div>
       </section>
@@ -114,7 +114,7 @@ export const AboutJojoberaView: React.FC = () => {
             <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight uppercase">
               About Jojobera
             </h2>
-            <p className="text-base text-[#CBD5E1] mt-2 font-light leading-relaxed">
+            <p className="text-base text-[#CBD5E1] mt-2 font-normal leading-relaxed">
               Tata Power's journey in Jharkhand began with the Jojobera Thermal Power Station in 1997. Located in Jojobera, Jharkhand, the station has a plant capacity of 427.5 MW and forms an important part of Tata Power's thermal generation portfolio.
             </p>
           </div>
@@ -131,9 +131,9 @@ export const AboutJojoberaView: React.FC = () => {
               <Zap className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-xs text-[#94A3B8] font-mono uppercase">Plant Capacity</span>
+              <span className="text-xs text-[#94A3B8] font-mono uppercase font-semibold">Plant Capacity</span>
               <h3 className="text-2xl font-bold text-white font-mono">427.5 MW</h3>
-              <p className="text-xs text-[#94A3B8] mt-1">Total Installed Capacity</p>
+              <p className="text-xs text-[#CBD5E1] mt-1">Total Installed Capacity</p>
             </div>
           </div>
 
@@ -142,9 +142,9 @@ export const AboutJojoberaView: React.FC = () => {
               <Calendar className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-xs text-[#94A3B8] font-mono uppercase">Operational Journey</span>
+              <span className="text-xs text-[#94A3B8] font-mono uppercase font-semibold">Operational Journey</span>
               <h3 className="text-2xl font-bold text-white font-mono">Since 1997</h3>
-              <p className="text-xs text-[#94A3B8] mt-1">Tata Power in Jharkhand</p>
+              <p className="text-xs text-[#CBD5E1] mt-1">Tata Power in Jharkhand</p>
             </div>
           </div>
 
@@ -153,9 +153,9 @@ export const AboutJojoberaView: React.FC = () => {
               <MapPin className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-xs text-[#94A3B8] font-mono uppercase">Plant Location</span>
+              <span className="text-xs text-[#94A3B8] font-mono uppercase font-semibold">Plant Location</span>
               <h3 className="text-xl font-bold text-white font-mono">Jojobera, Jharkhand</h3>
-              <p className="text-xs text-[#94A3B8] mt-1">Jamshedpur Region</p>
+              <p className="text-xs text-[#CBD5E1] mt-1">Jamshedpur Region</p>
             </div>
           </div>
         </div>
@@ -167,7 +167,7 @@ export const AboutJojoberaView: React.FC = () => {
             <span>Station Evolution & Strategic Role</span>
           </h3>
 
-          <div className="space-y-4 text-sm text-[#CBD5E1] leading-relaxed font-light">
+          <div className="space-y-4 text-sm text-[#CBD5E1] leading-relaxed font-normal">
             <p>
               The company's Jharkhand presence began with the acquisition of a 67.5 MW captive power unit from Tata Steel. Tata Power subsequently expanded the Jojobera operation by adding five more units in response to growing power requirements.
             </p>
@@ -184,7 +184,7 @@ export const AboutJojoberaView: React.FC = () => {
               <Leaf className="w-7 h-7" />
             </div>
             <h3 className="text-2xl font-bold text-white uppercase font-mono">Advanced DE-NOx Technology</h3>
-            <p className="text-sm text-[#94A3B8] leading-relaxed font-light">
+            <p className="text-sm text-[#CBD5E1] leading-relaxed font-normal">
               The Jojobera plant is recognized as the first in the industry to use an advanced DE-NOx system to optimise combustion and curb emissions.
             </p>
             <ul className="space-y-2 pt-2 text-xs text-[#CBD5E1] font-mono">

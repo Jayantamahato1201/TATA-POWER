@@ -361,8 +361,8 @@ export const DataExplorerView: React.FC<{ onOpenUpload: () => void }> = ({ onOpe
             No datasets currently stored in database. Upload a file above to begin.
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-[#1E293B] bg-[#070D18]">
-            <table className="w-full text-left text-xs">
+          <div className="table-responsive-container w-full max-w-full overflow-x-auto rounded-xl border border-[#1E293B] bg-[#070D18]">
+            <table className="w-full text-left text-xs min-w-[650px]">
               <thead className="bg-[#0A1124] text-[#94A3B8] font-mono uppercase text-[11px] border-b border-[#1E293B]">
                 <tr>
                   <th className="px-4 py-3 font-semibold">Dataset Name</th>
@@ -426,7 +426,7 @@ export const DataExplorerView: React.FC<{ onOpenUpload: () => void }> = ({ onOpe
                           {/* View */}
                           <button
                             onClick={() => setSelectedDatasetId(dataset.id)}
-                            className="px-2.5 py-1 rounded bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-medium cursor-pointer"
+                            className="px-2.5 py-1 rounded bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-medium cursor-pointer min-h-[30px]"
                           >
                             View
                           </button>
@@ -434,7 +434,7 @@ export const DataExplorerView: React.FC<{ onOpenUpload: () => void }> = ({ onOpe
                           {/* Download CSV */}
                           <button
                             onClick={() => exportDatasetCSV(dataset.id)}
-                            className="p-1 rounded bg-[#1E293B] hover:bg-[#334155] text-[#94A3B8] hover:text-white cursor-pointer"
+                            className="p-1.5 rounded bg-[#1E293B] hover:bg-[#334155] text-[#94A3B8] hover:text-white cursor-pointer min-h-[30px] min-w-[30px] flex items-center justify-center"
                             title="Download CSV"
                           >
                             <Download className="w-3.5 h-3.5" />
@@ -451,7 +451,7 @@ export const DataExplorerView: React.FC<{ onOpenUpload: () => void }> = ({ onOpe
                                 });
                                 actionFileInputRef.current?.click();
                               }}
-                              className="px-2 py-1 rounded bg-[#1E293B] hover:bg-[#334155] text-amber-400 text-xs font-mono cursor-pointer"
+                              className="px-2 py-1 rounded bg-[#1E293B] hover:bg-[#334155] text-amber-400 text-xs font-mono cursor-pointer min-h-[30px]"
                               title="Replace dataset file"
                             >
                               Replace
@@ -469,7 +469,7 @@ export const DataExplorerView: React.FC<{ onOpenUpload: () => void }> = ({ onOpe
                                 });
                                 actionFileInputRef.current?.click();
                               }}
-                              className="px-2 py-1 rounded bg-[#1E293B] hover:bg-[#334155] text-emerald-400 text-xs font-mono cursor-pointer"
+                              className="px-2 py-1 rounded bg-[#1E293B] hover:bg-[#334155] text-emerald-400 text-xs font-mono cursor-pointer min-h-[30px]"
                               title="Append new rows to dataset"
                             >
                               Append
@@ -484,7 +484,7 @@ export const DataExplorerView: React.FC<{ onOpenUpload: () => void }> = ({ onOpe
                                   deleteDataset(dataset.id);
                                 }
                               }}
-                              className="p-1 rounded bg-[#1E293B] hover:bg-rose-950 text-rose-400 cursor-pointer"
+                              className="p-1.5 rounded bg-[#1E293B] hover:bg-rose-950 text-rose-400 cursor-pointer min-h-[30px] min-w-[30px] flex items-center justify-center"
                               title="Delete dataset"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -512,7 +512,7 @@ export const DataExplorerView: React.FC<{ onOpenUpload: () => void }> = ({ onOpe
 
       {/* RECORD PREVIEW TABLE (FOR SELECTED DATASET) */}
       {currentDataset && (
-        <div className="p-5 rounded-xl bg-[#0F172A] border border-[#1E293B] space-y-4">
+        <div className="p-4 sm:p-5 rounded-xl bg-[#0F172A] border border-[#1E293B] space-y-4">
           {/* Record Table Header & Search Controls */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#1E293B]">
             <div>
@@ -530,9 +530,9 @@ export const DataExplorerView: React.FC<{ onOpenUpload: () => void }> = ({ onOpe
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2.5">
+            <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
               {/* Search Bar */}
-              <div className="relative">
+              <div className="relative flex-1 sm:flex-none">
                 <Search className="w-3.5 h-3.5 text-[#64748B] absolute left-2.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
@@ -542,12 +542,12 @@ export const DataExplorerView: React.FC<{ onOpenUpload: () => void }> = ({ onOpe
                     setSearchQuery(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="pl-8 pr-3 py-1.5 rounded-lg bg-[#070D18] border border-[#1E293B] text-xs text-white placeholder-[#64748B] focus:outline-none focus:border-[#0284C7] w-48 sm:w-60"
+                  className="pl-8 pr-3 py-1.5 rounded-lg bg-[#070D18] border border-[#1E293B] text-xs text-white placeholder-[#64748B] focus:outline-none focus:border-[#0284C7] w-full sm:w-60 min-h-[36px]"
                 />
               </div>
 
               {/* Rows Per Page Selector */}
-              <div className="flex items-center space-x-1.5 bg-[#070D18] px-2.5 py-1 rounded-lg border border-[#1E293B]">
+              <div className="flex items-center space-x-1.5 bg-[#070D18] px-2.5 py-1 rounded-lg border border-[#1E293B] min-h-[36px]">
                 <span className="text-[11px] text-[#94A3B8] font-mono">Show:</span>
                 <select
                   value={pageSize}
@@ -566,8 +566,8 @@ export const DataExplorerView: React.FC<{ onOpenUpload: () => void }> = ({ onOpe
           </div>
 
           {/* Table Container */}
-          <div className="overflow-x-auto rounded-xl border border-[#1E293B] bg-[#070D18]">
-            <table className="w-full text-left text-xs font-mono">
+          <div className="table-responsive-container w-full max-w-full overflow-x-auto rounded-xl border border-[#1E293B] bg-[#070D18]">
+            <table className="w-full text-left text-xs font-mono min-w-[500px]">
               <thead className="bg-[#0A1124] text-[#94A3B8] uppercase text-[11px] border-b border-[#1E293B]">
                 <tr>
                   <th className="px-4 py-2.5 font-semibold text-[#64748B]">#</th>

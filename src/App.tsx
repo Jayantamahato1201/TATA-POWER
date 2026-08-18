@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { DataProvider, useData } from './context/DataContext';
 import { CinematicLoader } from './components/CinematicLoader';
@@ -118,11 +119,13 @@ const MainApplication: React.FC = () => {
 
 export const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <DataProvider>
-        <MainApplication />
-      </DataProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <DataProvider>
+          <MainApplication />
+        </DataProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 };
 

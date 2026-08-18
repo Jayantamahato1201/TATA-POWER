@@ -34,7 +34,7 @@ export const OperationsOverviewSection: React.FC = () => {
             <h2 className="text-2xl sm:text-4xl font-extrabold text-white uppercase tracking-tight font-sans">
               About Jojobera
             </h2>
-            <p className="text-sm sm:text-base text-[#CBD5E1] leading-relaxed font-light">
+            <p className="text-sm sm:text-base text-[#CBD5E1] leading-relaxed font-normal">
               Tata Power's journey in Jharkhand began with the Jojobera Thermal Power Station in 1997. Located in Jojobera, Jharkhand, the station has a plant capacity of 427.5 MW and forms an important part of Tata Power's thermal generation portfolio.
             </p>
           </div>
@@ -61,7 +61,7 @@ export const OperationsOverviewSection: React.FC = () => {
                 </div>
               </div>
 
-              <p className="text-xs sm:text-sm text-[#CBD5E1] leading-relaxed font-light">
+              <p className="text-xs sm:text-sm text-[#CBD5E1] leading-relaxed font-normal">
                 The company's Jharkhand presence began with the acquisition of a 67.5 MW captive power unit from Tata Steel. Tata Power subsequently expanded the Jojobera operation by adding five more units in response to growing power requirements.
               </p>
             </div>
@@ -87,7 +87,7 @@ export const OperationsOverviewSection: React.FC = () => {
                 </div>
               </div>
 
-              <p className="text-xs sm:text-sm text-[#CBD5E1] leading-relaxed font-light">
+              <p className="text-xs sm:text-sm text-[#CBD5E1] leading-relaxed font-normal">
                 According to Tata Power, Jojobera is a vital source of energy for Jamshedpur and Tata Steel. The station delivers continuous base-load power critical to regional manufacturing and civic infrastructure reliability.
               </p>
             </div>
@@ -113,7 +113,7 @@ export const OperationsOverviewSection: React.FC = () => {
                 </div>
               </div>
 
-              <p className="text-xs sm:text-sm text-[#CBD5E1] leading-relaxed font-light">
+              <p className="text-xs sm:text-sm text-[#CBD5E1] leading-relaxed font-normal">
                 The plant is recognized as the first in the industry to use an advanced DE-NOx system to optimise combustion and reduce emissions, maintaining operational excellence while reducing environmental footprint.
               </p>
             </div>

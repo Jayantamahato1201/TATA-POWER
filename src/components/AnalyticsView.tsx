@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { DatasetMetricsOverview, MetricDefinition, MetricAnalyticsPayload, MetricThresholdConfig } from '../types';
 import { Metric3DSurfaceGraph } from './MetricVisualizer/Metric3DSurfaceGraph';
 
@@ -55,6 +56,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onOpenUpload }) =>
     saveAlarmRule,
   } = useData();
   const { token, isStaff, isAdmin } = useAuth();
+  const { isDark } = useTheme();
 
   const [overview, setOverview] = useState<DatasetMetricsOverview | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -378,7 +380,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onOpenUpload }) =>
       const base64 = echartsInstance.getDataURL({
         type: 'png',
         pixelRatio: 2,
-        backgroundColor: '#0A1124',
+        backgroundColor: isDark ? '#0A1124' : '#FFFFFF',
       });
       const link = document.createElement('a');
       link.download = `${activeMetricDefinition.name.replace(/\s+/g, '_').toLowerCase()}_chart.png`;
@@ -581,6 +583,17 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onOpenUpload }) =>
       };
     });
 
+    const tooltipBg = isDark ? '#0F172A' : '#FFFFFF';
+    const tooltipBorder = isDark ? '#1E293B' : '#CBD5E1';
+    const tooltipText = isDark ? '#E2E8F0' : '#0F172A';
+    const tooltipTitle = isDark ? '#38BDF8' : '#0284C7';
+    const tooltipMuted = isDark ? '#94A3B8' : '#475569';
+    const tooltipValColor = isDark ? '#FFFFFF' : '#0F172A';
+    const axisLineColor = isDark ? '#1E293B' : '#CBD5E1';
+    const axisLabelColor = isDark ? '#64748B' : '#475569';
+    const splitLineColor = isDark ? '#1E293B' : '#E2E8F0';
+    const legendColor = isDark ? '#94A3B8' : '#334155';
+
     return {
       backgroundColor: 'transparent',
       animationDuration: 600,
@@ -593,16 +606,16 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onOpenUpload }) =>
       },
       tooltip: {
         trigger: 'axis',
-        backgroundColor: '#0F172A',
-        borderColor: '#1E293B',
+        backgroundColor: tooltipBg,
+        borderColor: tooltipBorder,
         borderWidth: 1,
         padding: [10, 12],
-        textStyle: { color: '#E2E8F0', fontSize: 12, fontFamily: 'monospace' },
+        textStyle: { color: tooltipText, fontSize: 12, fontFamily: 'monospace' },
         formatter: (params: any[]) => {
           if (!params || !params.length) return '';
           const first = params[0];
           const timeLabel = first.axisValueLabel || '';
-          let html = `<div style="font-weight:bold;color:#94A3B8;margin-bottom:6px;border-bottom:1px solid #1E293B;padding-bottom:4px;">
+          let html = `<div style="font-weight:bold;color:${tooltipTitle};margin-bottom:6px;border-bottom:1px solid ${tooltipBorder};padding-bottom:4px;">
             ${activeMetricDefinition.name} &bull; ${timeLabel}
           </div>`;
 
@@ -613,7 +626,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onOpenUpload }) =>
                 <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${item.color};"></span>
                 ${item.seriesName}:
               </span>
-              <strong style="color:#FFFFFF;">${val} ${unit}</strong>
+              <strong style="color:${tooltipValColor};">${val} ${unit}</strong>
             </div>`;
           });
           return html;
@@ -623,16 +636,16 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onOpenUpload }) =>
         show: generatorSeries.length > 1,
         top: 5,
         right: 20,
-        textStyle: { color: '#94A3B8', fontSize: 11 },
+        textStyle: { color: legendColor, fontSize: 11 },
         icon: 'roundRect',
       },
       xAxis: {
         type: 'category',
         data: timestamps,
         boundaryGap: chartType === 'bar',
-        axisLine: { lineStyle: { color: '#1E293B' } },
+        axisLine: { lineStyle: { color: axisLineColor } },
         axisLabel: {
-          color: '#64748B',
+          color: axisLabelColor,
           fontSize: 10,
           fontFamily: 'monospace',
           rotate: timestamps.length > 20 ? 30 : 0,
@@ -642,15 +655,15 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onOpenUpload }) =>
       yAxis: {
         type: 'value',
         name: unit ? `${activeMetricDefinition.name} (${unit})` : activeMetricDefinition.name,
-        nameTextStyle: { color: '#64748B', fontSize: 10, padding: [0, 0, 5, 0] },
+        nameTextStyle: { color: axisLabelColor, fontSize: 10, padding: [0, 0, 5, 0] },
         axisLine: { show: false },
         axisLabel: {
-          color: '#64748B',
+          color: axisLabelColor,
           fontSize: 10,
           fontFamily: 'monospace',
           formatter: (v: number) => `${v.toFixed(0)}${unit}`,
         },
-        splitLine: { lineStyle: { color: '#1E293B', type: 'dashed' } },
+        splitLine: { lineStyle: { color: splitLineColor, type: 'dashed' } },
       },
       dataZoom: [
         {
@@ -663,9 +676,9 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onOpenUpload }) =>
           show: timestamps.length > 40,
           bottom: 10,
           height: 16,
-          borderColor: '#1E293B',
-          fillerColor: 'rgba(2, 132, 199, 0.2)',
-          handleStyle: { color: '#38BDF8' },
+          borderColor: axisLineColor,
+          fillerColor: isDark ? 'rgba(2, 132, 199, 0.2)' : 'rgba(32, 92, 165, 0.15)',
+          handleStyle: { color: '#0284C7' },
           textStyle: { color: 'transparent' },
         },
       ],
@@ -678,10 +691,10 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onOpenUpload }) =>
   return (
     <div id="analytics-view-container" className="w-full space-y-5 pb-12">
       {/* Top Header Controls: Dataset Selector + 2D/3D View Switcher */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-xl bg-[#0F172A] border border-[#1E293B]">
-        <div>
-          <h1 className="text-xl font-bold text-white tracking-tight flex items-center space-x-2">
-            <Activity className="w-5 h-5 text-[#38BDF8]" />
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-3.5 sm:p-4 rounded-xl bg-[#0F172A] border border-[#1E293B]">
+        <div className="min-w-0">
+          <h1 className="text-lg sm:text-xl font-bold text-white tracking-tight flex items-center space-x-2">
+            <Activity className="w-5 h-5 text-[#38BDF8] shrink-0" />
             <span>Telemetry & Equipment Analytics</span>
           </h1>
           <p className="text-xs text-[#94A3B8] mt-0.5">
@@ -689,35 +702,35 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onOpenUpload }) =>
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full lg:w-auto">
           {/* Action Buttons: Add Point & Configure Thresholds */}
           <button
             id="btn-analytics-add-record"
             onClick={handleOpenAddDataModal}
-            className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center space-x-1.5 transition-colors shadow-sm cursor-pointer"
+            className="flex-1 sm:flex-none px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center justify-center space-x-1.5 transition-colors shadow-sm cursor-pointer min-h-[38px]"
           >
-            <PlusCircle className="w-3.5 h-3.5" />
+            <PlusCircle className="w-3.5 h-3.5 shrink-0" />
             <span>Add Telemetry Point</span>
           </button>
 
           <button
             id="btn-analytics-config-metric"
             onClick={handleOpenConfigModal}
-            className="px-3 py-1.5 rounded-lg bg-[#070D18] hover:bg-[#1E293B] border border-[#1E293B] text-sky-400 hover:text-white text-xs font-semibold flex items-center space-x-1.5 transition-colors cursor-pointer"
+            className="flex-1 sm:flex-none px-3 py-1.5 rounded-lg bg-[#070D18] hover:bg-[#1E293B] border border-[#1E293B] text-sky-400 hover:text-white text-xs font-semibold flex items-center justify-center space-x-1.5 transition-colors cursor-pointer min-h-[38px]"
           >
-            <Settings2 className="w-3.5 h-3.5 text-sky-400" />
+            <Settings2 className="w-3.5 h-3.5 text-sky-400 shrink-0" />
             <span>Configure Thresholds</span>
           </button>
 
           {/* Select Dataset Dropdown */}
-          <div className="flex items-center space-x-2">
-            <span className="text-xs text-[#94A3B8] font-mono whitespace-nowrap hidden sm:inline">
+          <div className="flex items-center space-x-2 w-full sm:w-auto min-w-0">
+            <span className="text-xs text-[#94A3B8] font-mono whitespace-nowrap hidden sm:inline shrink-0">
               Dataset:
             </span>
             <select
               value={selectedDatasetId || ''}
               onChange={(e) => setSelectedDatasetId(e.target.value)}
-              className="px-3 py-1.5 rounded-lg bg-[#070D18] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#0284C7] cursor-pointer"
+              className="w-full sm:w-auto max-w-full px-3 py-1.5 rounded-lg bg-[#070D18] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#0284C7] cursor-pointer min-h-[38px] truncate"
             >
               {datasets.map((d) => (
                 <option key={d.id} value={d.id}>
@@ -728,27 +741,27 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onOpenUpload }) =>
           </div>
 
           {/* 2D View / 3D View Switcher */}
-          <div className="flex items-center rounded-lg bg-[#070D18] p-0.5 border border-[#1E293B]">
+          <div className="flex items-center rounded-lg bg-[#070D18] p-0.5 border border-[#1E293B] w-full sm:w-auto justify-center">
             <button
               onClick={() => setViewMode('2d')}
-              className={`px-3 py-1 rounded-md text-xs font-medium transition-colors flex items-center space-x-1.5 cursor-pointer ${
+              className={`flex-1 sm:flex-none px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center justify-center space-x-1.5 cursor-pointer min-h-[34px] ${
                 viewMode === '2d'
                   ? 'bg-[#0284C7] text-white font-semibold shadow-sm'
                   : 'text-[#94A3B8] hover:text-white'
               }`}
             >
-              <Activity className="w-3.5 h-3.5" />
+              <Activity className="w-3.5 h-3.5 shrink-0" />
               <span>2D Graph</span>
             </button>
             <button
               onClick={() => setViewMode('3d')}
-              className={`px-3 py-1 rounded-md text-xs font-medium transition-colors flex items-center space-x-1.5 cursor-pointer ${
+              className={`flex-1 sm:flex-none px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center justify-center space-x-1.5 cursor-pointer min-h-[34px] ${
                 viewMode === '3d'
                   ? 'bg-[#0284C7] text-white font-semibold shadow-sm'
                   : 'text-[#94A3B8] hover:text-white'
               }`}
             >
-              <Box className="w-3.5 h-3.5" />
+              <Box className="w-3.5 h-3.5 shrink-0" />
               <span>3D Analytics</span>
             </button>
           </div>
@@ -759,7 +772,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onOpenUpload }) =>
       <div className="p-3 rounded-xl bg-[#0F172A] border border-[#1E293B] space-y-2">
         <div className="flex items-center justify-between text-[11px] font-mono text-[#64748B] uppercase tracking-wider px-1">
           <span>Available Metric Channels ({detectedMetrics.length})</span>
-          <span>Click to switch visualization</span>
+          <span className="hidden sm:inline">Click to switch visualization</span>
         </div>
 
         {detectedMetrics.length === 0 ? (
@@ -767,7 +780,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onOpenUpload }) =>
             No numeric telemetry channels detected in this dataset.
           </div>
         ) : (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {detectedMetrics.map((metric) => {
               const isSelected = (metric.id === selectedMetricKey) || (metric.key === selectedMetricKey);
               return (
@@ -775,17 +788,17 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onOpenUpload }) =>
                   key={metric.id}
                   id={`metric-chip-${metric.id}`}
                   onClick={() => setSelectedMetricKey(metric.id)}
-                  className={`px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center space-x-2 cursor-pointer ${
+                  className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs font-medium transition-all flex items-center space-x-1.5 sm:space-x-2 cursor-pointer min-h-[36px] ${
                     isSelected
                       ? 'bg-[#0284C7] text-white font-semibold shadow-md shadow-sky-950/50 ring-1 ring-sky-400'
                       : 'bg-[#070D18] hover:bg-[#1E293B] text-[#94A3B8] hover:text-white border border-[#1E293B]'
                   }`}
                 >
                   {getMetricIcon(metric.category)}
-                  <span>{metric.name}</span>
+                  <span className="truncate max-w-[160px] sm:max-w-none">{metric.name}</span>
                   {metric.unit && (
                     <span
-                      className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${
+                      className={`text-[10px] font-mono px-1.5 py-0.2 rounded shrink-0 ${
                         isSelected ? 'bg-black/30 text-white' : 'bg-[#1E293B] text-[#64748B]'
                       }`}
                     >

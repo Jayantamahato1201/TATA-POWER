@@ -11,13 +11,23 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { AlarmAnalyticsPayload } from '../../types';
+import { useTheme } from '../../context/ThemeContext';
 
 interface AlarmAnalyticsViewProps {
   analytics: AlarmAnalyticsPayload;
 }
 
 export const AlarmAnalyticsView: React.FC<AlarmAnalyticsViewProps> = ({ analytics }) => {
+  const { isDark } = useTheme();
   const { timeline, bySeverity, byType, byEquipment, durationStats, valuesByUnit } = analytics;
+
+  const tooltipBg = isDark ? 'rgba(15, 23, 42, 0.95)' : '#FFFFFF';
+  const tooltipBorder = isDark ? '#334155' : '#CBD5E1';
+  const tooltipText = isDark ? '#f8fafc' : '#0F172A';
+  const axisLineColor = isDark ? '#334155' : '#CBD5E1';
+  const splitLineColor = isDark ? '#1e293b' : '#E2E8F0';
+  const labelColor = isDark ? '#94a3b8' : '#475569';
+  const pieBorderColor = isDark ? '#0f172a' : '#ffffff';
 
   // Timeline EChart Option
   const timelineCategories = timeline.map((t) => t.timestamp);
@@ -29,27 +39,27 @@ export const AlarmAnalyticsView: React.FC<AlarmAnalyticsViewProps> = ({ analytic
     grid: { left: '3%', right: '4%', bottom: '15%', top: '15%', containLabel: true },
     tooltip: {
       trigger: 'axis',
-      backgroundColor: 'rgba(15, 23, 42, 0.95)',
-      borderColor: '#334155',
-      textStyle: { color: '#f8fafc', fontFamily: 'monospace' },
+      backgroundColor: tooltipBg,
+      borderColor: tooltipBorder,
+      textStyle: { color: tooltipText, fontFamily: 'monospace' },
     },
     legend: {
       top: 0,
-      textStyle: { color: '#94a3b8', fontFamily: 'monospace' },
+      textStyle: { color: labelColor, fontFamily: 'monospace' },
     },
     xAxis: {
       type: 'category',
       data: timelineCategories,
-      axisLine: { lineStyle: { color: '#334155' } },
-      axisLabel: { color: '#94a3b8', fontSize: 10, rotate: 20 },
+      axisLine: { lineStyle: { color: axisLineColor } },
+      axisLabel: { color: labelColor, fontSize: 10, rotate: 20 },
     },
     yAxis: {
       type: 'value',
       name: 'Alarm Count',
-      nameTextStyle: { color: '#94a3b8' },
-      axisLine: { lineStyle: { color: '#334155' } },
-      splitLine: { lineStyle: { color: '#1e293b' } },
-      axisLabel: { color: '#94a3b8' },
+      nameTextStyle: { color: labelColor },
+      axisLine: { lineStyle: { color: axisLineColor } },
+      splitLine: { lineStyle: { color: splitLineColor } },
+      axisLabel: { color: labelColor },
     },
     series: [
       {
@@ -82,15 +92,15 @@ export const AlarmAnalyticsView: React.FC<AlarmAnalyticsViewProps> = ({ analytic
     backgroundColor: 'transparent',
     tooltip: {
       trigger: 'item',
-      backgroundColor: 'rgba(15, 23, 42, 0.95)',
-      borderColor: '#334155',
-      textStyle: { color: '#f8fafc', fontFamily: 'monospace' },
+      backgroundColor: tooltipBg,
+      borderColor: tooltipBorder,
+      textStyle: { color: tooltipText, fontFamily: 'monospace' },
       formatter: '{b}: {c} ({d}%)',
     },
     legend: {
       bottom: '0%',
       left: 'center',
-      textStyle: { color: '#94a3b8', fontFamily: 'monospace' },
+      textStyle: { color: labelColor, fontFamily: 'monospace' },
     },
     series: [
       {
@@ -100,7 +110,7 @@ export const AlarmAnalyticsView: React.FC<AlarmAnalyticsViewProps> = ({ analytic
         avoidLabelOverlap: false,
         itemStyle: {
           borderRadius: 6,
-          borderColor: '#0f172a',
+          borderColor: pieBorderColor,
           borderWidth: 2,
         },
         label: {
@@ -112,7 +122,7 @@ export const AlarmAnalyticsView: React.FC<AlarmAnalyticsViewProps> = ({ analytic
             show: true,
             fontSize: 14,
             fontWeight: 'bold',
-            color: '#fff',
+            color: isDark ? '#fff' : '#0F172A',
           },
         },
         data: pieData,

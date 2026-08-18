@@ -290,23 +290,23 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
           ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <section
         id="about-jojobera-operations"
-        className="w-full rounded-2xl border border-[#1E293B] bg-[#0A101D] p-6 sm:p-8 lg:p-10 space-y-6 shadow-sm"
+        className="w-full max-w-full rounded-2xl border border-[#1E293B] bg-[#0A101D] p-5 sm:p-7 lg:p-9 space-y-6 shadow-sm"
       >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1E293B] pb-4">
-          <div>
+          <div className="min-w-0 max-w-full">
             <div className="flex items-center space-x-2">
-              <span className="w-2 h-2 rounded-full bg-[#0284C7]" />
-              <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight font-sans uppercase">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#0284C7] shrink-0" />
+              <h2 className="text-xl sm:text-2xl font-extrabold text-[#F8FAFC] tracking-tight font-sans uppercase break-words">
                 About Jojobera Operations
               </h2>
             </div>
-            <p className="text-xs text-[#94A3B8] mt-1">
+            <p className="text-xs sm:text-sm text-[#CBD5E1] mt-1 font-normal break-words">
               Verified corporate profile and operational background · Tata Power Jojobera Thermal Power Station
             </p>
           </div>
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-md bg-[#0F172A] border border-[#1E293B] text-[11px] font-mono text-[#38BDF8]">
-            <Building className="w-3.5 h-3.5" />
-            <span>Facility Code: TP-JSR-JOJOBERA</span>
+          <div className="facility-badge-dark self-start sm:self-center shrink-0 inline-flex items-center space-x-2 px-3 py-1.5 rounded-md text-xs font-mono text-[#F1F5F9] bg-[#0F172A] border border-[#1E293B]">
+            <Building className="w-3.5 h-3.5 text-[#38BDF8] shrink-0" />
+            <span className="font-semibold whitespace-nowrap">Facility Code: TP-JSR-JOJOBERA</span>
           </div>
         </div>
 
@@ -318,7 +318,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               <div className="p-2.5 rounded-lg bg-[#0284C7]/10 text-[#38BDF8] border border-[#0284C7]/20 shrink-0">
                 <MapPin className="w-5 h-5" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <span className="text-[11px] font-mono text-[#94A3B8] uppercase tracking-wider font-semibold block">
                   Location
                 </span>
@@ -327,7 +327,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                 </span>
               </div>
             </div>
-            <p className="text-xs text-[#64748B] leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#CBD5E1] leading-relaxed font-normal">
               Located in the industrial corridor of Jamshedpur, Jharkhand, India.
             </p>
           </div>
@@ -338,7 +338,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               <div className="p-2.5 rounded-lg bg-[#0284C7]/10 text-[#38BDF8] border border-[#0284C7]/20 shrink-0">
                 <Zap className="w-5 h-5" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <span className="text-[11px] font-mono text-[#94A3B8] uppercase tracking-wider font-semibold block">
                   Plant Capacity
                 </span>
@@ -347,7 +347,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                 </span>
               </div>
             </div>
-            <p className="text-xs text-[#64748B] leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#CBD5E1] leading-relaxed font-normal">
               Total installed generation capacity across active thermal units.
             </p>
           </div>
@@ -358,7 +358,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               <div className="p-2.5 rounded-lg bg-[#0284C7]/10 text-[#38BDF8] border border-[#0284C7]/20 shrink-0">
                 <History className="w-5 h-5" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <span className="text-[11px] font-mono text-[#94A3B8] uppercase tracking-wider font-semibold block">
                   Tata Power Journey
                 </span>
@@ -367,7 +367,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                 </span>
               </div>
             </div>
-            <p className="text-xs text-[#64748B] leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#CBD5E1] leading-relaxed font-normal">
               Initiated after acquiring a 67.5 MW captive power unit from Tata Steel, subsequently expanded with additional units.
             </p>
           </div>
@@ -378,7 +378,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               <div className="p-2.5 rounded-lg bg-[#0284C7]/10 text-[#38BDF8] border border-[#0284C7]/20 shrink-0">
                 <ShieldCheck className="w-5 h-5" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <span className="text-[11px] font-mono text-[#94A3B8] uppercase tracking-wider font-semibold block">
                   Operational Role
                 </span>
@@ -387,7 +387,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                 </span>
               </div>
             </div>
-            <p className="text-xs text-[#64748B] leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#CBD5E1] leading-relaxed font-normal">
               Important power source dedicated to Jamshedpur municipal distribution and Tata Steel industrial operations.
             </p>
           </div>
@@ -398,7 +398,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               <div className="p-2.5 rounded-lg bg-[#0284C7]/10 text-[#38BDF8] border border-[#0284C7]/20 shrink-0">
                 <Leaf className="w-5 h-5" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <span className="text-[11px] font-mono text-[#94A3B8] uppercase tracking-wider font-semibold block">
                   Technology & Emissions Optimization
                 </span>
@@ -407,7 +407,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                 </span>
               </div>
             </div>
-            <p className="text-xs text-[#64748B] leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#CBD5E1] leading-relaxed font-normal">
               The plant uses an advanced DE-NOx system designed to optimize combustion and reduce emissions, supporting environmental standards.
             </p>
           </div>
@@ -461,7 +461,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-mono">
                 427.5 MW
               </div>
-              <p className="text-xs text-[#64748B] mt-1 font-medium">
+              <p className="text-xs text-[#CBD5E1] mt-1 font-medium">
                 Installed Plant Capacity
               </p>
             </div>
@@ -487,7 +487,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-mono">
                 1997
               </div>
-              <p className="text-xs text-[#64748B] mt-1 font-medium">
+              <p className="text-xs text-[#CBD5E1] mt-1 font-medium">
                 Tata Power's Jojobera Journey Began
               </p>
             </div>
@@ -513,7 +513,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               <div className="text-2xl sm:text-3xl font-extrabold text-emerald-400 tracking-tight font-mono">
                 96.8%
               </div>
-              <p className="text-xs text-[#64748B] mt-1 font-medium">
+              <p className="text-xs text-[#CBD5E1] mt-1 font-medium">
                 Plant Availability — FY 2025-26
               </p>
             </div>
@@ -539,7 +539,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               <div className="text-2xl sm:text-3xl font-extrabold text-sky-400 tracking-tight font-mono">
                 2,880 MUs
               </div>
-              <p className="text-xs text-[#64748B] mt-1 font-medium">
+              <p className="text-xs text-[#CBD5E1] mt-1 font-medium">
                 Sales — FY 2025-26
               </p>
             </div>
@@ -556,7 +556,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               <span className="text-xs font-mono text-[#94A3B8] uppercase tracking-wider font-bold">
                 Secondary Performance & Sustainability Benchmarks
               </span>
-              <span className="text-[10px] font-mono text-[#64748B]">
+              <span className="text-[10px] font-mono text-[#94A3B8]">
                 Corporate Reference Data
               </span>
             </div>
@@ -566,14 +566,14 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               <div className="p-4 rounded-lg bg-[#0F172A] border border-[#1E293B]">
                 <div className="text-xs font-mono text-[#94A3B8]">Plant Availability — FY 2024-25</div>
                 <div className="text-xl font-bold text-white font-mono mt-1">95.1%</div>
-                <div className="text-[11px] text-[#64748B] mt-1">Previous financial year operational availability benchmark</div>
+                <div className="text-[11px] text-[#CBD5E1] mt-1">Previous financial year operational availability benchmark</div>
               </div>
 
               {/* Secondary 2: FY 2024-25 Sales */}
               <div className="p-4 rounded-lg bg-[#0F172A] border border-[#1E293B]">
                 <div className="text-xs font-mono text-[#94A3B8]">Sales — FY 2024-25</div>
                 <div className="text-xl font-bold text-white font-mono mt-1">2,904 MUs</div>
-                <div className="text-[11px] text-[#64748B] mt-1">Million Units generation delivered in FY 2024-25</div>
+                <div className="text-[11px] text-[#CBD5E1] mt-1">Million Units generation delivered in FY 2024-25</div>
               </div>
 
               {/* Secondary 3: FGD Sustainability Work */}
@@ -583,7 +583,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                   <span>FGD Sustainability Progress</span>
                 </div>
                 <div className="text-sm font-bold text-white mt-1">Emissions Compliance & Long-Term Sustainability</div>
-                <div className="text-[11px] text-[#64748B] mt-1">
+                <div className="text-[11px] text-[#CBD5E1] mt-1">
                   Flue Gas Desulphurization (FGD) work is progressing to support emissions compliance and long-term environmental sustainability.
                 </div>
               </div>
@@ -605,14 +605,14 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
                 Live Platform & Database Status
               </h2>
-              <p className="text-xs text-[#94A3B8]">
+              <p className="text-xs text-[#CBD5E1]">
                 Real dynamic parameters calculated strictly from stored database telemetry records
               </p>
             </div>
           </div>
 
           <div className="flex items-center space-x-2">
-            <span className="text-[11px] font-mono text-[#64748B]">
+            <span className="text-[11px] font-mono text-[#94A3B8]">
               Storage: <strong className="text-white">Active Database</strong>
             </span>
           </div>
@@ -637,7 +637,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-mono">
                 {totalDatabaseRecords.toLocaleString()}
               </div>
-              <p className="text-xs text-[#64748B] mt-1">
+              <p className="text-xs text-[#CBD5E1] mt-1">
                 Total rows stored in database
               </p>
             </div>
@@ -665,7 +665,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-mono">
                 {activeDatasetCount}
               </div>
-              <p className="text-xs text-[#64748B] mt-1">
+              <p className="text-xs text-[#CBD5E1] mt-1">
                 Authorized uploaded datasets
               </p>
             </div>
@@ -691,7 +691,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-mono">
                 {telemetryChannelsCount}
               </div>
-              <p className="text-xs text-[#64748B] mt-1">
+              <p className="text-xs text-[#CBD5E1] mt-1">
                 Detected numeric metrics
               </p>
             </div>
@@ -729,7 +729,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                   </span>
                 )}
               </div>
-              <p className="text-xs text-[#64748B] mt-1">
+              <p className="text-xs text-[#CBD5E1] mt-1">
                 {criticalAlertsCount} Critical • {warningAlertsCount} Warning
               </p>
             </div>
@@ -837,9 +837,9 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
           ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <section id="dataset-overview" className="w-full space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1 border-b border-[#1E293B]">
-          <div>
-            <h2 className="text-xl font-bold text-white tracking-tight flex items-center space-x-2">
-              <FileSpreadsheet className="w-5 h-5 text-[#38BDF8]" />
+          <div className="min-w-0">
+            <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight flex items-center space-x-2">
+              <FileSpreadsheet className="w-5 h-5 text-[#38BDF8] shrink-0" />
               <span>Dataset Overview</span>
             </h2>
             <p className="text-xs text-[#94A3B8] mt-0.5">
@@ -847,17 +847,17 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             </p>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
             <button
               onClick={onNavigateToUpload}
-              className="px-3 py-1.5 rounded-md bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold flex items-center space-x-1.5 transition-colors cursor-pointer"
+              className="px-3 py-1.5 rounded-md bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold flex items-center space-x-1.5 transition-colors cursor-pointer min-h-[36px]"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Ingest New Dataset</span>
             </button>
             <button
               onClick={onNavigateToDataManagement}
-              className="px-3 py-1.5 rounded-md bg-[#0F172A] hover:bg-[#1E293B] border border-[#1E293B] text-[#CBD5E1] text-xs font-medium flex items-center space-x-1.5 transition-colors cursor-pointer"
+              className="px-3 py-1.5 rounded-md bg-[#0F172A] hover:bg-[#1E293B] border border-[#1E293B] text-[#CBD5E1] text-xs font-medium flex items-center space-x-1.5 transition-colors cursor-pointer min-h-[36px]"
             >
               <span>Data Management &rarr;</span>
             </button>
@@ -870,8 +870,8 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             No datasets stored in backend. Ingest a telemetry dataset to view records and execute analytics.
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-[#1E293B] bg-[#0F172A]">
-            <table className="w-full text-left text-xs">
+          <div className="table-responsive-container w-full max-w-full overflow-x-auto rounded-xl border border-[#1E293B] bg-[#0F172A]">
+            <table className="w-full text-left text-xs min-w-[700px]">
               <thead className="bg-[#0A1124] text-[#94A3B8] font-mono uppercase text-[11px] border-b border-[#1E293B]">
                 <tr>
                   <th className="px-4 py-3 font-semibold">Dataset Name</th>

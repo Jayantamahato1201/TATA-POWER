@@ -19,7 +19,10 @@ import {
   ExternalLink,
   Shield,
   FileSpreadsheet,
+  Sun,
+  Moon,
 } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { TataPowerLogo } from './TataPowerLogo';
@@ -31,6 +34,7 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => {
+  const { theme, isDark, toggleTheme } = useTheme();
   const { user, isAuthenticated, isAdmin, isStaff, logout, setIsLoginModalOpen } = useAuth();
   const {
     alarmSummary,
@@ -89,12 +93,12 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
   const recentAlerts = alarmEvents.slice(0, 5);
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-[#1E293B] bg-[#070D18]/95 backdrop-blur-md transition-all">
-      <div className="w-full max-w-full px-4 sm:px-6 lg:px-10 h-16 sm:h-18 flex items-center justify-between gap-4">
+    <header className="header sticky top-0 z-40 w-full border-b border-[#1E293B] bg-[#070D18]/95 backdrop-blur-md transition-all">
+      <div className="nav-content w-full max-w-full px-2.5 sm:px-4 md:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between min-w-0 gap-1.5 sm:gap-2.5 md:gap-3">
         {/* Left: Official Tata Power Brand Identity */}
         <div
           id="navbar-tata-power-brand"
-          className="flex items-center cursor-pointer select-none py-1 group shrink-0"
+          className="flex items-center cursor-pointer select-none py-1 group shrink min-w-0"
           onClick={() => setCurrentTab('dashboard')}
         >
           <TataPowerLogo
@@ -104,8 +108,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
           />
         </div>
 
-        {/* Center: Simplified 5-Item Desktop Navigation */}
-        <nav className="hidden lg:flex items-center space-x-1.5">
+        {/* Center: Simplified 5-Item Desktop Navigation (Visible on Large Desktop >=1200px) */}
+        <nav className="hidden xl:flex items-center space-x-1 shrink-0">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentTab === item.id;
@@ -120,21 +124,21 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
                     setCurrentTab(item.id);
                   }
                 }}
-                className={`relative px-3.5 py-2 rounded-md text-xs sm:text-sm font-medium transition-all flex items-center space-x-2 cursor-pointer ${
+                className={`relative px-2.5 xl:px-3 py-1.5 xl:py-2 rounded-md text-xs xl:text-sm font-medium transition-all flex items-center space-x-1.5 cursor-pointer ${
                   isActive
                     ? 'bg-[#0284C7]/15 text-[#38BDF8] border border-[#0284C7]/40 shadow-sm font-semibold'
                     : 'text-[#94A3B8] hover:text-white hover:bg-[#0F172A] border border-transparent'
                 }`}
               >
                 <Icon
-                  className={`w-4 h-4 ${
+                  className={`w-3.5 h-3.5 xl:w-4 xl:h-4 shrink-0 ${
                     isActive ? 'text-[#38BDF8]' : 'text-[#64748B]'
                   }`}
                 />
-                <span>{item.label}</span>
+                <span className="whitespace-nowrap">{item.label}</span>
                 {item.badge !== undefined && item.badge > 0 && (
                   <span
-                    className={`ml-1.5 px-1.5 py-0.5 text-[10px] font-mono font-bold rounded-full ${
+                    className={`ml-1 px-1.5 py-0.2 text-[10px] font-mono font-bold rounded-full ${
                       alarmSummary.critical > 0
                         ? 'bg-rose-600 text-white animate-pulse'
                         : 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
@@ -149,18 +153,18 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
         </nav>
 
         {/* Right: Actions & User Controls */}
-        <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
+        <div className="flex items-center space-x-1 sm:space-x-2 shrink-0 min-w-0">
           {/* Active Dataset Selector Dropdown */}
           {datasets.length > 0 && (
-            <div className="relative hidden md:block" ref={datasetRef}>
+            <div className="relative hidden md:block shrink-0" ref={datasetRef}>
               <button
                 id="btn-nav-dataset-selector"
                 onClick={() => setDatasetDropdownOpen(!datasetDropdownOpen)}
-                className="px-3 py-1.5 rounded-md bg-[#0F172A] hover:bg-[#1E293B] border border-[#1E293B] text-[#CBD5E1] text-xs font-mono flex items-center space-x-2 cursor-pointer max-w-[180px] sm:max-w-[210px] transition-colors"
+                className="px-2 py-1.5 rounded-md bg-[#0F172A] hover:bg-[#1E293B] border border-[#1E293B] text-[#CBD5E1] text-xs font-mono flex items-center space-x-1.5 cursor-pointer w-[clamp(130px,15vw,220px)] min-w-0 max-w-full transition-colors"
                 title="Active Telemetry Dataset"
               >
                 <Database className="w-3.5 h-3.5 text-[#38BDF8] shrink-0" />
-                <span className="truncate text-left font-medium">
+                <span className="truncate text-left font-medium flex-1">
                   {activeDataset?.name || 'Select Dataset'}
                 </span>
                 <ChevronDown className="w-3 h-3 text-[#64748B] shrink-0" />
@@ -238,7 +242,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
             <button
               id="btn-nav-alerts-dropdown"
               onClick={() => setAlertsDropdownOpen(!alertsDropdownOpen)}
-              className={`relative p-2 rounded-md transition-colors cursor-pointer border ${
+              className={`relative p-2 rounded-md transition-colors cursor-pointer border min-w-[38px] min-h-[38px] flex items-center justify-center ${
                 alarmSummary.active > 0
                   ? 'bg-[#0F172A] border-amber-500/30 text-amber-400 hover:bg-[#1E293B]'
                   : 'bg-[#0F172A] border-[#1E293B] text-[#94A3B8] hover:text-white hover:bg-[#1E293B]'
@@ -260,7 +264,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
 
             {/* Alerts Dropdown Drawer */}
             {alertsDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-lg bg-[#0F172A] border border-[#1E293B] shadow-2xl p-3 z-50 text-xs space-y-2 animate-in fade-in">
+              <div className="absolute right-0 mt-2 w-72 sm:w-96 rounded-lg bg-[#0F172A] border border-[#1E293B] shadow-2xl p-3 z-50 text-xs space-y-2 animate-in fade-in max-w-[calc(100vw-24px)]">
                 <div className="flex items-center justify-between pb-2 border-b border-[#1E293B]">
                   <div className="flex items-center space-x-2">
                     <Bell className="w-4 h-4 text-amber-400" />
@@ -298,15 +302,15 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
                         }`}
                       >
                         <div className="flex items-center justify-between font-semibold">
-                          <span className="flex items-center space-x-1.5">
+                          <span className="flex items-center space-x-1.5 truncate">
                             <AlertTriangle
-                              className={`w-3.5 h-3.5 ${
+                              className={`w-3.5 h-3.5 shrink-0 ${
                                 alert.severity === 'CRITICAL' ? 'text-rose-400' : 'text-amber-400'
                               }`}
                             />
-                            <span>{alert.metricName}</span>
+                            <span className="truncate">{alert.metricName}</span>
                           </span>
-                          <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-black/40">
+                          <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-black/40 shrink-0 ml-1">
                             {alert.severity}
                           </span>
                         </div>
@@ -314,7 +318,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
                           <span>
                             Value: <strong className="text-white">{alert.value} {alert.unit}</strong>
                           </span>
-                          <span>{alert.equipment || 'Plant'}</span>
+                          <span className="truncate ml-1">{alert.equipment || 'Plant'}</span>
                         </div>
                       </div>
                     ))}
@@ -340,11 +344,29 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
           <button
             id="btn-nav-upload-data"
             onClick={() => setIsUploadModalOpen(true)}
-            className="px-3.5 py-1.5 rounded-md bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition-all shadow-sm cursor-pointer"
+            className="px-2.5 sm:px-3.5 py-1.5 rounded-md bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs sm:text-sm font-semibold flex items-center space-x-1 sm:space-x-1.5 transition-all shadow-sm cursor-pointer min-h-[38px]"
           >
             <Upload className="w-3.5 h-3.5 shrink-0" />
             <span className="hidden sm:inline">Upload Data</span>
             <span className="sm:hidden">Upload</span>
+          </button>
+
+          {/* Theme Mode Toggle Button (Light / Dark) */}
+          <button
+            id="btn-theme-toggle"
+            type="button"
+            onClick={toggleTheme}
+            className="relative p-2 rounded-md transition-all duration-200 cursor-pointer border bg-[#0F172A] border-[#1E293B] text-[#CBD5E1] hover:text-white hover:bg-[#1E293B] hover:border-[#38BDF8]/40 focus:outline-none focus:ring-2 focus:ring-[#0284C7]/50 min-w-[38px] min-h-[38px] flex items-center justify-center"
+            title={isDark ? 'Switch to Light Mode (☀️)' : 'Switch to Dark Mode (🌙)'}
+            aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          >
+            <div className="relative w-4 h-4 flex items-center justify-center">
+              {isDark ? (
+                <Sun className="w-4 h-4 text-amber-400 transition-transform duration-300 rotate-0 hover:rotate-45" />
+              ) : (
+                <Moon className="w-4 h-4 text-[#0284C7] transition-transform duration-300 -rotate-12 hover:rotate-0" />
+              )}
+            </div>
           </button>
 
           {/* User Profile & Role Dropdown */}
@@ -352,7 +374,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
             <button
               id="btn-nav-user-profile"
               onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-              className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-md bg-[#0F172A] hover:bg-[#1E293B] border border-[#1E293B] text-[#CBD5E1] text-xs flex items-center space-x-2 cursor-pointer transition-colors"
+              className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-md bg-[#0F172A] hover:bg-[#1E293B] border border-[#1E293B] text-[#CBD5E1] text-xs flex items-center space-x-1.5 sm:space-x-2 cursor-pointer transition-colors min-h-[38px]"
               title="User Profile & Settings"
             >
               <div className="w-5 h-5 rounded-full bg-[#0284C7]/30 text-[#38BDF8] flex items-center justify-center font-bold text-[10px]">
@@ -365,7 +387,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
             </button>
 
             {profileDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-56 rounded-lg bg-[#0F172A] border border-[#1E293B] shadow-2xl p-2 z-50 text-xs space-y-1 animate-in fade-in">
+              <div className="absolute right-0 mt-2 w-56 rounded-lg bg-[#0F172A] border border-[#1E293B] shadow-2xl p-2 z-50 text-xs space-y-1 animate-in fade-in max-w-[calc(100vw-24px)]">
                 <div className="px-2.5 py-2 border-b border-[#1E293B]">
                   <div className="font-semibold text-white truncate">
                     {isAuthenticated ? user?.name : 'Guest Viewer'}
@@ -387,6 +409,24 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
                     </span>
                   </div>
                 </div>
+
+                {/* Theme Selector inside profile menu */}
+                <button
+                  onClick={toggleTheme}
+                  className="w-full text-left px-2.5 py-1.5 rounded-md hover:bg-[#1E293B] text-[#94A3B8] hover:text-white flex items-center justify-between cursor-pointer"
+                >
+                  <span className="flex items-center space-x-2">
+                    {isDark ? (
+                      <Sun className="w-3.5 h-3.5 text-amber-400" />
+                    ) : (
+                      <Moon className="w-3.5 h-3.5 text-[#0284C7]" />
+                    )}
+                    <span>Theme Appearance</span>
+                  </span>
+                  <span className="font-mono text-[10px] uppercase font-bold text-[#38BDF8]">
+                    {isDark ? 'DARK' : 'LIGHT'}
+                  </span>
+                </button>
 
                 {/* Audio Alert Mute Toggle */}
                 <button
@@ -448,10 +488,10 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
             )}
           </div>
 
-          {/* Mobile Hamburger Menu Toggle */}
+          {/* Mobile Hamburger Menu Toggle (Visible below xl: <1200px) */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 rounded-md bg-[#0F172A] border border-[#1E293B] text-[#94A3B8] hover:text-white cursor-pointer"
+            className="xl:hidden p-2 rounded-md bg-[#0F172A] border border-[#1E293B] text-[#94A3B8] hover:text-white cursor-pointer min-w-[38px] min-h-[38px] flex items-center justify-center shrink-0"
             aria-label="Toggle navigation menu"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -459,41 +499,94 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
         </div>
       </div>
 
-      {/* Mobile Navigation Menu */}
+      {/* Mobile Navigation Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-[#1E293B] bg-[#070D18] px-4 py-3 space-y-1 font-sans">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = currentTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => {
-                  if (item.id === 'admin' && !isStaff && !isAuthenticated) {
-                    setIsLoginModalOpen(true);
-                  } else {
-                    setCurrentTab(item.id);
-                  }
-                  setMobileMenuOpen(false);
-                }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-sm cursor-pointer ${
-                  isActive
-                    ? 'bg-[#0284C7]/20 text-[#38BDF8] font-semibold border border-[#0284C7]/40'
-                    : 'text-[#94A3B8] hover:text-white hover:bg-[#0F172A]'
-                }`}
+        <div className="xl:hidden border-t border-[#1E293B] bg-[#070D18] px-4 py-3 space-y-2 font-sans max-h-[85vh] overflow-y-auto">
+          {/* Active Dataset Selector inside Mobile Drawer */}
+          {datasets.length > 0 && (
+            <div className="p-2.5 rounded-md bg-[#0F172A] border border-[#1E293B] space-y-1.5">
+              <div className="flex items-center justify-between text-[11px] font-mono text-[#94A3B8] uppercase">
+                <span>Active Dataset</span>
+                <span className="text-[#38BDF8] font-bold">{datasets.length} Loaded</span>
+              </div>
+              <select
+                value={selectedDatasetId || ''}
+                onChange={(e) => setSelectedDatasetId(e.target.value)}
+                className="w-full px-2.5 py-2 rounded bg-[#070D18] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#0284C7]"
               >
-                <div className="flex items-center space-x-2.5">
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-[#38BDF8]' : 'text-[#64748B]'}`} />
-                  <span>{item.label}</span>
-                </div>
-                {item.badge !== undefined && item.badge > 0 && (
-                  <span className="px-2 py-0.5 text-xs font-mono font-bold rounded-full bg-rose-600 text-white">
-                    {item.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+                {datasets.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.name} ({d.totalRows} rows)
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <div className="space-y-1">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = currentTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    if (item.id === 'admin' && !isStaff && !isAuthenticated) {
+                      setIsLoginModalOpen(true);
+                    } else {
+                      setCurrentTab(item.id);
+                    }
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-sm cursor-pointer min-h-[44px] ${
+                    isActive
+                      ? 'bg-[#0284C7]/20 text-[#38BDF8] font-semibold border border-[#0284C7]/40'
+                      : 'text-[#94A3B8] hover:text-white hover:bg-[#0F172A]'
+                  }`}
+                >
+                  <div className="flex items-center space-x-2.5">
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-[#38BDF8]' : 'text-[#64748B]'}`} />
+                    <span>{item.label}</span>
+                  </div>
+                  {item.badge !== undefined && item.badge > 0 && (
+                    <span className="px-2 py-0.5 text-xs font-mono font-bold rounded-full bg-rose-600 text-white">
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Quick Action Upload inside Mobile Drawer */}
+          <div className="pt-2 border-t border-[#1E293B] space-y-2">
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setIsUploadModalOpen(true);
+              }}
+              className="w-full flex items-center justify-center space-x-2 py-2.5 px-3 rounded-md bg-[#0284C7] hover:bg-[#0369A1] text-white font-semibold text-sm min-h-[44px]"
+            >
+              <Upload className="w-4 h-4" />
+              <span>Upload CSV / Excel Telemetry</span>
+            </button>
+
+            {/* Mobile Theme Toggle Item */}
+            <button
+              onClick={() => {
+                toggleTheme();
+              }}
+              className="w-full flex items-center justify-between px-3 py-2.5 rounded-md text-sm cursor-pointer text-[#94A3B8] hover:text-white hover:bg-[#0F172A] min-h-[44px]"
+            >
+              <div className="flex items-center space-x-2.5">
+                {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-[#0284C7]" />}
+                <span>Theme Mode</span>
+              </div>
+              <span className="text-xs font-mono font-bold uppercase text-[#38BDF8] px-2 py-0.5 rounded bg-[#1E293B]">
+                {isDark ? 'Dark (☀️ Light)' : 'Light (🌙 Dark)'}
+              </span>
+            </button>
+          </div>
         </div>
       )}
     </header>

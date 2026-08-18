@@ -277,8 +277,8 @@ export const DatasetManagementPanel: React.FC = () => {
       </div>
 
       {/* Datasets Table */}
-      <div className="overflow-x-auto rounded-xs border border-[#222] bg-[#0E0E0E]">
-        <table className="w-full text-left text-xs font-mono border-collapse">
+      <div className="table-responsive-container w-full max-w-full overflow-x-auto rounded-xs border border-[#222] bg-[#0E0E0E]">
+        <table className="w-full text-left text-xs font-mono border-collapse min-w-[700px]">
           <thead>
             <tr className="bg-[#141414] text-[#888] border-b border-[#222]">
               <th className="p-3 font-semibold uppercase">Dataset Name</th>

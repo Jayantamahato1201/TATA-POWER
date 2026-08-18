@@ -103,24 +103,24 @@ export const TataPowerLogo: React.FC<TataPowerLogoProps> = ({
 
   // Default 'full' or 'compact' variant (Used in Navbar, Footers, Modals)
   return (
-    <div className={`flex items-center space-x-3 select-none ${className}`}>
+    <div className={`flex items-center space-x-2 sm:space-x-3 select-none min-w-0 ${className}`}>
       {/* Official Tata Brand Logo Image Box */}
-      <div className="h-10 px-2 py-1 rounded-sm bg-white border border-[#205CA5]/50 flex items-center justify-center shadow-[0_0_15px_rgba(32,92,165,0.35)] shrink-0 transition-transform duration-200 hover:scale-105">
-        <TataLogoImage className="h-7 w-auto" />
+      <div className="h-8 sm:h-10 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-sm bg-white border border-[#205CA5]/50 flex items-center justify-center shadow-[0_0_15px_rgba(32,92,165,0.35)] shrink-0 transition-transform duration-200 hover:scale-105">
+        <TataLogoImage className="h-5 sm:h-7 w-auto" />
       </div>
 
       {/* Brand Typographic Title */}
       <div className="flex flex-col justify-center min-w-0">
-        <div className="flex items-center space-x-1.5 flex-wrap">
-          <span className="font-black text-sm sm:text-base tracking-[0.16em] text-white uppercase whitespace-nowrap">
+        <div className="flex items-center space-x-1 sm:space-x-1.5 min-w-0">
+          <span className="font-black text-xs sm:text-sm md:text-base tracking-[0.12em] sm:tracking-[0.16em] text-white uppercase whitespace-nowrap">
             TATA POWER
           </span>
-          <span className="text-[#38BDF8] font-normal text-xs sm:text-sm tracking-wider whitespace-nowrap">
+          <span className="text-[#38BDF8] font-normal text-[11px] sm:text-xs md:text-sm tracking-wider whitespace-nowrap hidden xs:inline">
             | JAMSHEDPUR
           </span>
         </div>
         {showSubtitle && (
-          <div className="flex items-center space-x-1.5 mt-0.5 min-w-0">
+          <div className="hidden sm:flex items-center space-x-1.5 mt-0.5 min-w-0">
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#00FF41] animate-pulse shrink-0" />
             <p className="text-[10px] text-[#94A3B8] font-mono tracking-wider uppercase truncate">
               {subtitleText}

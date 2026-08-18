@@ -259,8 +259,8 @@ export const RecordEditorModal: React.FC<RecordEditorModalProps> = ({ dataset, i
         </div>
 
         {/* Data Table */}
-        <div className="flex-1 overflow-auto border border-[#222] rounded-xs bg-[#0E0E0E]">
-          <table className="w-full text-left text-xs font-mono border-collapse">
+        <div className="table-responsive-container flex-1 w-full max-w-full overflow-auto border border-[#222] rounded-xs bg-[#0E0E0E]">
+          <table className="w-full text-left text-xs font-mono border-collapse min-w-[650px]">
             <thead className="sticky top-0 bg-[#161616] text-[#AAA] border-b border-[#2A2A2A] z-10">
               <tr>
                 <th className="p-2 w-8 text-center">

@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { ChartConfig } from '../types';
 import { useData } from '../context/DataContext';
+import { useTheme } from '../context/ThemeContext';
 
 interface DynamicChartProps {
   chartConfig: ChartConfig;
@@ -25,6 +26,7 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
   height = 360,
   onCustomize,
 }) => {
+  const { isDark } = useTheme();
   const { filters, selectedDatasetId, alarmRules, datasets, currentDataset, lastUpdated } = useData();
   const [chartData, setChartData] = useState<{ categories: string[]; series: any[]; rawRows: any[] } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -85,7 +87,7 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
       const base64 = echartsInstance.getDataURL({
         type: 'png',
         pixelRatio: 2,
-        backgroundColor: '#0f172a',
+        backgroundColor: isDark ? '#0f172a' : '#ffffff',
       });
       const link = document.createElement('a');
       link.download = `${chartConfig.title.replace(/\s+/g, '_').toLowerCase()}_chart.png`;
@@ -101,6 +103,19 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
     const isDonut = currentChartType === 'donut';
     const isArea = currentChartType === 'area';
     const isBar = currentChartType === 'bar' || currentChartType === 'bar3d';
+
+    // Theme color constants
+    const tooltipBg = isDark ? '#0B132B' : '#FFFFFF';
+    const tooltipBorder = isDark ? '#1E293B' : '#CBD5E1';
+    const tooltipText = isDark ? '#E2E8F0' : '#0F172A';
+    const tooltipTitle = isDark ? '#38BDF8' : '#0284C7';
+    const tooltipMuted = isDark ? '#94A3B8' : '#475569';
+    const tooltipValColor = isDark ? '#FFFFFF' : '#0F172A';
+    const axisLineColor = isDark ? '#334155' : '#CBD5E1';
+    const axisLabelColor = isDark ? '#94A3B8' : '#475569';
+    const splitLineColor = isDark ? 'rgba(255, 255, 255, 0.08)' : '#E2E8F0';
+    const legendColor = isDark ? '#94A3B8' : '#334155';
+    const donutBorderColor = isDark ? '#0f172a' : '#ffffff';
 
     // Find applicable alarm thresholds
     const matchingRules = alarmRules.filter(
@@ -154,15 +169,15 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
         tooltip: {
           trigger: 'item',
           formatter: '{b}: {c} ({d}%)',
-          backgroundColor: '#0f172a',
-          borderColor: '#334155',
-          textStyle: { color: '#f8fafc' },
+          backgroundColor: tooltipBg,
+          borderColor: tooltipBorder,
+          textStyle: { color: tooltipText },
         },
         legend: {
           orient: 'vertical',
           right: '5%',
           top: 'center',
-          textStyle: { color: '#94a3b8', fontSize: 11 },
+          textStyle: { color: legendColor, fontSize: 11 },
         },
         series: [
           {
@@ -172,7 +187,7 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
             avoidLabelOverlap: false,
             itemStyle: {
               borderRadius: 8,
-              borderColor: '#0f172a',
+              borderColor: donutBorderColor,
               borderWidth: 2,
             },
             label: {
@@ -184,7 +199,7 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
                 show: true,
                 fontSize: 16,
                 fontWeight: 'bold',
-                color: '#38bdf8',
+                color: tooltipTitle,
               },
             },
             data: donutData,
@@ -252,15 +267,15 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
       backgroundColor: 'transparent',
       tooltip: {
         trigger: 'axis',
-        backgroundColor: '#0B132B',
-        borderColor: '#1E293B',
+        backgroundColor: tooltipBg,
+        borderColor: tooltipBorder,
         borderWidth: 1,
         padding: 10,
-        textStyle: { color: '#E2E8F0', fontSize: 11, fontFamily: 'monospace' },
+        textStyle: { color: tooltipText, fontSize: 11, fontFamily: 'monospace' },
         axisPointer: {
           type: 'cross',
-          lineStyle: { color: '#38BDF8', type: 'dashed' },
-          crossStyle: { color: '#38BDF8' },
+          lineStyle: { color: tooltipTitle, type: 'dashed' },
+          crossStyle: { color: tooltipTitle },
         },
         formatter: (params: any) => {
           if (!params || !params.length) return '';
@@ -288,20 +303,20 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
             'Recorded Data Point';
 
           let html = `<div style="font-family: monospace; font-size: 11px; min-width: 180px;">`;
-          html += `<div style="font-weight: bold; color: #38BDF8; font-size: 12px; margin-bottom: 6px; border-bottom: 1px solid #1E293B; padding-bottom: 4px;">${chartConfig.title || first.seriesName}</div>`;
+          html += `<div style="font-weight: bold; color: ${tooltipTitle}; font-size: 12px; margin-bottom: 6px; border-bottom: 1px solid ${tooltipBorder}; padding-bottom: 4px;">${chartConfig.title || first.seriesName}</div>`;
 
           paramList.forEach((p: any) => {
             html += `<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 3px;">
-              <span style="color: #94A3B8;">${p.seriesName}:</span>
-              <strong style="color: #FFFFFF; font-size: 12px;">${p.value ?? '--'} ${chartConfig.unit || ''}</strong>
+              <span style="color: ${tooltipMuted};">${p.seriesName}:</span>
+              <strong style="color: ${tooltipValColor}; font-size: 12px;">${p.value ?? '--'} ${chartConfig.unit || ''}</strong>
             </div>`;
           });
 
           if (equipmentName) {
-            html += `<div style="color: #94A3B8; font-size: 10px; margin-top: 6px; border-top: 1px dashed #1E293B; padding-top: 4px;">Equipment / Generator: <span style="color: #38BDF8; font-weight: bold;">${equipmentName}</span></div>`;
+            html += `<div style="color: ${tooltipMuted}; font-size: 10px; margin-top: 6px; border-top: 1px dashed ${tooltipBorder}; padding-top: 4px;">Equipment / Generator: <span style="color: ${tooltipTitle}; font-weight: bold;">${equipmentName}</span></div>`;
           }
-          html += `<div style="color: #94A3B8; font-size: 10px;">Timestamp: <span style="color: #CBD5E1;">${timestamp}</span></div>`;
-          html += `<div style="color: #64748B; font-size: 9px; margin-top: 2px;">Dataset: ${datasetName}</div>`;
+          html += `<div style="color: ${tooltipMuted}; font-size: 10px;">Timestamp: <span style="color: ${tooltipText};">${timestamp}</span></div>`;
+          html += `<div style="color: ${tooltipMuted}; font-size: 9px; margin-top: 2px;">Dataset: ${datasetName}</div>`;
           html += `</div>`;
           return html;
         },
@@ -311,7 +326,7 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
           ? {
               data: chartData.series.map((s, idx) => s.name || `Series ${idx + 1}`),
               top: 0,
-              textStyle: { color: '#94A3B8', fontSize: 11, fontFamily: 'monospace' },
+              textStyle: { color: legendColor, fontSize: 11, fontFamily: 'monospace' },
             }
           : undefined,
       grid: {
@@ -324,9 +339,9 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
       xAxis: {
         type: 'category',
         data: (chartData.categories || []).map(String),
-        axisLine: { lineStyle: { color: '#222' } },
+        axisLine: { lineStyle: { color: axisLineColor } },
         axisLabel: {
-          color: '#888',
+          color: axisLabelColor,
           fontSize: 10,
           fontFamily: 'monospace',
           formatter: (val: string) => {
@@ -341,10 +356,10 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
       yAxis: {
         type: 'value',
         name: chartConfig.unit ? `(${chartConfig.unit})` : undefined,
-        nameTextStyle: { color: '#888', fontSize: 10, fontFamily: 'monospace' },
-        axisLine: { lineStyle: { color: '#222' } },
-        splitLine: { lineStyle: { color: '#161616', type: 'dashed' } },
-        axisLabel: { color: '#888', fontSize: 10, fontFamily: 'monospace' },
+        nameTextStyle: { color: axisLabelColor, fontSize: 10, fontFamily: 'monospace' },
+        axisLine: { lineStyle: { color: axisLineColor } },
+        splitLine: { lineStyle: { color: splitLineColor, type: 'dashed' } },
+        axisLabel: { color: axisLabelColor, fontSize: 10, fontFamily: 'monospace' },
       },
       dataZoom: chartConfig.showDataZoom
         ? [
@@ -359,10 +374,10 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
               end: 100,
               height: 16,
               bottom: 4,
-              borderColor: '#222',
-              fillerColor: 'rgba(242, 125, 38, 0.2)',
-              textStyle: { color: '#888', fontSize: 9, fontFamily: 'monospace' },
-              handleStyle: { color: '#F27D26' },
+              borderColor: axisLineColor,
+              fillerColor: isDark ? 'rgba(32, 92, 165, 0.3)' : 'rgba(32, 92, 165, 0.15)',
+              textStyle: { color: axisLabelColor, fontSize: 9, fontFamily: 'monospace' },
+              handleStyle: { color: '#205CA5' },
             },
           ]
         : undefined,

@@ -24,17 +24,11 @@ export async function initializeServer(): Promise<void> {
   initPromise = (async () => {
     try {
       await db.init();
-
-      // Alarm evaluation can scan all telemetry records. Run it after the
-      // database cache is ready, but never make a login/API response wait for
-      // that CPU-heavy maintenance work.
-      setImmediate(() => {
-        try {
-          reEvaluateAllAlarms();
-        } catch (evalErr) {
-          console.warn('[Server] Alarm evaluation notice:', evalErr);
-        }
-      });
+      try {
+        reEvaluateAllAlarms();
+      } catch (evalErr) {
+        console.warn('[Server] Alarm evaluation notice:', evalErr);
+      }
     } catch (err: any) {
       console.warn('[Server Startup] DB init warning:', err?.message || err);
     } finally {
@@ -60,15 +54,14 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Start database warming for incoming requests without serializing the first
-// response behind an Atlas connection plus full cache hydration. This matters
-// on Vercel cold starts, where auth should be available from the bundled
-// fallback cache immediately.
-app.use((req, res, next) => {
+// Ensure DB is initialized for incoming requests
+app.use(async (req, res, next) => {
   if (!isInitialized) {
-    void initializeServer().catch(() => {
-      // Continue with the in-memory fallback if MongoDB is unavailable.
-    });
+    try {
+      await initializeServer();
+    } catch (e) {
+      // Continue anyway with in-memory fallback
+    }
   }
   next();
 });

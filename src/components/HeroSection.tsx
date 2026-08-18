@@ -30,63 +30,67 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   return (
     <section
       id="hero-overview"
-      className="relative w-full rounded-2xl border border-[#1E293B] bg-gradient-to-b from-[#0B132B]/80 via-[#070D18]/90 to-[#070D18] p-6 sm:p-10 lg:p-12 overflow-hidden shadow-2xl"
+      className="relative w-full rounded-2xl border border-[#1E293B] bg-gradient-to-b from-[#0B132B]/90 via-[#070D18]/95 to-[#070D18] p-5 sm:p-8 md:p-10 lg:p-12 overflow-hidden shadow-2xl min-h-[auto]"
     >
       {/* Soft Animated Industrial Grid & Subtle Energy Canvas */}
       <HeroEnergyCanvas />
 
       {/* Subtle Radial Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-[#0284C7]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[600px] h-[350px] bg-[#0284C7]/15 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6">
+      <div className="relative z-10 max-w-4xl mx-auto text-center space-y-4 sm:space-y-6">
         {/* Plant Badge */}
-        <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-[#0F172A]/90 border border-[#1E293B] text-xs font-mono text-[#94A3B8] shadow-sm backdrop-blur-md">
-          <span className="w-2 h-2 rounded-full bg-[#0284C7] animate-pulse" />
-          <span className="text-[#E2E8F0] font-semibold">TATA POWER</span>
-          <span className="text-[#475569]">|</span>
-          <span className="text-[#CBD5E1]">JAMSHEDPUR</span>
-          <span className="text-[#475569]">|</span>
-          <span className="text-[#38BDF8] font-bold">427.5 MW</span>
+        <div className="inline-flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 px-3.5 py-1.5 rounded-full bg-[#0F172A]/90 border border-[#1E293B] text-[11px] sm:text-xs font-mono text-[#CBD5E1] shadow-sm backdrop-blur-md max-w-full">
+          <span className="w-2 h-2 rounded-full bg-[#0284C7] animate-pulse shrink-0" />
+          <span className="text-[#F8FAFC] font-bold whitespace-nowrap">TATA POWER</span>
+          <span className="text-[#64748B] hidden xs:inline">|</span>
+          <span className="text-[#CBD5E1] whitespace-nowrap">JAMSHEDPUR</span>
+          <span className="text-[#64748B] hidden xs:inline">|</span>
+          <span className="text-[#38BDF8] font-bold whitespace-nowrap">427.5 MW</span>
         </div>
 
         {/* Hero Title */}
-        <div className="space-y-3">
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight font-sans">
+        <div className="space-y-2.5 sm:space-y-3.5 max-w-full">
+          <h1
+            id="hero-heading-main"
+            className="hero-heading text-white !text-white font-extrabold tracking-tight font-sans text-center"
+            style={{ color: '#FFFFFF' }}
+          >
             Jojobera Thermal Power Station
           </h1>
 
-          <p className="text-sm sm:text-base lg:text-lg text-[#94A3B8] max-w-2xl mx-auto font-normal leading-relaxed">
+          <p className="hero-subtitle text-[#CBD5E1] max-w-2xl mx-auto font-normal leading-relaxed px-2 text-center">
             Operational telemetry analytics platform for authorized uploaded equipment and plant datasets.
           </p>
         </div>
 
         {/* 3 Important Primary Actions */}
-        <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+        <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center gap-2.5 sm:gap-3.5 pt-2 max-w-xl sm:max-w-none mx-auto w-full">
           <button
             id="hero-btn-view-analytics"
             onClick={onNavigateToAnalytics}
-            className="px-5 py-3 rounded-lg bg-[#0284C7] hover:bg-[#0369A1] text-white text-sm font-semibold flex items-center space-x-2 shadow-lg shadow-sky-950/50 transition-all cursor-pointer hover:translate-y-[-1px]"
+            className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-lg bg-[#0284C7] hover:bg-[#0369A1] text-white text-sm font-semibold flex items-center justify-center space-x-2 shadow-lg shadow-sky-950/50 transition-all cursor-pointer hover:translate-y-[-1px]"
           >
-            <BarChart2 className="w-4 h-4" />
+            <BarChart2 className="w-4 h-4 shrink-0" />
             <span>View Analytics</span>
-            <ArrowRight className="w-4 h-4 ml-1" />
+            <ArrowRight className="w-4 h-4 ml-1 shrink-0" />
           </button>
 
           <button
             id="hero-btn-upload-data"
             onClick={onNavigateToUpload}
-            className="px-5 py-3 rounded-lg bg-[#0F172A] hover:bg-[#1E293B] border border-[#1E293B] hover:border-[#38BDF8]/40 text-white text-sm font-semibold flex items-center space-x-2 shadow-md transition-all cursor-pointer hover:translate-y-[-1px]"
+            className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-lg bg-[#0F172A] hover:bg-[#1E293B] border border-[#1E293B] hover:border-[#38BDF8]/40 text-[#F8FAFC] text-sm font-semibold flex items-center justify-center space-x-2 shadow-md transition-all cursor-pointer hover:translate-y-[-1px]"
           >
-            <Upload className="w-4 h-4 text-[#38BDF8]" />
+            <Upload className="w-4 h-4 text-[#38BDF8] shrink-0" />
             <span>Upload Data</span>
           </button>
 
           <button
             id="hero-btn-view-alerts"
             onClick={onNavigateToAlerts}
-            className="px-5 py-3 rounded-lg bg-[#0F172A] hover:bg-[#1E293B] border border-[#1E293B] hover:border-amber-500/40 text-[#CBD5E1] text-sm font-semibold flex items-center space-x-2 shadow-md transition-all cursor-pointer hover:translate-y-[-1px]"
+            className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-lg bg-[#0F172A] hover:bg-[#1E293B] border border-[#1E293B] hover:border-amber-500/40 text-[#F1F5F9] text-sm font-semibold flex items-center justify-center space-x-2 shadow-md transition-all cursor-pointer hover:translate-y-[-1px]"
           >
-            <Bell className="w-4 h-4 text-amber-400" />
+            <Bell className="w-4 h-4 text-amber-400 shrink-0" />
             <span>View Alerts</span>
             {alarmSummary.active > 0 && (
               <span className="px-1.5 py-0.2 text-[11px] font-mono font-bold rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
@@ -97,17 +101,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         </div>
 
         {/* Active Telemetry Status pill */}
-        <div className="pt-2 flex items-center justify-center text-xs font-mono text-[#64748B] space-x-3">
+        <div className="pt-2 flex flex-wrap items-center justify-center text-xs font-mono text-[#CBD5E1] gap-2 px-2 max-w-full">
           {hasData ? (
-            <div className="flex items-center space-x-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Active Ingestion: <strong className="text-white">{currentDataset?.name}</strong></span>
-              <span>({overview?.totalRecords?.toLocaleString()} records)</span>
+            <div className="flex flex-wrap items-center justify-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+              <span>Active Ingestion: <strong className="text-white font-semibold">{currentDataset?.name}</strong></span>
+              <span className="text-[#94A3B8]">({overview?.totalRecords?.toLocaleString()} records)</span>
             </div>
           ) : (
             <div className="flex items-center space-x-2">
-              <span className="w-2 h-2 rounded-full bg-slate-500" />
-              <span>Ready for operational telemetry ingestion (CSV, XLSX, XLS)</span>
+              <span className="w-2 h-2 rounded-full bg-slate-400 shrink-0" />
+              <span className="text-[#CBD5E1]">Ready for operational telemetry ingestion (CSV, XLSX, XLS)</span>
             </div>
           )}
         </div>
