@@ -80,7 +80,12 @@ export const UploadModal: React.FC = () => {
     }
 
     setUploadError(null);
-    const result = await uploadDataset(file, datasetName);
+    const result = await uploadDataset(file, datasetName, {
+      category,
+      dateColumn: dateColumn || undefined,
+      equipmentColumn: equipmentColumn || undefined,
+      description: description || undefined,
+    });
     if (result.success) {
       setIsUploadModalOpen(false);
       setFile(null);

@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import Papa from 'papaparse';
 import { db } from '../db/database.js';
 import { DataIngestionService } from '../services/dataIngestionService.js';
+import { getFileFromGridFS } from '../services/gridFsStorageService.js';
 import { authenticate, optionalAuth, AuthRequest, requireRole } from '../middleware/auth.js';
 import { reEvaluateAllAlarms } from './alarmRoutes.js';
 
@@ -33,12 +34,9 @@ function resolveFileType(fileName: string): 'csv' | 'xls' | 'xlsx' {
 }
 
 // GET all datasets
-router.get('/', optionalAuth, (req: AuthRequest, res) => {
+router.get('/', optionalAuth, async (req: AuthRequest, res) => {
   const includeArchived = req.query.includeArchived === 'true';
-  let datasets = db.getDatasets();
-  if (!includeArchived) {
-    datasets = datasets.filter((d) => !d.isArchived);
-  }
+  let datasets = await db.getDatasetsAsync(includeArchived);
   // Sort descending by upload / update date
   datasets = [...datasets].sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime());
   res.json({ datasets });
@@ -91,7 +89,7 @@ router.post('/upload', optionalAuth, upload.single('file'), async (req: AuthRequ
     // L1 In-Memory Cache Check
     if (recentUploadsCache.has(cacheKey)) {
       const cached = recentUploadsCache.get(cacheKey)!;
-      if (cached?.result?.dataset?.id && db.getDatasetById(cached.result.dataset.id)) {
+      if (cached?.result?.dataset?.id && (await db.getDatasetByIdAsync(cached.result.dataset.id))) {
         return res.status(200).json({
           ...cached.result,
           isIdempotentRetry: true,
@@ -102,7 +100,7 @@ router.post('/upload', optionalAuth, upload.single('file'), async (req: AuthRequ
 
     // L2 Persistent MongoDB Idempotency Check (for Serverless/Multi-Instance)
     const mongoCachedResult = await db.getIdempotencyRecord(cacheKey);
-    if (mongoCachedResult && mongoCachedResult.dataset?.id && db.getDatasetById(mongoCachedResult.dataset.id)) {
+    if (mongoCachedResult && mongoCachedResult.dataset?.id && (await db.getDatasetByIdAsync(mongoCachedResult.dataset.id))) {
       recentUploadsCache.set(cacheKey, { result: mongoCachedResult, timestamp: Date.now() });
       return res.status(200).json({
         ...mongoCachedResult,
@@ -142,16 +140,16 @@ router.post('/upload', optionalAuth, upload.single('file'), async (req: AuthRequ
 });
 
 // GET dataset by ID with records preview
-router.get('/:id', optionalAuth, (req: AuthRequest, res) => {
-  const dataset = db.getDatasetById(req.params.id);
+router.get('/:id', optionalAuth, async (req: AuthRequest, res) => {
+  const dataset = await db.getDatasetByIdAsync(req.params.id);
   if (!dataset) {
     return res.status(404).json({ error: 'Dataset not found' });
   }
 
   const limit = parseInt(req.query.limit as string) || 100;
   const offset = parseInt(req.query.offset as string) || 0;
-  const records = db.getRecords(dataset.id, limit, offset);
-  const totalRecords = db.getRecordCount(dataset.id);
+  const records = await db.getRecordsAsync(dataset.id, limit, offset);
+  const totalRecords = dataset.totalRows || db.getRecordCount(dataset.id);
 
   res.json({
     dataset,
@@ -166,7 +164,7 @@ router.get('/:id', optionalAuth, (req: AuthRequest, res) => {
 
 // PUT /api/datasets/:id - Update dataset metadata
 router.put('/:id', optionalAuth, async (req: AuthRequest, res) => {
-  const dataset = db.getDatasetById(req.params.id);
+  const dataset = await db.getDatasetByIdAsync(req.params.id);
   if (!dataset) {
     return res.status(404).json({ error: 'Dataset not found' });
   }
@@ -263,14 +261,56 @@ router.post('/:id/append', optionalAuth, upload.single('file'), async (req: Auth
   }
 });
 
-// GET /api/datasets/:id/download - Export dataset records as CSV
-router.get('/:id/download', optionalAuth, (req: AuthRequest, res) => {
-  const dataset = db.getDatasetById(req.params.id);
+// GET /api/datasets/:id/download - Export dataset records as CSV / original file
+router.get('/:id/download', optionalAuth, async (req: AuthRequest, res) => {
+  const dataset = await db.getDatasetByIdAsync(req.params.id);
   if (!dataset) {
     return res.status(404).json({ error: 'Dataset not found' });
   }
 
-  const records = db.getRecords(dataset.id);
+  const safeName = (dataset.name || 'Dataset').replace(/[^a-zA-Z0-9_-]/g, '_');
+
+  // If file was stored in MongoDB GridFS, retrieve and serve binary stream directly
+  if (dataset.gridFsFileId) {
+    try {
+      const gridFile = await getFileFromGridFS(dataset.gridFsFileId);
+      if (gridFile && gridFile.buffer) {
+        const mime = gridFile.contentType || (
+          dataset.fileType === 'xlsx'
+            ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            : dataset.fileType === 'xls'
+            ? 'application/vnd.ms-excel'
+            : 'text/csv'
+        );
+        const ext = dataset.fileType || 'csv';
+        res.setHeader('Content-Type', mime);
+        res.setHeader('Content-Disposition', `attachment; filename="${safeName}_export_${Date.now()}.${ext}"`);
+        return res.send(gridFile.buffer);
+      }
+    } catch (gridErr) {
+      console.warn(`[GridFS] Failed to stream file ${dataset.gridFsFileId}, falling back to database records:`, gridErr);
+    }
+  }
+
+  // Legacy fallback if original file was persisted in base64
+  if (dataset.fileData) {
+    try {
+      const fileBuffer = Buffer.from(dataset.fileData, 'base64');
+      const mime = dataset.fileType === 'xlsx'
+        ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        : dataset.fileType === 'xls'
+        ? 'application/vnd.ms-excel'
+        : 'text/csv';
+      const ext = dataset.fileType || 'csv';
+      res.setHeader('Content-Type', mime);
+      res.setHeader('Content-Disposition', `attachment; filename="${safeName}_export_${Date.now()}.${ext}"`);
+      return res.send(fileBuffer);
+    } catch (decodeErr) {
+      console.warn('Error streaming stored fileData, falling back to CSV generation:', decodeErr);
+    }
+  }
+
+  const records = await db.getRecordsAsync(dataset.id, 50000);
   if (records.length === 0) {
     return res.status(400).json({ error: 'Dataset has no records to download' });
   }
@@ -278,22 +318,21 @@ router.get('/:id/download', optionalAuth, (req: AuthRequest, res) => {
   const dataRows = records.map((r) => r.data);
   const csv = Papa.unparse(dataRows);
 
-  const safeName = (dataset.name || 'Dataset').replace(/[^a-zA-Z0-9_-]/g, '_');
   res.setHeader('Content-Type', 'text/csv');
   res.setHeader('Content-Disposition', `attachment; filename="${safeName}_export_${Date.now()}.csv"`);
   res.send(csv);
 });
 
 // GET /api/datasets/:id/records - Search, filter, paginate, sort records
-router.get('/:id/records', optionalAuth, (req: AuthRequest, res) => {
-  const dataset = db.getDatasetById(req.params.id);
+router.get('/:id/records', optionalAuth, async (req: AuthRequest, res) => {
+  const dataset = await db.getDatasetByIdAsync(req.params.id);
   if (!dataset) {
     return res.status(404).json({ error: 'Dataset not found' });
   }
 
   const { search, equipment, startDate, endDate, sortBy, sortOrder, limit, offset } = req.query;
 
-  const result = db.queryRecords({
+  const result = await db.queryRecordsAsync({
     datasetId: req.params.id,
     search: search ? String(search) : undefined,
     equipment: equipment ? String(equipment) : undefined,

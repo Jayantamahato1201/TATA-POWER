@@ -30,6 +30,7 @@ import {
   IdempotencyRecordModel,
 } from './models.js';
 import { migrateJsonToMongo } from './migration.js';
+import { deleteFileFromGridFS } from '../services/gridFsStorageService.js';
 
 interface DatabaseSchema {
   users: User[];
@@ -684,8 +685,98 @@ export class MongoDatabase {
     return this.data.datasets;
   }
 
+  public async getDatasetsAsync(includeArchived = false): Promise<Dataset[]> {
+    if (isMongoConnected()) {
+      try {
+        const query = includeArchived ? {} : { isArchived: { $ne: true } };
+        const docs = await DatasetModel.find(query).sort({ uploadedAt: -1 }).lean();
+        if (docs && docs.length > 0) {
+          const mongoDatasets = docs.map((d: any) => ({
+            id: d.id,
+            name: d.name,
+            fileName: d.fileName,
+            fileSize: d.fileSize || 0,
+            fileType: d.fileType || 'csv',
+            category: d.category || 'Plant Telemetry',
+            uploadedBy: d.uploadedBy || 'Operations Engineer',
+            uploadedByEmail: d.uploadedByEmail || 'operator@tatapower.com',
+            uploadedAt: d.uploadedAt || d.createdAt || new Date().toISOString(),
+            totalRows: d.totalRows || 0,
+            validRows: d.validRows || d.totalRows || 0,
+            invalidRows: d.invalidRows || 0,
+            columns: d.columns || [],
+            detectedMetrics: d.detectedMetrics || [],
+            dateColumn: d.dateColumn,
+            timeColumn: d.timeColumn,
+            equipmentColumn: d.equipmentColumn,
+            description: d.description,
+            isArchived: d.isArchived || false,
+            status: d.status || 'ACTIVE',
+            fileData: d.fileData,
+            rawBase64: d.rawBase64,
+            updatedAt: d.updatedAt || d.uploadedAt,
+          })) as Dataset[];
+
+          // Update local memory and disk fallback
+          this.data.datasets = mongoDatasets;
+          this.saveFallbackLocal();
+          return mongoDatasets;
+        }
+      } catch (err: any) {
+        console.warn('[MongoDB] getDatasetsAsync fallback to local cache:', err.message);
+      }
+    }
+    return includeArchived ? this.data.datasets : this.data.datasets.filter((d) => !d.isArchived);
+  }
+
   public getDatasetById(id: string): Dataset | undefined {
     return this.data.datasets.find((d) => d.id === id);
+  }
+
+  public async getDatasetByIdAsync(id: string): Promise<Dataset | undefined> {
+    if (isMongoConnected()) {
+      try {
+        const doc = await DatasetModel.findOne({ id }).lean();
+        if (doc) {
+          const dataset = {
+            id: doc.id,
+            name: doc.name,
+            fileName: doc.fileName,
+            fileSize: doc.fileSize || 0,
+            fileType: doc.fileType || 'csv',
+            category: doc.category || 'Plant Telemetry',
+            uploadedBy: doc.uploadedBy || 'Operations Engineer',
+            uploadedByEmail: doc.uploadedByEmail || 'operator@tatapower.com',
+            uploadedAt: doc.uploadedAt || (doc as any).createdAt || new Date().toISOString(),
+            totalRows: doc.totalRows || 0,
+            validRows: doc.validRows || doc.totalRows || 0,
+            invalidRows: doc.invalidRows || 0,
+            columns: doc.columns || [],
+            detectedMetrics: doc.detectedMetrics || [],
+            dateColumn: doc.dateColumn,
+            timeColumn: doc.timeColumn,
+            equipmentColumn: doc.equipmentColumn,
+            description: doc.description,
+            isArchived: doc.isArchived || false,
+            status: doc.status || 'ACTIVE',
+            fileData: (doc as any).fileData,
+            rawBase64: (doc as any).rawBase64,
+            updatedAt: doc.updatedAt || doc.uploadedAt,
+          } as Dataset;
+
+          const idx = this.data.datasets.findIndex((d) => d.id === id);
+          if (idx >= 0) {
+            this.data.datasets[idx] = dataset;
+          } else {
+            this.data.datasets.push(dataset);
+          }
+          return dataset;
+        }
+      } catch (err: any) {
+        console.warn(`[MongoDB] getDatasetByIdAsync error for ${id}:`, err.message);
+      }
+    }
+    return this.getDatasetById(id);
   }
 
   public async addDataset(dataset: Dataset): Promise<Dataset> {
@@ -699,8 +790,10 @@ export class MongoDatabase {
     if (isMongoConnected()) {
       try {
         await DatasetModel.findOneAndUpdate({ id: dataset.id }, dataset, { upsert: true, new: true });
+        console.info(`[MongoDB] Successfully persisted dataset "${dataset.name}" (ID: ${dataset.id}) to MongoDB Atlas.`);
       } catch (err: any) {
         console.error('[MongoDB] Error saving dataset to MongoDB:', err.message);
+        throw new Error(`Failed to persist dataset to MongoDB: ${err.message}`);
       }
     }
     this.saveFallbackLocal();
@@ -740,7 +833,9 @@ export class MongoDatabase {
 
   public async deleteDataset(id: string): Promise<boolean> {
     const idx = this.data.datasets.findIndex((d) => d.id === id);
+    let targetDataset: Dataset | undefined;
     if (idx !== -1) {
+      targetDataset = this.data.datasets[idx];
       this.data.datasets.splice(idx, 1);
     }
     this.data.records = this.data.records.filter((r) => r.datasetId !== id);
@@ -752,6 +847,9 @@ export class MongoDatabase {
 
     if (isMongoConnected()) {
       try {
+        if (targetDataset?.gridFsFileId) {
+          await deleteFileFromGridFS(targetDataset.gridFsFileId).catch(() => {});
+        }
         await Promise.all([
           DatasetModel.deleteOne({ id }),
           RecordModel.deleteMany({ datasetId: id }),
@@ -901,6 +999,103 @@ export class MongoDatabase {
     const paginated = filtered.slice(offset, offset + limit);
 
     return { records: paginated, total };
+  }
+
+  public async getRecordsAsync(datasetId?: string, limit?: number, offset = 0): Promise<DataRecord[]> {
+    if (isMongoConnected() && datasetId) {
+      try {
+        const query: any = { datasetId };
+        let findQuery = RecordModel.find(query).sort({ rowIndex: 1 });
+        if (offset > 0) findQuery = findQuery.skip(offset);
+        if (limit !== undefined && limit > 0) findQuery = findQuery.limit(limit);
+        const docs = await findQuery.lean();
+        if (docs && docs.length > 0) {
+          return docs.map((d: any) => ({
+            id: d.id,
+            datasetId: d.datasetId,
+            rowIndex: d.rowIndex,
+            timestamp: d.timestamp,
+            equipmentId: d.equipmentId,
+            data: d.data || {},
+            createdAt: d.createdAt,
+          })) as DataRecord[];
+        }
+      } catch (err: any) {
+        console.warn(`[MongoDB] getRecordsAsync fallback for ${datasetId}:`, err.message);
+      }
+    }
+    return this.getRecords(datasetId, limit, offset);
+  }
+
+  public async queryRecordsAsync(params: {
+    datasetId: string;
+    search?: string;
+    equipment?: string;
+    startDate?: string;
+    endDate?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+    limit?: number;
+    offset?: number;
+  }): Promise<{ records: DataRecord[]; total: number }> {
+    if (isMongoConnected()) {
+      try {
+        const filter: any = { datasetId: params.datasetId };
+
+        if (params.equipment && params.equipment !== 'ALL') {
+          filter.$or = [
+            { equipmentId: params.equipment },
+            { 'data.equipment': params.equipment },
+            { 'data.Equipment': params.equipment },
+            { 'data.unit': params.equipment },
+            { 'data.Unit': params.equipment },
+          ];
+        }
+
+        if (params.startDate || params.endDate) {
+          filter.timestamp = {};
+          if (params.startDate) filter.timestamp.$gte = params.startDate;
+          if (params.endDate) filter.timestamp.$lte = params.endDate;
+        }
+
+        if (params.search && params.search.trim()) {
+          const q = params.search.trim();
+          filter.$or = [
+            { equipmentId: { $regex: q, $options: 'i' } },
+            { timestamp: { $regex: q, $options: 'i' } },
+          ];
+        }
+
+        const total = await RecordModel.countDocuments(filter);
+        const sortOrderNum = params.sortOrder === 'desc' ? -1 : 1;
+        const sortField = params.sortBy
+          ? (['timestamp', 'equipmentId', 'rowIndex', 'id'].includes(params.sortBy)
+              ? params.sortBy
+              : `data.${params.sortBy}`)
+          : 'rowIndex';
+
+        const docs = await RecordModel.find(filter)
+          .sort({ [sortField]: sortOrderNum })
+          .skip(params.offset || 0)
+          .limit(params.limit !== undefined ? params.limit : 100)
+          .lean();
+
+        const records = docs.map((d: any) => ({
+          id: d.id,
+          datasetId: d.datasetId,
+          rowIndex: d.rowIndex,
+          timestamp: d.timestamp,
+          equipmentId: d.equipmentId,
+          data: d.data || {},
+          createdAt: d.createdAt,
+        })) as DataRecord[];
+
+        return { records, total };
+      } catch (err: any) {
+        console.warn('[MongoDB] queryRecordsAsync fallback to in-memory query:', err.message);
+      }
+    }
+    return this.queryRecords(params);
   }
 
   public async addRecord(datasetId: string, recordData: Record<string, any>): Promise<DataRecord | null> {
@@ -1321,12 +1516,23 @@ export class MongoDatabase {
   }
 
   public async addRecords(records: DataRecord[]) {
+    // Add to in-memory cache
     this.data.records.push(...records);
+
     if (isMongoConnected() && records.length > 0) {
       try {
-        await RecordModel.insertMany(records, { ordered: false });
+        const CHUNK_SIZE = 500;
+        for (let i = 0; i < records.length; i += CHUNK_SIZE) {
+          const chunk = records.slice(i, i + CHUNK_SIZE);
+          await RecordModel.insertMany(chunk, { ordered: false });
+        }
+        console.info(`[MongoDB] Successfully persisted ${records.length} records to MongoDB Atlas.`);
       } catch (err: any) {
-        console.error('[MongoDB] Error bulk inserting records into MongoDB:', err.message);
+        // E11000 duplicate keys can be ignored if ordered: false, but log others
+        if (!err.message?.includes('E11000')) {
+          console.error('[MongoDB] Error bulk inserting records into MongoDB:', err.message);
+          throw new Error(`Failed to persist records in MongoDB: ${err.message}`);
+        }
       }
     }
     this.saveFallbackLocal();

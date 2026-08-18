@@ -56,6 +56,10 @@ export interface Dataset {
   status?: 'ACTIVE' | 'ARCHIVED' | 'PROCESSING';
   detectedMetrics?: string[];
   sourceReference?: string;
+  gridFsFileId?: string;
+  fileStorageType?: 'gridfs' | 'inline' | 'none';
+  fileData?: string;
+  rawBase64?: string;
 }
 
 export interface DataRecord {

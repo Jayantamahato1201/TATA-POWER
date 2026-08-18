@@ -5,6 +5,8 @@ import { SchemaDetectionService } from './schemaDetectionService.js';
 import { AlarmEvaluationService } from './alarmEvaluationService.js';
 import { ChartGeneratorService } from './chartGeneratorService.js';
 import { db } from '../db/database.js';
+import { saveFileToGridFS, deleteFileFromGridFS } from './gridFsStorageService.js';
+import { isMongoConnected } from '../db/connection.js';
 
 export interface IngestionOptions {
   name: string;
@@ -197,6 +199,28 @@ export class DataIngestionService {
       });
     });
 
+    // GridFS File Persistence (Production Document Size Safety)
+    let gridFsFileId: string | undefined = undefined;
+    let fileStorageType: 'gridfs' | 'inline' | 'none' = 'none';
+
+    if (isMongoConnected()) {
+      try {
+        const mimeType = fileType === 'xlsx'
+          ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          : fileType === 'xls'
+          ? 'application/vnd.ms-excel'
+          : 'text/csv';
+
+        gridFsFileId = await saveFileToGridFS(fileName, buffer, mimeType, {
+          datasetId,
+          uploadedBy: user.email,
+        });
+        fileStorageType = 'gridfs';
+      } catch (gridFsErr: any) {
+        console.warn('[Ingestion] GridFS storage notice (proceeding with document metadata):', gridFsErr?.message || gridFsErr);
+      }
+    }
+
     const dataset: Dataset = {
       id: datasetId,
       name: options.name || fileName.replace(/\.[^/.]+$/, ''),
@@ -215,44 +239,75 @@ export class DataIngestionService {
       equipmentColumn: equipCol,
       columns,
       description: options.description,
+      status: 'ACTIVE',
+      gridFsFileId,
+      fileStorageType,
     };
 
-    // Save Dataset & Records
-    await db.addDataset(dataset);
-    await db.addRecords(records);
+    // Save Dataset & Records with atomic rollback resilience
+    try {
+      await db.addDataset(dataset);
+      try {
+        await db.addRecords(records);
+      } catch (recErr: any) {
+        console.error('[Ingestion] Failed to persist records, rolling back dataset and GridFS file:', recErr);
+        if (gridFsFileId) {
+          await deleteFileFromGridFS(gridFsFileId).catch(() => {});
+        }
+        await db.deleteDataset(datasetId).catch(() => {});
+        throw new Error(`Failed to persist telemetry records to database: ${recErr.message}`);
+      }
 
-    // Dynamic Alarm Evaluation
-    const alarmEvents = AlarmEvaluationService.evaluateDataset(dataset, records);
-    if (alarmEvents.length > 0) {
-      await db.addAlarmEvents(alarmEvents);
+      // Dynamic Alarm Evaluation
+      let alarmEvents: any[] = [];
+      try {
+        alarmEvents = AlarmEvaluationService.evaluateDataset(dataset, records);
+        if (alarmEvents.length > 0) {
+          await db.addAlarmEvents(alarmEvents);
+        }
+      } catch (alarmErr: any) {
+        console.warn('[Ingestion] Alarm evaluation warning:', alarmErr?.message || alarmErr);
+      }
+
+      // Dynamic Chart Generation
+      let autoCharts: any[] = [];
+      try {
+        autoCharts = ChartGeneratorService.generateDefaultChartsForDataset(dataset);
+        for (const chart of autoCharts) {
+          await db.addChartConfig(chart);
+        }
+      } catch (chartErr: any) {
+        console.warn('[Ingestion] Chart generation warning:', chartErr?.message || chartErr);
+      }
+
+      // Log Activity
+      try {
+        await db.addActivityLog({
+          userId: user.id,
+          userName: user.name,
+          userEmail: user.email,
+          action: 'DATASET_INGESTED',
+          details: `Successfully uploaded dataset "${dataset.name}" with ${validRows} records and generated ${autoCharts.length} dynamic charts & ${alarmEvents.length} alarms.`,
+          entityType: 'DATASET',
+          entityId: dataset.id,
+        });
+      } catch (logErr: any) {
+        console.warn('[Ingestion] Activity log notice:', logErr?.message || logErr);
+      }
+
+      return {
+        dataset,
+        totalRecords: records.length,
+        validRecords: validRows,
+        invalidRecords: invalidRows,
+        alarmEventsCount: alarmEvents.length,
+        generatedChartsCount: autoCharts.length,
+        generatedCharts: autoCharts,
+      };
+    } catch (fatalErr: any) {
+      await db.deleteDataset(datasetId).catch(() => {});
+      throw fatalErr;
     }
-
-    // Dynamic Chart Generation
-    const autoCharts = ChartGeneratorService.generateDefaultChartsForDataset(dataset);
-    for (const chart of autoCharts) {
-      await db.addChartConfig(chart);
-    }
-
-    // Log Activity
-    await db.addActivityLog({
-      userId: user.id,
-      userName: user.name,
-      userEmail: user.email,
-      action: 'DATASET_INGESTED',
-      details: `Successfully uploaded dataset "${dataset.name}" with ${validRows} records and generated ${autoCharts.length} dynamic charts & ${alarmEvents.length} alarms.`,
-      entityType: 'DATASET',
-      entityId: dataset.id,
-    });
-
-    return {
-      dataset,
-      totalRecords: records.length,
-      validRecords: validRows,
-      invalidRecords: invalidRows,
-      alarmEventsCount: alarmEvents.length,
-      generatedChartsCount: autoCharts.length,
-      generatedCharts: autoCharts,
-    };
   }
 
   public static async replaceDatasetData(
@@ -292,6 +347,31 @@ export class DataIngestionService {
       });
     });
 
+    // Clean up old GridFS file and store new replacement in GridFS
+    let newGridFsFileId: string | undefined = undefined;
+    let fileStorageType: 'gridfs' | 'inline' | 'none' = 'none';
+
+    if (isMongoConnected()) {
+      if (dataset.gridFsFileId) {
+        await deleteFileFromGridFS(dataset.gridFsFileId).catch(() => {});
+      }
+      try {
+        const mimeType = fileType === 'xlsx'
+          ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          : fileType === 'xls'
+          ? 'application/vnd.ms-excel'
+          : 'text/csv';
+
+        newGridFsFileId = await saveFileToGridFS(fileName, buffer, mimeType, {
+          datasetId,
+          uploadedBy: user.email,
+        });
+        fileStorageType = 'gridfs';
+      } catch (gridFsErr: any) {
+        console.warn('[Ingestion] GridFS replacement storage notice:', gridFsErr?.message || gridFsErr);
+      }
+    }
+
     await db.replaceDatasetRecords(datasetId, records, {
       fileName,
       fileSize: buffer.length,
@@ -299,6 +379,8 @@ export class DataIngestionService {
       columns,
       dateColumn: dateCol,
       equipmentColumn: equipCol,
+      gridFsFileId: newGridFsFileId,
+      fileStorageType,
     });
 
     // Re-evaluate alarms

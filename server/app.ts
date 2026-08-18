@@ -97,8 +97,15 @@ app.post('/api/database/reconnect', async (req: express.Request, res: express.Re
       await db.init();
     }
     const dbStatus = getDatabaseStatus();
+    if (!dbStatus.isMongoConnected) {
+      return res.status(503).json({
+        success: false,
+        error: dbStatus.lastError || 'Failed to establish connection with MongoDB Atlas. Please ensure IP whitelist includes 0.0.0.0/0.',
+        ...dbStatus,
+      });
+    }
     res.json({
-      success: dbStatus.isMongoConnected,
+      success: true,
       ...dbStatus,
     });
   } catch (err: any) {

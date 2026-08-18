@@ -68,7 +68,11 @@ export interface DataContextType {
   activeDatasetMetrics?: any[];
   processedData?: any[];
   refreshAlarms: () => Promise<void>;
-  uploadDataset: (file: File, name?: string) => Promise<{ success: boolean; error?: string }>;
+  uploadDataset: (
+    file: File,
+    name?: string,
+    options?: { category?: string; dateColumn?: string; equipmentColumn?: string; description?: string }
+  ) => Promise<{ success: boolean; error?: string }>;
   seedSampleDataset: () => Promise<void>;
   acknowledgeAlarm: (id: string) => Promise<void>;
   resolveAlarm: (id: string, notes?: string) => Promise<void>;
@@ -328,13 +332,29 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     refreshData();
   }, [selectedDatasetId]);
 
-  const uploadDataset = async (file: File, name?: string): Promise<{ success: boolean; error?: string }> => {
+  const uploadDataset = async (
+    file: File,
+    name?: string,
+    options?: { category?: string; dateColumn?: string; equipmentColumn?: string; description?: string }
+  ): Promise<{ success: boolean; error?: string }> => {
     setIsUploading(true);
     try {
       const formData = new FormData();
       formData.append('file', file);
       if (name) {
         formData.append('name', name);
+      }
+      if (options?.category) {
+        formData.append('category', options.category);
+      }
+      if (options?.dateColumn) {
+        formData.append('dateColumn', options.dateColumn);
+      }
+      if (options?.equipmentColumn) {
+        formData.append('equipmentColumn', options.equipmentColumn);
+      }
+      if (options?.description) {
+        formData.append('description', options.description);
       }
 
       const res = await fetch('/api/datasets/upload', {

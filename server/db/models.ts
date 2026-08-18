@@ -56,6 +56,10 @@ export interface IDatasetDoc extends Document {
   description?: string;
   isArchived?: boolean;
   status?: 'ACTIVE' | 'ARCHIVED' | 'PROCESSING' | 'ERROR';
+  gridFsFileId?: string;
+  fileStorageType?: 'gridfs' | 'inline' | 'none';
+  fileData?: string;
+  rawBase64?: string;
   updatedAt: string;
 }
 
@@ -79,12 +83,18 @@ const DatasetSchema = new Schema<IDatasetDoc>(
     timeColumn: { type: String },
     equipmentColumn: { type: String },
     description: { type: String },
-    isArchived: { type: Boolean, default: false },
+    isArchived: { type: Boolean, default: false, index: true },
     status: { type: String, enum: ['ACTIVE', 'ARCHIVED', 'PROCESSING', 'ERROR'], default: 'ACTIVE' },
+    gridFsFileId: { type: String, index: true },
+    fileStorageType: { type: String, enum: ['gridfs', 'inline', 'none'], default: 'none' },
+    fileData: { type: String },
+    rawBase64: { type: String },
     updatedAt: { type: String, default: () => new Date().toISOString() },
   },
   { collection: 'datasets', timestamps: true }
 );
+
+DatasetSchema.index({ isArchived: 1, uploadedAt: -1 });
 
 // ==========================================
 // 3. DataRecord Schema & Model
