@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import Papa from 'papaparse';
+import * as XLSX from 'xlsx';
 import {
   Dataset,
   AlarmRule,
@@ -789,26 +791,95 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const previewFile = async (file: File): Promise<any> => {
-    const formData = new FormData();
-    formData.append('file', file);
-    const res = await fetch('/api/datasets/preview', {
-      method: 'POST',
-      headers: authHeaders,
-      body: formData,
-    });
-    let data: any = null;
+    // 1. First attempt server-side preview API
     try {
-      data = await res.json();
-    } catch {
-      data = null;
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/datasets/preview', {
+        method: 'POST',
+        headers: authHeaders,
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.columns && Array.isArray(data.columns)) {
+          return data;
+        }
+      }
+    } catch (serverErr) {
+      console.warn('[DataContext] Server preview request failed, applying client-side fallback parser:', serverErr);
     }
-    if (!res.ok) {
-      throw new Error(data?.error || `Failed to preview file (${res.statusText || 'Status ' + res.status})`);
+
+    // 2. High-reliability client-side parsing fallback using PapaParse / SheetJS
+    try {
+      const ext = (file.name.split('.').pop() || '').toLowerCase();
+      let rows: Record<string, any>[] = [];
+
+      if (ext === 'csv' || ext === 'tsv' || ext === 'txt') {
+        const text = await file.text();
+        const parsed = Papa.parse<Record<string, any>>(text, {
+          header: true,
+          dynamicTyping: true,
+          skipEmptyLines: 'greedy',
+          transformHeader: (h: string) => h.trim().replace(/^[\uFEFF\xEF\xBB\xBF]+/, ''),
+        });
+        rows = (parsed.data || []).filter(
+          (r) => r && typeof r === 'object' && Object.values(r).some((v) => v !== null && v !== undefined && String(v).trim() !== '')
+        );
+      } else {
+        // Excel (.xlsx, .xls)
+        const arrayBuffer = await file.arrayBuffer();
+        const workbook = XLSX.read(arrayBuffer, { type: 'array', cellDates: true });
+        if (workbook && workbook.SheetNames && workbook.SheetNames.length > 0) {
+          const sheet = workbook.Sheets[workbook.SheetNames[0]];
+          const json = XLSX.utils.sheet_to_json<Record<string, any>>(sheet, { defval: '' });
+          rows = json.filter(
+            (r) => r && typeof r === 'object' && Object.values(r).some((v) => v !== null && v !== undefined && String(v).trim() !== '')
+          );
+        }
+      }
+
+      if (!rows || rows.length === 0) {
+        throw new Error(`File "${file.name}" is empty or has no recognizable data rows.`);
+      }
+
+      const colNames = Object.keys(rows[0] || {});
+      const columns = colNames.map((col) => {
+        const lower = col.toLowerCase();
+        const isTimestamp = lower.includes('time') || lower.includes('date') || lower.includes('timestamp') || lower === 'ts';
+        const isEquipment = lower.includes('equip') || lower.includes('unit') || lower.includes('gen') || lower.includes('machine') || lower.includes('asset');
+        const sampleVals = rows.slice(0, 5).map((r) => r[col]).filter((v) => v !== undefined && v !== null);
+        const numCount = sampleVals.filter((v) => typeof v === 'number' || (!isNaN(Number(v)) && String(v).trim() !== '')).length;
+        const isNumeric = numCount >= Math.max(1, sampleVals.length * 0.7);
+
+        return {
+          name: col,
+          displayName: col.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+          dataType: isTimestamp ? 'datetime' : isNumeric ? 'numeric' : 'string',
+          sampleValues: sampleVals,
+          isTimestamp,
+          isEquipment,
+        };
+      });
+
+      const dateCol = columns.find((c) => c.isTimestamp)?.name;
+      const equipCol = columns.find((c) => c.isEquipment)?.name;
+
+      return {
+        fileName: file.name,
+        fileSize: file.size,
+        fileType: ext,
+        totalRows: rows.length,
+        columns,
+        suggestedDateColumn: dateCol,
+        suggestedEquipmentColumn: equipCol,
+        sampleRows: rows.slice(0, 10),
+      };
+    } catch (parseErr: any) {
+      console.error('[DataContext] Client-side fallback preview failed:', parseErr);
+      throw new Error(parseErr.message || 'Unable to parse file structure. Please ensure it is a valid CSV or Excel file.');
     }
-    if (!data) {
-      throw new Error('Empty response received from preview service.');
-    }
-    return data;
   };
 
   const downloadDatasetCSV = (datasetId: string) => {

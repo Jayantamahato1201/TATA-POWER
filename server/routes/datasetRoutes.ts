@@ -44,64 +44,9 @@ router.get('/', optionalAuth, (req: AuthRequest, res) => {
   res.json({ datasets });
 });
 
-// GET dataset by ID with records preview
-router.get('/:id', optionalAuth, (req: AuthRequest, res) => {
-  const dataset = db.getDatasetById(req.params.id);
-  if (!dataset) {
-    return res.status(404).json({ error: 'Dataset not found' });
-  }
-
-  const limit = parseInt(req.query.limit as string) || 100;
-  const offset = parseInt(req.query.offset as string) || 0;
-  const records = db.getRecords(dataset.id, limit, offset);
-  const totalRecords = db.getRecordCount(dataset.id);
-
-  res.json({
-    dataset,
-    records,
-    pagination: {
-      total: totalRecords,
-      limit,
-      offset,
-    },
-  });
-});
-
-// PUT /api/datasets/:id - Update dataset metadata
-router.put('/:id', optionalAuth, async (req: AuthRequest, res) => {
-  const dataset = db.getDatasetById(req.params.id);
-  if (!dataset) {
-    return res.status(404).json({ error: 'Dataset not found' });
-  }
-
-  const { name, category, description, isArchived, status, dateColumn, equipmentColumn } = req.body;
-  const updates: any = {};
-  if (name !== undefined) updates.name = String(name).trim();
-  if (category !== undefined) updates.category = String(category).trim();
-  if (description !== undefined) updates.description = String(description).trim();
-  if (isArchived !== undefined) {
-    updates.isArchived = Boolean(isArchived);
-    updates.status = updates.isArchived ? 'ARCHIVED' : 'ACTIVE';
-  }
-  if (status !== undefined) updates.status = status;
-  if (dateColumn !== undefined) updates.dateColumn = dateColumn;
-  if (equipmentColumn !== undefined) updates.equipmentColumn = equipmentColumn;
-  updates.updatedAt = new Date().toISOString();
-
-  const updated = await db.updateDataset(req.params.id, updates);
-
-  const user = req.user || { id: 'usr_admin', name: 'Administrator', email: 'admin@tatapower.com' };
-  await db.addActivityLog({
-    userId: user.id,
-    userName: user.name,
-    userEmail: user.email,
-    action: 'DATASET_UPDATED',
-    details: `Updated metadata for dataset "${updated?.name || req.params.id}".`,
-    entityType: 'DATASET',
-    entityId: req.params.id,
-  });
-
-  res.json({ dataset: updated });
+// GET /api/datasets/preview - Status/info endpoint
+router.get('/preview', (req, res) => {
+  res.json({ status: 'ready', message: 'Send POST request with file to preview dataset.' });
 });
 
 // POST Preview uploaded file before finalizing import
@@ -194,6 +139,66 @@ router.post('/upload', optionalAuth, upload.single('file'), async (req: AuthRequ
     console.error('Dataset ingestion error:', err);
     res.status(400).json({ error: err.message || 'Failed to ingest dataset' });
   }
+});
+
+// GET dataset by ID with records preview
+router.get('/:id', optionalAuth, (req: AuthRequest, res) => {
+  const dataset = db.getDatasetById(req.params.id);
+  if (!dataset) {
+    return res.status(404).json({ error: 'Dataset not found' });
+  }
+
+  const limit = parseInt(req.query.limit as string) || 100;
+  const offset = parseInt(req.query.offset as string) || 0;
+  const records = db.getRecords(dataset.id, limit, offset);
+  const totalRecords = db.getRecordCount(dataset.id);
+
+  res.json({
+    dataset,
+    records,
+    pagination: {
+      total: totalRecords,
+      limit,
+      offset,
+    },
+  });
+});
+
+// PUT /api/datasets/:id - Update dataset metadata
+router.put('/:id', optionalAuth, async (req: AuthRequest, res) => {
+  const dataset = db.getDatasetById(req.params.id);
+  if (!dataset) {
+    return res.status(404).json({ error: 'Dataset not found' });
+  }
+
+  const { name, category, description, isArchived, status, dateColumn, equipmentColumn } = req.body;
+  const updates: any = {};
+  if (name !== undefined) updates.name = String(name).trim();
+  if (category !== undefined) updates.category = String(category).trim();
+  if (description !== undefined) updates.description = String(description).trim();
+  if (isArchived !== undefined) {
+    updates.isArchived = Boolean(isArchived);
+    updates.status = updates.isArchived ? 'ARCHIVED' : 'ACTIVE';
+  }
+  if (status !== undefined) updates.status = status;
+  if (dateColumn !== undefined) updates.dateColumn = dateColumn;
+  if (equipmentColumn !== undefined) updates.equipmentColumn = equipmentColumn;
+  updates.updatedAt = new Date().toISOString();
+
+  const updated = await db.updateDataset(req.params.id, updates);
+
+  const user = req.user || { id: 'usr_admin', name: 'Administrator', email: 'admin@tatapower.com' };
+  await db.addActivityLog({
+    userId: user.id,
+    userName: user.name,
+    userEmail: user.email,
+    action: 'DATASET_UPDATED',
+    details: `Updated metadata for dataset "${updated?.name || req.params.id}".`,
+    entityType: 'DATASET',
+    entityId: req.params.id,
+  });
+
+  res.json({ dataset: updated });
 });
 
 // POST /api/datasets/:id/replace - Mode 1: Replace entire dataset with new file
