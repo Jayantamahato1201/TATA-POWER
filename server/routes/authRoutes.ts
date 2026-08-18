@@ -5,7 +5,7 @@ import { generateToken, authenticate, optionalAuth, AuthRequest } from '../middl
 
 const router = Router();
 
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   const { email, username, password } = req.body;
   const inputIdentifier = String(email || username || '').trim();
   const inputPassword = String(password || '').trim();
@@ -41,7 +41,7 @@ router.post('/login', (req, res) => {
       ],
       createdAt: new Date().toISOString(),
     };
-    db.addUser(adminUser);
+    await db.addUser(adminUser);
     allUsers = db.getUsers();
   }
 
@@ -123,7 +123,7 @@ router.post('/login', (req, res) => {
     // If matched via demo fallback, update the stored hash to match the new password format
     if (isPasswordValid) {
       const newHash = bcrypt.hashSync(inputPassword, 10);
-      db.updateUser(user.id, { passwordHash: newHash });
+      await db.updateUser(user.id, { passwordHash: newHash });
     }
   }
 
@@ -134,12 +134,12 @@ router.post('/login', (req, res) => {
   }
 
   // Update last login timestamp
-  db.updateUser(user.id, { lastLogin: new Date().toISOString() });
+  await db.updateUser(user.id, { lastLogin: new Date().toISOString() });
 
   const token = generateToken(user);
   const { passwordHash, ...safeUser } = user;
 
-  db.addActivityLog({
+  await db.addActivityLog({
     userId: user.id,
     userName: user.name,
     userEmail: user.email,
@@ -162,9 +162,9 @@ router.get('/me', optionalAuth, (req: AuthRequest, res) => {
   res.json({ user: safeUser });
 });
 
-router.post('/logout', optionalAuth, (req: AuthRequest, res) => {
+router.post('/logout', optionalAuth, async (req: AuthRequest, res) => {
   if (req.user) {
-    db.addActivityLog({
+    await db.addActivityLog({
       userId: req.user.id,
       userName: req.user.name,
       userEmail: req.user.email,

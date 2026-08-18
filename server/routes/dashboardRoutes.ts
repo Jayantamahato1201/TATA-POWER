@@ -12,7 +12,7 @@ router.get('/layout', optionalAuth, (req: AuthRequest, res) => {
 });
 
 // PUT update layout
-router.put('/layout', optionalAuth, (req: AuthRequest, res) => {
+router.put('/layout', optionalAuth, async (req: AuthRequest, res) => {
   const { widgets, name } = req.body;
   if (!widgets || !Array.isArray(widgets)) {
     return res.status(400).json({ error: 'Widgets array is required' });
@@ -21,7 +21,7 @@ router.put('/layout', optionalAuth, (req: AuthRequest, res) => {
   const userId = req.user?.id;
   const current = db.getDashboardLayout(userId);
 
-  const updated = db.updateDashboardLayout({
+  const updated = await db.updateDashboardLayout({
     id: current.id,
     userId: current.userId || userId,
     isDefault: current.isDefault,

@@ -68,7 +68,7 @@ router.get('/:id', optionalAuth, (req: AuthRequest, res) => {
 });
 
 // PUT /api/datasets/:id - Update dataset metadata
-router.put('/:id', optionalAuth, (req: AuthRequest, res) => {
+router.put('/:id', optionalAuth, async (req: AuthRequest, res) => {
   const dataset = db.getDatasetById(req.params.id);
   if (!dataset) {
     return res.status(404).json({ error: 'Dataset not found' });
@@ -88,10 +88,10 @@ router.put('/:id', optionalAuth, (req: AuthRequest, res) => {
   if (equipmentColumn !== undefined) updates.equipmentColumn = equipmentColumn;
   updates.updatedAt = new Date().toISOString();
 
-  const updated = db.updateDataset(req.params.id, updates);
+  const updated = await db.updateDataset(req.params.id, updates);
 
   const user = req.user || { id: 'usr_admin', name: 'Administrator', email: 'admin@tatapower.com' };
-  db.addActivityLog({
+  await db.addActivityLog({
     userId: user.id,
     userName: user.name,
     userEmail: user.email,
@@ -175,7 +175,7 @@ router.post('/upload', optionalAuth, upload.single('file'), async (req: AuthRequ
       description: req.body.description,
     };
 
-    const result = DataIngestionService.processAndSave(
+    const result = await DataIngestionService.processAndSave(
       req.file.buffer,
       fileName,
       fileType,
@@ -197,7 +197,7 @@ router.post('/upload', optionalAuth, upload.single('file'), async (req: AuthRequ
 });
 
 // POST /api/datasets/:id/replace - Mode 1: Replace entire dataset with new file
-router.post('/:id/replace', optionalAuth, upload.single('file'), (req: AuthRequest, res) => {
+router.post('/:id/replace', optionalAuth, upload.single('file'), async (req: AuthRequest, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded for replacement.' });
   }
@@ -212,7 +212,7 @@ router.post('/:id/replace', optionalAuth, upload.single('file'), (req: AuthReque
   };
 
   try {
-    const result = DataIngestionService.replaceDatasetData(
+    const result = await DataIngestionService.replaceDatasetData(
       req.params.id,
       req.file.buffer,
       fileName,
@@ -227,7 +227,7 @@ router.post('/:id/replace', optionalAuth, upload.single('file'), (req: AuthReque
 });
 
 // POST /api/datasets/:id/append - Mode 2: Append new rows with duplicate detection
-router.post('/:id/append', optionalAuth, upload.single('file'), (req: AuthRequest, res) => {
+router.post('/:id/append', optionalAuth, upload.single('file'), async (req: AuthRequest, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded for append.' });
   }
@@ -243,7 +243,7 @@ router.post('/:id/append', optionalAuth, upload.single('file'), (req: AuthReques
   };
 
   try {
-    const result = DataIngestionService.appendDatasetData(
+    const result = await DataIngestionService.appendDatasetData(
       req.params.id,
       req.file.buffer,
       fileName,
@@ -312,19 +312,19 @@ router.get('/:id/records', optionalAuth, (req: AuthRequest, res) => {
 });
 
 // POST /api/datasets/:id/records - Add new single record
-router.post('/:id/records', optionalAuth, (req: AuthRequest, res) => {
+router.post('/:id/records', optionalAuth, async (req: AuthRequest, res) => {
   const { data } = req.body;
   if (!data || typeof data !== 'object') {
     return res.status(400).json({ error: 'Invalid record data object provided.' });
   }
 
-  const created = db.addRecord(req.params.id, data);
+  const created = await db.addRecord(req.params.id, data);
   if (!created) {
     return res.status(404).json({ error: 'Dataset not found or failed to create record.' });
   }
 
   const user = req.user || { id: 'usr_admin', name: 'Administrator', email: 'admin@tatapower.com' };
-  db.addActivityLog({
+  await db.addActivityLog({
     userId: user.id,
     userName: user.name,
     userEmail: user.email,
@@ -353,19 +353,19 @@ router.get('/:id/records/:recordId', optionalAuth, (req: AuthRequest, res) => {
 });
 
 // PUT /api/datasets/:id/records/:recordId - Edit single record
-router.put('/:id/records/:recordId', optionalAuth, (req: AuthRequest, res) => {
+router.put('/:id/records/:recordId', optionalAuth, async (req: AuthRequest, res) => {
   const { data } = req.body;
   if (!data || typeof data !== 'object') {
     return res.status(400).json({ error: 'Invalid record data object provided.' });
   }
 
-  const updated = db.updateRecord(req.params.id, req.params.recordId, data);
+  const updated = await db.updateRecord(req.params.id, req.params.recordId, data);
   if (!updated) {
     return res.status(404).json({ error: 'Record not found or failed to update.' });
   }
 
   const user = req.user || { id: 'usr_admin', name: 'Administrator', email: 'admin@tatapower.com' };
-  db.addActivityLog({
+  await db.addActivityLog({
     userId: user.id,
     userName: user.name,
     userEmail: user.email,
@@ -385,14 +385,14 @@ router.put('/:id/records/:recordId', optionalAuth, (req: AuthRequest, res) => {
 });
 
 // DELETE /api/datasets/:id/records/:recordId - Delete single record
-router.delete('/:id/records/:recordId', optionalAuth, (req: AuthRequest, res) => {
-  const success = db.deleteRecord(req.params.id, req.params.recordId);
+router.delete('/:id/records/:recordId', optionalAuth, async (req: AuthRequest, res) => {
+  const success = await db.deleteRecord(req.params.id, req.params.recordId);
   if (!success) {
     return res.status(404).json({ error: 'Record not found or failed to delete.' });
   }
 
   const user = req.user || { id: 'usr_admin', name: 'Administrator', email: 'admin@tatapower.com' };
-  db.addActivityLog({
+  await db.addActivityLog({
     userId: user.id,
     userName: user.name,
     userEmail: user.email,
@@ -412,16 +412,16 @@ router.delete('/:id/records/:recordId', optionalAuth, (req: AuthRequest, res) =>
 });
 
 // POST /api/datasets/:id/records/bulk-update - Bulk update or delete
-router.post('/:id/records/bulk-update', optionalAuth, (req: AuthRequest, res) => {
+router.post('/:id/records/bulk-update', optionalAuth, async (req: AuthRequest, res) => {
   const { action, recordIds, updates } = req.body;
   if (!action || !['delete', 'update'].includes(action)) {
     return res.status(400).json({ error: 'Action must be "delete" or "update".' });
   }
 
-  const result = db.bulkUpdateRecords(req.params.id, action, { recordIds, updates });
+  const result = await db.bulkUpdateRecords(req.params.id, action, { recordIds, updates });
 
   const user = req.user || { id: 'usr_admin', name: 'Administrator', email: 'admin@tatapower.com' };
-  db.addActivityLog({
+  await db.addActivityLog({
     userId: user.id,
     userName: user.name,
     userEmail: user.email,
@@ -476,7 +476,7 @@ router.get('/:id/alarms', optionalAuth, (req: AuthRequest, res) => {
 });
 
 // POST Seed verified sample Jojobera operational dataset
-router.post('/seed-sample', optionalAuth, (req: AuthRequest, res) => {
+router.post('/seed-sample', optionalAuth, async (req: AuthRequest, res) => {
   try {
     const user = req.user || {
       id: 'usr_admin_01',
@@ -484,7 +484,7 @@ router.post('/seed-sample', optionalAuth, (req: AuthRequest, res) => {
       email: 'admin@tatapower.com',
     };
 
-    const result = DataIngestionService.seedSampleDataset(user);
+    const result = await DataIngestionService.seedSampleDataset(user);
     res.status(201).json({
       message: 'Verified Jojobera operational telemetry sample loaded successfully',
       ...result,
@@ -495,7 +495,7 @@ router.post('/seed-sample', optionalAuth, (req: AuthRequest, res) => {
 });
 
 // DELETE dataset
-router.delete('/:id', optionalAuth, (req: AuthRequest, res) => {
+router.delete('/:id', optionalAuth, async (req: AuthRequest, res) => {
   const user = req.user || {
     id: 'usr_admin_01',
     name: 'Command Center Lead Administrator',
@@ -505,12 +505,12 @@ router.delete('/:id', optionalAuth, (req: AuthRequest, res) => {
   const dataset = db.getDatasetById(req.params.id);
   const datasetName = dataset?.name || req.params.id;
 
-  const success = db.deleteDataset(req.params.id);
+  const success = await db.deleteDataset(req.params.id);
   if (!success) {
     return res.status(404).json({ error: 'Dataset not found' });
   }
 
-  db.addActivityLog({
+  await db.addActivityLog({
     userId: user.id,
     userName: user.name,
     userEmail: user.email,

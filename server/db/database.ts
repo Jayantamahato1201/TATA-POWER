@@ -73,10 +73,19 @@ export class MongoDatabase {
         if (mongo && isMongoConnected()) {
           console.info('[MongoDB] Syncing runtime state from MongoDB Atlas...');
 
-          // Run one-time migration if Mongo is fresh and local JSON has data
-          const existingCount = await DatasetModel.countDocuments();
-          if (existingCount === 0 && fs.existsSync(DB_FILE)) {
-            await migrateJsonToMongo();
+          // Run one-time migration if Mongo is fresh and not yet initialized
+          const initConfig = await SystemConfigModel.findOne({ key: 'system_initialized' });
+          if (!initConfig) {
+            const existingCount = await DatasetModel.countDocuments();
+            if (existingCount === 0 && fs.existsSync(DB_FILE)) {
+              await migrateJsonToMongo();
+            } else {
+              await SystemConfigModel.findOneAndUpdate(
+                { key: 'system_initialized' },
+                { key: 'system_initialized', value: true, initializedAt: new Date().toISOString() },
+                { upsert: true }
+              );
+            }
           }
 
           // Hydrate in-memory cache directly from MongoDB Atlas
@@ -557,7 +566,15 @@ export class MongoDatabase {
         fs.writeFileSync(tmpPath, JSON.stringify(this.data, null, 2), 'utf-8');
         fs.renameSync(tmpPath, DB_FILE);
       } catch (err) {
-        // Safe to ignore in read-only serverless environments
+        // In read-only serverless environments (e.g. Vercel), fall back to /tmp
+        try {
+          const tmpTmp = '/tmp/tatapower_database.json.tmp';
+          const tmpFinal = '/tmp/tatapower_database.json';
+          fs.writeFileSync(tmpTmp, JSON.stringify(this.data, null, 2), 'utf-8');
+          fs.renameSync(tmpTmp, tmpFinal);
+        } catch (tmpErr) {
+          // In-memory runtime state is maintained
+        }
       }
       this.saveTimeout = null;
     }, 150);
@@ -570,15 +587,20 @@ export class MongoDatabase {
     return this.masterAlarmEnabled;
   }
 
-  public setMasterAlarmStatus(enabled: boolean): boolean {
+  public async setMasterAlarmStatus(enabled: boolean): Promise<boolean> {
     this.masterAlarmEnabled = enabled;
     if (isMongoConnected()) {
-      SystemConfigModel.findOneAndUpdate(
-        { key: 'masterAlarmEnabled' },
-        { key: 'masterAlarmEnabled', value: enabled, updatedAt: new Date().toISOString() },
-        { upsert: true }
-      ).catch((err) => console.error('[MongoDB] Failed to update masterAlarmEnabled:', err.message));
+      try {
+        await SystemConfigModel.findOneAndUpdate(
+          { key: 'masterAlarmEnabled' },
+          { key: 'masterAlarmEnabled', value: enabled, updatedAt: new Date().toISOString() },
+          { upsert: true }
+        );
+      } catch (err: any) {
+        console.error('[MongoDB] Failed to update masterAlarmEnabled:', err.message);
+      }
     }
+    this.saveFallbackLocal();
     return this.masterAlarmEnabled;
   }
 
@@ -597,38 +619,52 @@ export class MongoDatabase {
     return this.data.users.find((u) => u.email.toLowerCase() === email.toLowerCase());
   }
 
-  public addUser(user: User): User {
-    this.data.users.push(user);
+  public async addUser(user: User): Promise<User> {
+    const idx = this.data.users.findIndex((u) => u.id === user.id);
+    if (idx >= 0) {
+      this.data.users[idx] = user;
+    } else {
+      this.data.users.push(user);
+    }
+
     if (isMongoConnected()) {
-      UserModel.findOneAndUpdate({ id: user.id }, user, { upsert: true }).catch((err) =>
-        console.error('[MongoDB] Error inserting user:', err.message)
-      );
+      try {
+        await UserModel.findOneAndUpdate({ id: user.id }, user, { upsert: true, new: true });
+      } catch (err: any) {
+        console.error('[MongoDB] Error inserting user:', err.message);
+      }
     }
     this.saveFallbackLocal();
     return user;
   }
 
-  public updateUser(id: string, updates: Partial<User>): User | undefined {
+  public async updateUser(id: string, updates: Partial<User>): Promise<User | undefined> {
     const idx = this.data.users.findIndex((u) => u.id === id);
     if (idx === -1) return undefined;
     this.data.users[idx] = { ...this.data.users[idx], ...updates };
+
     if (isMongoConnected()) {
-      UserModel.findOneAndUpdate({ id }, { $set: updates }).catch((err) =>
-        console.error('[MongoDB] Error updating user:', err.message)
-      );
+      try {
+        await UserModel.findOneAndUpdate({ id }, { $set: updates });
+      } catch (err: any) {
+        console.error('[MongoDB] Error updating user:', err.message);
+      }
     }
     this.saveFallbackLocal();
     return this.data.users[idx];
   }
 
-  public deleteUser(id: string): boolean {
+  public async deleteUser(id: string): Promise<boolean> {
     const idx = this.data.users.findIndex((u) => u.id === id);
     if (idx === -1) return false;
     this.data.users.splice(idx, 1);
+
     if (isMongoConnected()) {
-      UserModel.deleteOne({ id }).catch((err) =>
-        console.error('[MongoDB] Error deleting user:', err.message)
-      );
+      try {
+        await UserModel.deleteOne({ id });
+      } catch (err: any) {
+        console.error('[MongoDB] Error deleting user:', err.message);
+      }
     }
     this.saveFallbackLocal();
     return true;
@@ -645,45 +681,82 @@ export class MongoDatabase {
     return this.data.datasets.find((d) => d.id === id);
   }
 
-  public addDataset(dataset: Dataset): Dataset {
-    this.data.datasets.push(dataset);
+  public async addDataset(dataset: Dataset): Promise<Dataset> {
+    const idx = this.data.datasets.findIndex((d) => d.id === dataset.id);
+    if (idx >= 0) {
+      this.data.datasets[idx] = dataset;
+    } else {
+      this.data.datasets.push(dataset);
+    }
+
     if (isMongoConnected()) {
-      DatasetModel.findOneAndUpdate({ id: dataset.id }, dataset, { upsert: true }).catch((err) =>
-        console.error('[MongoDB] Error saving dataset to MongoDB:', err.message)
-      );
+      try {
+        await DatasetModel.findOneAndUpdate({ id: dataset.id }, dataset, { upsert: true, new: true });
+      } catch (err: any) {
+        console.error('[MongoDB] Error saving dataset to MongoDB:', err.message);
+      }
     }
     this.saveFallbackLocal();
     return dataset;
   }
 
-  public updateDataset(id: string, updates: Partial<Dataset>): Dataset | undefined {
+  public async updateDataset(id: string, updates: Partial<Dataset>): Promise<Dataset | undefined> {
     const idx = this.data.datasets.findIndex((d) => d.id === id);
-    if (idx === -1) return undefined;
-    this.data.datasets[idx] = { ...this.data.datasets[idx], ...updates };
-    if (isMongoConnected()) {
-      DatasetModel.findOneAndUpdate({ id }, { $set: updates }).catch((err) =>
-        console.error('[MongoDB] Error updating dataset in MongoDB:', err.message)
-      );
+    let current = idx !== -1 ? this.data.datasets[idx] : undefined;
+    const now = new Date().toISOString();
+    const updatedMeta = { ...updates, updatedAt: now };
+
+    if (current) {
+      this.data.datasets[idx] = { ...current, ...updatedMeta };
+      current = this.data.datasets[idx];
     }
+
+    if (isMongoConnected()) {
+      try {
+        const doc = await DatasetModel.findOneAndUpdate(
+          { id },
+          { $set: updatedMeta },
+          { new: true }
+        ).lean();
+        if (doc && !current) {
+          current = doc as any;
+          this.data.datasets.push(current!);
+        }
+      } catch (err: any) {
+        console.error('[MongoDB] Error updating dataset in MongoDB:', err.message);
+      }
+    }
+
     this.saveFallbackLocal();
-    return this.data.datasets[idx];
+    return current;
   }
 
-  public deleteDataset(id: string): boolean {
+  public async deleteDataset(id: string): Promise<boolean> {
     const idx = this.data.datasets.findIndex((d) => d.id === id);
-    if (idx === -1) return false;
-    this.data.datasets.splice(idx, 1);
+    if (idx !== -1) {
+      this.data.datasets.splice(idx, 1);
+    }
     this.data.records = this.data.records.filter((r) => r.datasetId !== id);
     this.data.alarmEvents = this.data.alarmEvents.filter((a) => a.datasetId !== id);
     this.data.chartConfigs = this.data.chartConfigs.filter((c) => c.datasetId !== id);
+    if (this.data.temperatureConfigs) {
+      this.data.temperatureConfigs = this.data.temperatureConfigs.filter((t) => t.datasetId !== id);
+    }
 
     if (isMongoConnected()) {
-      Promise.all([
-        DatasetModel.deleteOne({ id }),
-        RecordModel.deleteMany({ datasetId: id }),
-        AlarmEventModel.deleteMany({ datasetId: id }),
-        ChartConfigModel.deleteMany({ datasetId: id }),
-      ]).catch((err) => console.error('[MongoDB] Error deleting dataset resources in MongoDB:', err.message));
+      try {
+        await Promise.all([
+          DatasetModel.deleteOne({ id }),
+          RecordModel.deleteMany({ datasetId: id }),
+          AlarmEventModel.deleteMany({ datasetId: id }),
+          ChartConfigModel.deleteMany({ datasetId: id }),
+          TemperatureConfigModel.deleteMany({ datasetId: id }),
+          IdempotencyRecordModel.deleteMany({ datasetId: id }),
+        ]);
+        console.info(`[MongoDB] Successfully deleted dataset "${id}" and all associated records permanently.`);
+      } catch (err: any) {
+        console.error('[MongoDB] Error deleting dataset resources in MongoDB:', err.message);
+      }
     }
 
     this.saveFallbackLocal();
@@ -792,7 +865,7 @@ export class MongoDatabase {
     return { records: paginated, total };
   }
 
-  public addRecord(datasetId: string, recordData: Record<string, any>): DataRecord | null {
+  public async addRecord(datasetId: string, recordData: Record<string, any>): Promise<DataRecord | null> {
     const dataset = this.getDatasetById(datasetId);
     if (!dataset) return null;
 
@@ -856,20 +929,22 @@ export class MongoDatabase {
     this.recalculateDatasetStats(datasetId);
 
     if (isMongoConnected()) {
-      RecordModel.create(newRecord).catch((err) =>
-        console.error('[MongoDB] Error creating record in MongoDB:', err.message)
-      );
+      try {
+        await RecordModel.create(newRecord);
+      } catch (err: any) {
+        console.error('[MongoDB] Error creating record in MongoDB:', err.message);
+      }
     }
 
     this.saveFallbackLocal();
     return newRecord;
   }
 
-  public updateRecord(
+  public async updateRecord(
     datasetId: string,
     recordId: string,
     updatedValues: Record<string, any>
-  ): DataRecord | null {
+  ): Promise<DataRecord | null> {
     const idx = this.data.records.findIndex(
       (r) => r.datasetId === datasetId && (r.id === recordId || String(r.rowIndex) === recordId)
     );
@@ -901,23 +976,27 @@ export class MongoDatabase {
     }
 
     if (isMongoConnected()) {
-      RecordModel.findOneAndUpdate(
-        { id: current.id },
-        {
-          $set: {
-            timestamp: newTimestamp,
-            equipmentId: newEquipment,
-            data: mergedData,
-          },
-        }
-      ).catch((err) => console.error('[MongoDB] Error updating record in MongoDB:', err.message));
+      try {
+        await RecordModel.findOneAndUpdate(
+          { id: current.id },
+          {
+            $set: {
+              timestamp: newTimestamp,
+              equipmentId: newEquipment,
+              data: mergedData,
+            },
+          }
+        );
+      } catch (err: any) {
+        console.error('[MongoDB] Error updating record in MongoDB:', err.message);
+      }
     }
 
     this.saveFallbackLocal();
     return this.data.records[idx];
   }
 
-  public deleteRecord(datasetId: string, recordId: string): boolean {
+  public async deleteRecord(datasetId: string, recordId: string): Promise<boolean> {
     const idx = this.data.records.findIndex(
       (r) => r.datasetId === datasetId && (r.id === recordId || String(r.rowIndex) === recordId)
     );
@@ -932,20 +1011,22 @@ export class MongoDatabase {
     }
 
     if (isMongoConnected()) {
-      RecordModel.deleteOne({ id: target.id }).catch((err) =>
-        console.error('[MongoDB] Error deleting record in MongoDB:', err.message)
-      );
+      try {
+        await RecordModel.deleteOne({ id: target.id });
+      } catch (err: any) {
+        console.error('[MongoDB] Error deleting record in MongoDB:', err.message);
+      }
     }
 
     this.saveFallbackLocal();
     return true;
   }
 
-  public bulkUpdateRecords(
+  public async bulkUpdateRecords(
     datasetId: string,
     action: 'delete' | 'update',
     payload: { recordIds?: string[]; updates?: { id: string; data: Record<string, any> }[] }
-  ): { affected: number } {
+  ): Promise<{ affected: number }> {
     let affected = 0;
 
     if (action === 'delete' && payload.recordIds && payload.recordIds.length > 0) {
@@ -957,14 +1038,18 @@ export class MongoDatabase {
       affected = beforeLen - this.data.records.length;
 
       if (isMongoConnected()) {
-        RecordModel.deleteMany({
-          datasetId,
-          $or: [{ id: { $in: payload.recordIds } }],
-        }).catch((err) => console.error('[MongoDB] Error in bulk delete records:', err.message));
+        try {
+          await RecordModel.deleteMany({
+            datasetId,
+            $or: [{ id: { $in: payload.recordIds } }],
+          });
+        } catch (err: any) {
+          console.error('[MongoDB] Error in bulk delete records:', err.message);
+        }
       }
     } else if (action === 'update' && payload.updates && payload.updates.length > 0) {
       for (const item of payload.updates) {
-        const res = this.updateRecord(datasetId, item.id, item.data);
+        const res = await this.updateRecord(datasetId, item.id, item.data);
         if (res) affected++;
       }
     }
@@ -977,11 +1062,11 @@ export class MongoDatabase {
     return { affected };
   }
 
-  public replaceDatasetRecords(
+  public async replaceDatasetRecords(
     datasetId: string,
     newRecords: DataRecord[],
     newMetadata?: Partial<Dataset>
-  ): boolean {
+  ): Promise<boolean> {
     const dataset = this.getDatasetById(datasetId);
     if (!dataset) return false;
 
@@ -998,28 +1083,29 @@ export class MongoDatabase {
       updatedAt: new Date().toISOString(),
     };
 
-    this.updateDataset(datasetId, updatedMeta);
+    await this.updateDataset(datasetId, updatedMeta);
     this.recalculateDatasetStats(datasetId);
 
     if (isMongoConnected()) {
-      RecordModel.deleteMany({ datasetId })
-        .then(() => {
-          if (newRecords.length > 0) {
-            return RecordModel.insertMany(newRecords, { ordered: false });
-          }
-        })
-        .catch((err) => console.error('[MongoDB] Error in replaceDatasetRecords:', err.message));
+      try {
+        await RecordModel.deleteMany({ datasetId });
+        if (newRecords.length > 0) {
+          await RecordModel.insertMany(newRecords, { ordered: false });
+        }
+      } catch (err: any) {
+        console.error('[MongoDB] Error in replaceDatasetRecords:', err.message);
+      }
     }
 
     this.saveFallbackLocal();
     return true;
   }
 
-  public appendDatasetRecords(
+  public async appendDatasetRecords(
     datasetId: string,
     newRecords: DataRecord[],
     duplicateStrategy: 'skip' | 'overwrite' = 'skip'
-  ): { added: number; duplicatesSkipped: number; totalRecords: number } {
+  ): Promise<{ added: number; duplicatesSkipped: number; totalRecords: number }> {
     const dataset = this.getDatasetById(datasetId);
     if (!dataset) {
       throw new Error(`Dataset ${datasetId} not found`);
@@ -1080,14 +1166,16 @@ export class MongoDatabase {
     if (recordsToInsert.length > 0) {
       this.data.records.push(...recordsToInsert);
       if (isMongoConnected()) {
-        RecordModel.insertMany(recordsToInsert, { ordered: false }).catch((err) =>
-          console.error('[MongoDB] Error inserting appended records into MongoDB:', err.message)
-        );
+        try {
+          await RecordModel.insertMany(recordsToInsert, { ordered: false });
+        } catch (err: any) {
+          console.error('[MongoDB] Error inserting appended records into MongoDB:', err.message);
+        }
       }
     }
 
     const totalRecords = this.getRecordCount(datasetId);
-    this.updateDataset(datasetId, {
+    await this.updateDataset(datasetId, {
       totalRows: totalRecords,
       validRows: totalRecords,
       updatedAt: new Date().toISOString(),
@@ -1194,12 +1282,14 @@ export class MongoDatabase {
     }
   }
 
-  public addRecords(records: DataRecord[]) {
+  public async addRecords(records: DataRecord[]) {
     this.data.records.push(...records);
     if (isMongoConnected() && records.length > 0) {
-      RecordModel.insertMany(records, { ordered: false }).catch((err) =>
-        console.error('[MongoDB] Error bulk inserting records into MongoDB:', err.message)
-      );
+      try {
+        await RecordModel.insertMany(records, { ordered: false });
+      } catch (err: any) {
+        console.error('[MongoDB] Error bulk inserting records into MongoDB:', err.message);
+      }
     }
     this.saveFallbackLocal();
   }
@@ -1222,18 +1312,26 @@ export class MongoDatabase {
     return this.data.alarmRules.find((r) => r.id === id);
   }
 
-  public addAlarmRule(rule: AlarmRule): AlarmRule {
-    this.data.alarmRules.push(rule);
+  public async addAlarmRule(rule: AlarmRule): Promise<AlarmRule> {
+    const idx = this.data.alarmRules.findIndex((r) => r.id === rule.id);
+    if (idx >= 0) {
+      this.data.alarmRules[idx] = rule;
+    } else {
+      this.data.alarmRules.push(rule);
+    }
+
     if (isMongoConnected()) {
-      AlarmRuleModel.findOneAndUpdate({ id: rule.id }, rule, { upsert: true }).catch((err) =>
-        console.error('[MongoDB] Error saving alarm rule to MongoDB:', err.message)
-      );
+      try {
+        await AlarmRuleModel.findOneAndUpdate({ id: rule.id }, rule, { upsert: true, new: true });
+      } catch (err: any) {
+        console.error('[MongoDB] Error saving alarm rule to MongoDB:', err.message);
+      }
     }
     this.saveFallbackLocal();
     return rule;
   }
 
-  public updateAlarmRule(id: string, updates: Partial<AlarmRule>): AlarmRule | undefined {
+  public async updateAlarmRule(id: string, updates: Partial<AlarmRule>): Promise<AlarmRule | undefined> {
     const idx = this.data.alarmRules.findIndex((r) => r.id === id);
     if (idx === -1) return undefined;
     this.data.alarmRules[idx] = {
@@ -1242,22 +1340,26 @@ export class MongoDatabase {
       updatedAt: new Date().toISOString(),
     };
     if (isMongoConnected()) {
-      AlarmRuleModel.findOneAndUpdate({ id }, { $set: this.data.alarmRules[idx] }).catch((err) =>
-        console.error('[MongoDB] Error updating alarm rule in MongoDB:', err.message)
-      );
+      try {
+        await AlarmRuleModel.findOneAndUpdate({ id }, { $set: this.data.alarmRules[idx] });
+      } catch (err: any) {
+        console.error('[MongoDB] Error updating alarm rule in MongoDB:', err.message);
+      }
     }
     this.saveFallbackLocal();
     return this.data.alarmRules[idx];
   }
 
-  public deleteAlarmRule(id: string): boolean {
+  public async deleteAlarmRule(id: string): Promise<boolean> {
     const idx = this.data.alarmRules.findIndex((r) => r.id === id);
     if (idx === -1) return false;
     this.data.alarmRules.splice(idx, 1);
     if (isMongoConnected()) {
-      AlarmRuleModel.deleteOne({ id }).catch((err) =>
-        console.error('[MongoDB] Error deleting alarm rule in MongoDB:', err.message)
-      );
+      try {
+        await AlarmRuleModel.deleteOne({ id });
+      } catch (err: any) {
+        console.error('[MongoDB] Error deleting alarm rule in MongoDB:', err.message);
+      }
     }
     this.saveFallbackLocal();
     return true;
@@ -1289,7 +1391,7 @@ export class MongoDatabase {
     return list;
   }
 
-  public addAlarmEvents(events: AlarmEvent[]) {
+  public async addAlarmEvents(events: AlarmEvent[]) {
     if (!events || events.length === 0) return;
     const existingMap = new Map<string, number>();
     this.data.alarmEvents.forEach((e, i) => {
@@ -1326,22 +1428,24 @@ export class MongoDatabase {
     }
 
     if (isMongoConnected() && eventsToPersist.length > 0) {
-      AlarmEventModel.bulkWrite(
-        eventsToPersist.map((e) => ({
-          updateOne: {
-            filter: { id: e.id },
-            update: { $set: e },
-            upsert: true,
-          },
-        }))
-      ).catch((err) =>
-        console.error('[MongoDB] Error upserting alarm events in MongoDB:', err.message)
-      );
+      try {
+        await AlarmEventModel.bulkWrite(
+          eventsToPersist.map((e) => ({
+            updateOne: {
+              filter: { id: e.id },
+              update: { $set: e },
+              upsert: true,
+            },
+          }))
+        );
+      } catch (err: any) {
+        console.error('[MongoDB] Error upserting alarm events in MongoDB:', err.message);
+      }
     }
     this.saveFallbackLocal();
   }
 
-  public updateAlarmEvent(id: string, updates: Partial<AlarmEvent>): AlarmEvent | undefined {
+  public async updateAlarmEvent(id: string, updates: Partial<AlarmEvent>): Promise<AlarmEvent | undefined> {
     const idx = this.data.alarmEvents.findIndex((e) => e.id === id);
     if (idx === -1) return undefined;
     this.data.alarmEvents[idx] = {
@@ -1350,9 +1454,11 @@ export class MongoDatabase {
       updatedAt: new Date().toISOString(),
     };
     if (isMongoConnected()) {
-      AlarmEventModel.findOneAndUpdate({ id }, { $set: this.data.alarmEvents[idx] }).catch((err) =>
-        console.error('[MongoDB] Error updating alarm event status in MongoDB:', err.message)
-      );
+      try {
+        await AlarmEventModel.findOneAndUpdate({ id }, { $set: this.data.alarmEvents[idx] });
+      } catch (err: any) {
+        console.error('[MongoDB] Error updating alarm event status in MongoDB:', err.message);
+      }
     }
     this.saveFallbackLocal();
     return this.data.alarmEvents[idx];
@@ -1361,7 +1467,7 @@ export class MongoDatabase {
   /**
    * Clear a single alarm event by ID with audit trails.
    */
-  public clearAlarmEvent(id: string, clearedBy?: string): AlarmEvent | undefined {
+  public async clearAlarmEvent(id: string, clearedBy?: string): Promise<AlarmEvent | undefined> {
     const idx = this.data.alarmEvents.findIndex((e) => e.id === id);
     if (idx === -1) return undefined;
     const now = new Date().toISOString();
@@ -1373,12 +1479,14 @@ export class MongoDatabase {
       updatedAt: now,
     };
     if (isMongoConnected()) {
-      AlarmEventModel.findOneAndUpdate(
-        { id },
-        { $set: { status: 'CLEARED', clearedBy: clearedBy || 'Operator', clearedAt: now, updatedAt: now } }
-      ).catch((err) =>
-        console.error('[MongoDB] Error clearing alarm event in MongoDB:', err.message)
-      );
+      try {
+        await AlarmEventModel.findOneAndUpdate(
+          { id },
+          { $set: { status: 'CLEARED', clearedBy: clearedBy || 'Operator', clearedAt: now, updatedAt: now } }
+        );
+      } catch (err: any) {
+        console.error('[MongoDB] Error clearing alarm event in MongoDB:', err.message);
+      }
     }
     this.saveFallbackLocal();
     return this.data.alarmEvents[idx];
@@ -1387,7 +1495,7 @@ export class MongoDatabase {
   /**
    * Clear selected alarm events in batch with audit metadata.
    */
-  public clearAlarmEventsBatch(ids: string[], clearedBy?: string): { clearedCount: number } {
+  public async clearAlarmEventsBatch(ids: string[], clearedBy?: string): Promise<{ clearedCount: number }> {
     if (!ids || ids.length === 0) return { clearedCount: 0 };
     const idSet = new Set(ids);
     const now = new Date().toISOString();
@@ -1407,12 +1515,14 @@ export class MongoDatabase {
     });
 
     if (isMongoConnected()) {
-      AlarmEventModel.updateMany(
-        { id: { $in: ids } },
-        { $set: { status: 'CLEARED', clearedBy: clearedBy || 'Operator', clearedAt: now, updatedAt: now } }
-      ).catch((err) =>
-        console.error('[MongoDB] Error batch-clearing alarm events in MongoDB:', err.message)
-      );
+      try {
+        await AlarmEventModel.updateMany(
+          { id: { $in: ids } },
+          { $set: { status: 'CLEARED', clearedBy: clearedBy || 'Operator', clearedAt: now, updatedAt: now } }
+        );
+      } catch (err: any) {
+        console.error('[MongoDB] Error batch-clearing alarm events in MongoDB:', err.message);
+      }
     }
     this.saveFallbackLocal();
     return { clearedCount: count };
@@ -1421,7 +1531,7 @@ export class MongoDatabase {
   /**
    * Clear all or filtered alarm events permanently in MongoDB & memory.
    */
-  public clearAlarmEvents(datasetId?: string, clearedBy?: string) {
+  public async clearAlarmEvents(datasetId?: string, clearedBy?: string) {
     const now = new Date().toISOString();
     if (datasetId) {
       this.data.alarmEvents = this.data.alarmEvents.map((e) =>
@@ -1430,10 +1540,14 @@ export class MongoDatabase {
           : e
       );
       if (isMongoConnected()) {
-        AlarmEventModel.updateMany(
-          { datasetId },
-          { $set: { status: 'CLEARED', clearedBy: clearedBy || 'Operator', clearedAt: now, updatedAt: now } }
-        ).catch(() => {});
+        try {
+          await AlarmEventModel.updateMany(
+            { datasetId },
+            { $set: { status: 'CLEARED', clearedBy: clearedBy || 'Operator', clearedAt: now, updatedAt: now } }
+          );
+        } catch (err: any) {
+          console.error('[MongoDB] Error clearing alarm events by dataset:', err.message);
+        }
       }
     } else {
       this.data.alarmEvents = this.data.alarmEvents.map((e) => ({
@@ -1444,10 +1558,14 @@ export class MongoDatabase {
         updatedAt: now,
       }));
       if (isMongoConnected()) {
-        AlarmEventModel.updateMany(
-          {},
-          { $set: { status: 'CLEARED', clearedBy: clearedBy || 'Operator', clearedAt: now, updatedAt: now } }
-        ).catch(() => {});
+        try {
+          await AlarmEventModel.updateMany(
+            {},
+            { $set: { status: 'CLEARED', clearedBy: clearedBy || 'Operator', clearedAt: now, updatedAt: now } }
+          );
+        } catch (err: any) {
+          console.error('[MongoDB] Error clearing all alarm events:', err.message);
+        }
       }
     }
     this.saveFallbackLocal();
@@ -1456,10 +1574,10 @@ export class MongoDatabase {
   /**
    * Clear filtered alarm events by dataset, level, or equipment with audit metadata.
    */
-  public clearAllAlarmEvents(
+  public async clearAllAlarmEvents(
     filter?: { datasetId?: string; level?: string; equipmentId?: string },
     clearedBy?: string
-  ): { clearedCount: number } {
+  ): Promise<{ clearedCount: number }> {
     const now = new Date().toISOString();
     let count = 0;
     const mongoFilter: any = {};
@@ -1488,12 +1606,14 @@ export class MongoDatabase {
     });
 
     if (isMongoConnected()) {
-      AlarmEventModel.updateMany(
-        mongoFilter,
-        { $set: { status: 'CLEARED', clearedBy: clearedBy || 'Operator', clearedAt: now, updatedAt: now } }
-      ).catch((err) =>
-        console.error('[MongoDB] Error clearing filtered alarms in MongoDB:', err.message)
-      );
+      try {
+        await AlarmEventModel.updateMany(
+          mongoFilter,
+          { $set: { status: 'CLEARED', clearedBy: clearedBy || 'Operator', clearedAt: now, updatedAt: now } }
+        );
+      } catch (err: any) {
+        console.error('[MongoDB] Error clearing filtered alarms in MongoDB:', err.message);
+      }
     }
     this.saveFallbackLocal();
     return { clearedCount: count };
@@ -1507,8 +1627,8 @@ export class MongoDatabase {
     try {
       if (isMongoConnected()) {
         const doc = await IdempotencyRecordModel.findOne({ key }).lean();
-        if (doc && doc.result) {
-          return doc.result;
+        if (doc && (doc as any).result) {
+          return (doc as any).result;
         }
       }
     } catch (err: any) {
@@ -1546,18 +1666,26 @@ export class MongoDatabase {
     return this.data.chartConfigs.find((c) => c.id === id);
   }
 
-  public addChartConfig(config: ChartConfig): ChartConfig {
-    this.data.chartConfigs.push(config);
+  public async addChartConfig(config: ChartConfig): Promise<ChartConfig> {
+    const idx = this.data.chartConfigs.findIndex((c) => c.id === config.id);
+    if (idx >= 0) {
+      this.data.chartConfigs[idx] = config;
+    } else {
+      this.data.chartConfigs.push(config);
+    }
+
     if (isMongoConnected()) {
-      ChartConfigModel.findOneAndUpdate({ id: config.id }, config, { upsert: true }).catch((err) =>
-        console.error('[MongoDB] Error saving chart config to MongoDB:', err.message)
-      );
+      try {
+        await ChartConfigModel.findOneAndUpdate({ id: config.id }, config, { upsert: true });
+      } catch (err: any) {
+        console.error('[MongoDB] Error saving chart config to MongoDB:', err.message);
+      }
     }
     this.saveFallbackLocal();
     return config;
   }
 
-  public updateChartConfig(id: string, updates: Partial<ChartConfig>): ChartConfig | undefined {
+  public async updateChartConfig(id: string, updates: Partial<ChartConfig>): Promise<ChartConfig | undefined> {
     const idx = this.data.chartConfigs.findIndex((c) => c.id === id);
     if (idx === -1) return undefined;
     this.data.chartConfigs[idx] = {
@@ -1566,22 +1694,26 @@ export class MongoDatabase {
       updatedAt: new Date().toISOString(),
     };
     if (isMongoConnected()) {
-      ChartConfigModel.findOneAndUpdate({ id }, { $set: this.data.chartConfigs[idx] }).catch((err) =>
-        console.error('[MongoDB] Error updating chart config in MongoDB:', err.message)
-      );
+      try {
+        await ChartConfigModel.findOneAndUpdate({ id }, { $set: this.data.chartConfigs[idx] });
+      } catch (err: any) {
+        console.error('[MongoDB] Error updating chart config in MongoDB:', err.message);
+      }
     }
     this.saveFallbackLocal();
     return this.data.chartConfigs[idx];
   }
 
-  public deleteChartConfig(id: string): boolean {
+  public async deleteChartConfig(id: string): Promise<boolean> {
     const idx = this.data.chartConfigs.findIndex((c) => c.id === id);
     if (idx === -1) return false;
     this.data.chartConfigs.splice(idx, 1);
     if (isMongoConnected()) {
-      ChartConfigModel.deleteOne({ id }).catch((err) =>
-        console.error('[MongoDB] Error deleting chart config in MongoDB:', err.message)
-      );
+      try {
+        await ChartConfigModel.deleteOne({ id });
+      } catch (err: any) {
+        console.error('[MongoDB] Error deleting chart config in MongoDB:', err.message);
+      }
     }
     this.saveFallbackLocal();
     return true;
@@ -1596,7 +1728,7 @@ export class MongoDatabase {
     return this.data.dashboardLayouts.find((l) => l.isDefault) || this.data.dashboardLayouts[0];
   }
 
-  public updateDashboardLayout(layout: DashboardLayout): DashboardLayout {
+  public async updateDashboardLayout(layout: DashboardLayout): Promise<DashboardLayout> {
     const idx = this.data.dashboardLayouts.findIndex(
       (l) => l.id === layout.id || (layout.userId && l.userId === layout.userId)
     );
@@ -1608,9 +1740,11 @@ export class MongoDatabase {
     }
 
     if (isMongoConnected()) {
-      DashboardLayoutModel.findOneAndUpdate({ id: layout.id }, updated, { upsert: true }).catch((err) =>
-        console.error('[MongoDB] Error saving dashboard layout to MongoDB:', err.message)
-      );
+      try {
+        await DashboardLayoutModel.findOneAndUpdate({ id: layout.id }, updated, { upsert: true });
+      } catch (err: any) {
+        console.error('[MongoDB] Error saving dashboard layout to MongoDB:', err.message);
+      }
     }
 
     this.saveFallbackLocal();
@@ -1679,11 +1813,11 @@ export class MongoDatabase {
     return fallback;
   }
 
-  public setTemperatureConfig(
+  public async setTemperatureConfig(
     configUpdates: Partial<TemperatureThresholdConfig>,
     datasetId?: string,
     userEmail = 'admin@tatapower.com'
-  ): TemperatureThresholdConfig {
+  ): Promise<TemperatureThresholdConfig> {
     if (!this.data.temperatureConfigs) {
       this.data.temperatureConfigs = [];
     }
@@ -1747,9 +1881,11 @@ export class MongoDatabase {
     }
 
     if (isMongoConnected()) {
-      TemperatureConfigModel.findOneAndUpdate({ id: updated.id }, updated, { upsert: true }).catch(
-        (err) => console.error('[MongoDB] Error saving temperature config to MongoDB:', err.message)
-      );
+      try {
+        await TemperatureConfigModel.findOneAndUpdate({ id: updated.id }, updated, { upsert: true });
+      } catch (err: any) {
+        console.error('[MongoDB] Error saving temperature config to MongoDB:', err.message);
+      }
     }
 
     this.saveFallbackLocal();
@@ -1767,10 +1903,10 @@ export class MongoDatabase {
     return (this.data.metricConfigs || {})[metricKey];
   }
 
-  public saveMetricConfig(
+  public async saveMetricConfig(
     metricKey: string,
     config: Partial<MetricDefinition>
-  ): Partial<MetricDefinition> {
+  ): Promise<Partial<MetricDefinition>> {
     if (!this.data.metricConfigs) {
       this.data.metricConfigs = {};
     }
@@ -1790,26 +1926,30 @@ export class MongoDatabase {
     this.data.metricConfigs[metricKey] = updated;
 
     if (isMongoConnected()) {
-      const doc = { metricKey, ...updated };
-      MetricConfigModel.findOneAndUpdate({ metricKey }, doc, { upsert: true }).catch((err) =>
-        console.error('[MongoDB] Error saving metric config to MongoDB:', err.message)
-      );
+      try {
+        const doc = { metricKey, ...updated };
+        await MetricConfigModel.findOneAndUpdate({ metricKey }, doc, { upsert: true });
+      } catch (err: any) {
+        console.error('[MongoDB] Error saving metric config to MongoDB:', err.message);
+      }
     }
 
     this.saveFallbackLocal();
     return updated;
   }
 
-  public deleteMetricConfig(metricKey: string): boolean {
+  public async deleteMetricConfig(metricKey: string): Promise<boolean> {
     if (!this.data.metricConfigs || !this.data.metricConfigs[metricKey]) {
       return false;
     }
     delete this.data.metricConfigs[metricKey];
 
     if (isMongoConnected()) {
-      MetricConfigModel.deleteOne({ metricKey }).catch((err) =>
-        console.error('[MongoDB] Error deleting metric config in MongoDB:', err.message)
-      );
+      try {
+        await MetricConfigModel.deleteOne({ metricKey });
+      } catch (err: any) {
+        console.error('[MongoDB] Error deleting metric config in MongoDB:', err.message);
+      }
     }
 
     this.saveFallbackLocal();
@@ -1819,7 +1959,7 @@ export class MongoDatabase {
   // ==========================================
   // ACTIVITY LOGS
   // ==========================================
-  public addActivityLog(log: Omit<ActivityLog, 'id' | 'timestamp'>): ActivityLog {
+  public async addActivityLog(log: Omit<ActivityLog, 'id' | 'timestamp'>): Promise<ActivityLog> {
     const newLog: ActivityLog = {
       ...log,
       id: `log_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -1831,9 +1971,11 @@ export class MongoDatabase {
     }
 
     if (isMongoConnected()) {
-      ActivityLogModel.create(newLog).catch((err) =>
-        console.error('[MongoDB] Error writing activity log to MongoDB:', err.message)
-      );
+      try {
+        await ActivityLogModel.create(newLog);
+      } catch (err: any) {
+        console.error('[MongoDB] Error writing activity log to MongoDB:', err.message);
+      }
     }
 
     this.saveFallbackLocal();

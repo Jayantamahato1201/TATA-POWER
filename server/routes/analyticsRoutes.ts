@@ -50,7 +50,7 @@ router.post('/chart-data', optionalAuth, (req: AuthRequest, res) => {
 });
 
 // POST Create or customize chart
-router.post('/charts', optionalAuth, (req: AuthRequest, res) => {
+router.post('/charts', optionalAuth, async (req: AuthRequest, res) => {
   const {
     title,
     chartType,
@@ -86,14 +86,14 @@ router.post('/charts', optionalAuth, (req: AuthRequest, res) => {
     updatedAt: new Date().toISOString(),
   };
 
-  db.addChartConfig(newChart);
+  await db.addChartConfig(newChart);
 
   res.status(201).json({ chart: newChart });
 });
 
 // PUT Update chart
-router.put('/charts/:id', optionalAuth, (req: AuthRequest, res) => {
-  const updated = db.updateChartConfig(req.params.id, req.body);
+router.put('/charts/:id', optionalAuth, async (req: AuthRequest, res) => {
+  const updated = await db.updateChartConfig(req.params.id, req.body);
   if (!updated) {
     return res.status(404).json({ error: 'Chart configuration not found' });
   }
@@ -101,8 +101,8 @@ router.put('/charts/:id', optionalAuth, (req: AuthRequest, res) => {
 });
 
 // DELETE chart
-router.delete('/charts/:id', optionalAuth, (req: AuthRequest, res) => {
-  const success = db.deleteChartConfig(req.params.id);
+router.delete('/charts/:id', optionalAuth, async (req: AuthRequest, res) => {
+  const success = await db.deleteChartConfig(req.params.id);
   if (!success) {
     return res.status(404).json({ error: 'Chart not found' });
   }

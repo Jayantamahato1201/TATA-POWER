@@ -13,13 +13,13 @@ router.get('/config', optionalAuth, (req: AuthRequest, res) => {
 });
 
 // PUT Update Temperature configuration
-router.put('/config', optionalAuth, (req: AuthRequest, res) => {
+router.put('/config', optionalAuth, async (req: AuthRequest, res) => {
   const datasetId = req.body.datasetId as string;
   const userEmail = req.user?.email || 'admin@tatapower.com';
-  const updated = db.setTemperatureConfig(req.body, datasetId, userEmail);
+  const updated = await db.setTemperatureConfig(req.body, datasetId, userEmail);
 
   // Log activity
-  db.addActivityLog({
+  await db.addActivityLog({
     userId: req.user?.id || 'usr_admin',
     userName: req.user?.name || 'Administrator',
     userEmail,

@@ -795,9 +795,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       headers: authHeaders,
       body: formData,
     });
-    const data = await safeParseResponse<any>(res, null);
-    if (!res.ok || !data) {
-      throw new Error(data?.error || `Failed to preview file (Status ${res.status})`);
+    let data: any = null;
+    try {
+      data = await res.json();
+    } catch {
+      data = null;
+    }
+    if (!res.ok) {
+      throw new Error(data?.error || `Failed to preview file (${res.statusText || 'Status ' + res.status})`);
+    }
+    if (!data) {
+      throw new Error('Empty response received from preview service.');
     }
     return data;
   };

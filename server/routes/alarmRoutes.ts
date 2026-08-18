@@ -13,7 +13,7 @@ router.get('/rules', optionalAuth, (req: AuthRequest, res) => {
 });
 
 // POST Create new alarm rule
-router.post('/rules', optionalAuth, (req: AuthRequest, res) => {
+router.post('/rules', optionalAuth, async (req: AuthRequest, res) => {
   const {
     name,
     datasetId,
@@ -82,9 +82,9 @@ router.post('/rules', optionalAuth, (req: AuthRequest, res) => {
     updatedAt: new Date().toISOString(),
   };
 
-  db.addAlarmRule(newRule);
+  await db.addAlarmRule(newRule);
 
-  db.addActivityLog({
+  await db.addActivityLog({
     userId: user.id,
     userName: user.name,
     userEmail: user.email,
@@ -95,25 +95,25 @@ router.post('/rules', optionalAuth, (req: AuthRequest, res) => {
   });
 
   // Automatically trigger re-evaluation across active datasets
-  reEvaluateAllAlarms();
+  await reEvaluateAllAlarms();
 
   res.status(201).json({ rule: newRule });
 });
 
 // PUT Update alarm rule (allows daily threshold edits e.g. changing 30°C to 35°C without changing code)
-router.put('/rules/:id', optionalAuth, (req: AuthRequest, res) => {
+router.put('/rules/:id', optionalAuth, async (req: AuthRequest, res) => {
   const user = req.user || {
     id: 'usr_admin_01',
     name: 'Command Center Operator',
     email: 'operator@tatapower.com',
   };
 
-  const updated = db.updateAlarmRule(req.params.id, req.body);
+  const updated = await db.updateAlarmRule(req.params.id, req.body);
   if (!updated) {
     return res.status(404).json({ error: 'Alarm rule not found' });
   }
 
-  db.addActivityLog({
+  await db.addActivityLog({
     userId: user.id,
     userName: user.name,
     userEmail: user.email,
@@ -124,25 +124,25 @@ router.put('/rules/:id', optionalAuth, (req: AuthRequest, res) => {
   });
 
   // Recalculate alarm events
-  reEvaluateAllAlarms();
+  await reEvaluateAllAlarms();
 
   res.json({ rule: updated });
 });
 
 // DELETE alarm rule
-router.delete('/rules/:id', optionalAuth, (req: AuthRequest, res) => {
+router.delete('/rules/:id', optionalAuth, async (req: AuthRequest, res) => {
   const user = req.user || {
     id: 'usr_admin_01',
     name: 'Command Center Lead Administrator',
     email: 'admin@tatapower.com',
   };
 
-  const success = db.deleteAlarmRule(req.params.id);
+  const success = await db.deleteAlarmRule(req.params.id);
   if (!success) {
     return res.status(404).json({ error: 'Alarm rule not found' });
   }
 
-  db.addActivityLog({
+  await db.addActivityLog({
     userId: user.id,
     userName: user.name,
     userEmail: user.email,
@@ -152,7 +152,7 @@ router.delete('/rules/:id', optionalAuth, (req: AuthRequest, res) => {
     entityId: req.params.id,
   });
 
-  reEvaluateAllAlarms();
+  await reEvaluateAllAlarms();
 
   res.json({ message: 'Alarm rule deleted successfully' });
 });
@@ -195,14 +195,14 @@ router.get('/events', optionalAuth, (req: AuthRequest, res) => {
 });
 
 // POST Acknowledge alarm event
-router.post('/events/:id/acknowledge', optionalAuth, (req: AuthRequest, res) => {
+router.post('/events/:id/acknowledge', optionalAuth, async (req: AuthRequest, res) => {
   const user = req.user || {
     id: 'usr_guest',
     name: 'Shift Operations Operator',
     email: 'operator@tatapower.com',
   };
 
-  const updated = db.updateAlarmEvent(req.params.id, {
+  const updated = await db.updateAlarmEvent(req.params.id, {
     status: 'ACKNOWLEDGED',
     acknowledgedBy: user.name,
     acknowledgedAt: new Date().toISOString(),
@@ -212,7 +212,7 @@ router.post('/events/:id/acknowledge', optionalAuth, (req: AuthRequest, res) => 
     return res.status(404).json({ error: 'Alarm event not found' });
   }
 
-  db.addActivityLog({
+  await db.addActivityLog({
     userId: user.id,
     userName: user.name,
     userEmail: user.email,
@@ -226,7 +226,7 @@ router.post('/events/:id/acknowledge', optionalAuth, (req: AuthRequest, res) => 
 });
 
 // POST Resolve alarm event
-router.post('/events/:id/resolve', optionalAuth, (req: AuthRequest, res) => {
+router.post('/events/:id/resolve', optionalAuth, async (req: AuthRequest, res) => {
   const user = req.user || {
     id: 'usr_guest',
     name: 'Shift Operations Operator',
@@ -235,7 +235,7 @@ router.post('/events/:id/resolve', optionalAuth, (req: AuthRequest, res) => {
 
   const { resolutionNotes } = req.body;
 
-  const updated = db.updateAlarmEvent(req.params.id, {
+  const updated = await db.updateAlarmEvent(req.params.id, {
     status: 'RESOLVED',
     resolvedBy: user.name,
     resolvedAt: new Date().toISOString(),
@@ -246,7 +246,7 @@ router.post('/events/:id/resolve', optionalAuth, (req: AuthRequest, res) => {
     return res.status(404).json({ error: 'Alarm event not found' });
   }
 
-  db.addActivityLog({
+  await db.addActivityLog({
     userId: user.id,
     userName: user.name,
     userEmail: user.email,
@@ -260,20 +260,20 @@ router.post('/events/:id/resolve', optionalAuth, (req: AuthRequest, res) => {
 });
 
 // POST Clear a single alarm event
-router.post('/events/:id/clear', optionalAuth, (req: AuthRequest, res) => {
+router.post('/events/:id/clear', optionalAuth, async (req: AuthRequest, res) => {
   const user = req.user || {
     id: 'usr_guest',
     name: 'Shift Operations Operator',
     email: 'operator@tatapower.com',
   };
 
-  const cleared = db.clearAlarmEvent(req.params.id, user.name);
+  const cleared = await db.clearAlarmEvent(req.params.id, user.name);
 
   if (!cleared) {
     return res.status(404).json({ error: 'Alarm event not found' });
   }
 
-  db.addActivityLog({
+  await db.addActivityLog({
     userId: user.id,
     userName: user.name,
     userEmail: user.email,
@@ -287,7 +287,7 @@ router.post('/events/:id/clear', optionalAuth, (req: AuthRequest, res) => {
 });
 
 // POST Clear selected alarm events in batch
-router.post('/events/clear-batch', optionalAuth, (req: AuthRequest, res) => {
+router.post('/events/clear-batch', optionalAuth, async (req: AuthRequest, res) => {
   const user = req.user || {
     id: 'usr_guest',
     name: 'Shift Operations Operator',
@@ -299,9 +299,9 @@ router.post('/events/clear-batch', optionalAuth, (req: AuthRequest, res) => {
     return res.status(400).json({ error: 'Array of alarm event IDs is required' });
   }
 
-  const result = db.clearAlarmEventsBatch(ids, user.name);
+  const result = await db.clearAlarmEventsBatch(ids, user.name);
 
-  db.addActivityLog({
+  await db.addActivityLog({
     userId: user.id,
     userName: user.name,
     userEmail: user.email,
@@ -315,7 +315,7 @@ router.post('/events/clear-batch', optionalAuth, (req: AuthRequest, res) => {
 });
 
 // POST Clear all or filtered alarm events
-router.post('/events/clear-all', optionalAuth, (req: AuthRequest, res) => {
+router.post('/events/clear-all', optionalAuth, async (req: AuthRequest, res) => {
   const user = req.user || {
     id: 'usr_guest',
     name: 'Shift Operations Operator',
@@ -323,9 +323,9 @@ router.post('/events/clear-all', optionalAuth, (req: AuthRequest, res) => {
   };
 
   const { datasetId, level, equipmentId } = req.body;
-  const result = db.clearAllAlarmEvents({ datasetId, level, equipmentId }, user.name);
+  const result = await db.clearAllAlarmEvents({ datasetId, level, equipmentId }, user.name);
 
-  db.addActivityLog({
+  await db.addActivityLog({
     userId: user.id,
     userName: user.name,
     userEmail: user.email,
@@ -339,8 +339,8 @@ router.post('/events/clear-all', optionalAuth, (req: AuthRequest, res) => {
 });
 
 // POST Trigger immediate re-evaluation across all active datasets
-router.post('/re-evaluate', optionalAuth, (req: AuthRequest, res) => {
-  reEvaluateAllAlarms();
+router.post('/re-evaluate', optionalAuth, async (req: AuthRequest, res) => {
+  await reEvaluateAllAlarms();
   const events = db.getAlarmEvents();
   const activeCount = events.filter((e) => e.status === 'ACTIVE').length;
   const criticalCount = events.filter((e) => e.status === 'ACTIVE' && e.alarmLevel === 'CRITICAL').length;
@@ -361,22 +361,16 @@ router.post('/re-evaluate', optionalAuth, (req: AuthRequest, res) => {
   });
 });
 
-// Helper: Master Alarm System Toggle state
-let systemAlarmEnabled = true;
-
 // GET Alarm System Status
 router.get('/system-status', optionalAuth, (req, res) => {
-  res.json({ systemEnabled: systemAlarmEnabled });
+  res.json({ systemEnabled: db.getMasterAlarmStatus() });
 });
 
 // POST Toggle Alarm System Status
-router.post('/system-status', optionalAuth, (req: AuthRequest, res) => {
+router.post('/system-status', optionalAuth, async (req: AuthRequest, res) => {
   const { enabled } = req.body;
-  if (enabled !== undefined) {
-    systemAlarmEnabled = Boolean(enabled);
-  } else {
-    systemAlarmEnabled = !systemAlarmEnabled;
-  }
+  const targetStatus = enabled !== undefined ? Boolean(enabled) : !db.getMasterAlarmStatus();
+  const currentStatus = await db.setMasterAlarmStatus(targetStatus);
 
   const user = req.user || {
     id: 'usr_admin',
@@ -384,29 +378,29 @@ router.post('/system-status', optionalAuth, (req: AuthRequest, res) => {
     email: 'admin@tatapower.com',
   };
 
-  db.addActivityLog({
+  await db.addActivityLog({
     userId: user.id,
     userName: user.name,
     userEmail: user.email,
-    action: systemAlarmEnabled ? 'ALARM_SYSTEM_ENABLED' : 'ALARM_SYSTEM_DISABLED',
-    details: `Master alarm system toggled ${systemAlarmEnabled ? 'ON' : 'OFF'} by ${user.name}`,
+    action: currentStatus ? 'ALARM_SYSTEM_ENABLED' : 'ALARM_SYSTEM_DISABLED',
+    details: `Master alarm system toggled ${currentStatus ? 'ON' : 'OFF'} by ${user.name}`,
     entityType: 'ALARM_SYSTEM',
     entityId: 'master_alarm_switch',
   });
 
-  res.json({ success: true, systemEnabled: systemAlarmEnabled });
+  res.json({ success: true, systemEnabled: currentStatus });
 });
 
 // Helper: Re-evaluate all datasets against current rules
-export function reEvaluateAllAlarms() {
+export async function reEvaluateAllAlarms() {
   const datasets = db.getDatasets();
-  db.clearAlarmEvents();
+  await db.clearAlarmEvents();
 
   for (const ds of datasets) {
     const records = db.getRecords(ds.id);
     const events = AlarmEvaluationService.evaluateDataset(ds, records);
     if (events.length > 0) {
-      db.addAlarmEvents(events);
+      await db.addAlarmEvents(events);
     }
   }
 }

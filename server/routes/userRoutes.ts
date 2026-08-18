@@ -13,7 +13,7 @@ router.get('/', optionalAuth, (req: AuthRequest, res) => {
 });
 
 // POST Create user
-router.post('/', optionalAuth, (req: AuthRequest, res) => {
+router.post('/', optionalAuth, async (req: AuthRequest, res) => {
   const { email, username, name, role, password, department, designation, permissions } = req.body;
 
   const rawIdent = email || username;
@@ -70,7 +70,7 @@ router.post('/', optionalAuth, (req: AuthRequest, res) => {
     createdAt: new Date().toISOString(),
   };
 
-  db.addUser(newUser);
+  await db.addUser(newUser);
 
   const actor = req.user || {
     id: 'usr_admin_01',
@@ -78,7 +78,7 @@ router.post('/', optionalAuth, (req: AuthRequest, res) => {
     email: 'admin@tatapower.com',
   };
 
-  db.addActivityLog({
+  await db.addActivityLog({
     userId: actor.id,
     userName: actor.name,
     userEmail: actor.email,
@@ -93,7 +93,7 @@ router.post('/', optionalAuth, (req: AuthRequest, res) => {
 });
 
 // PUT Update user
-router.put('/:id', optionalAuth, (req: AuthRequest, res) => {
+router.put('/:id', optionalAuth, async (req: AuthRequest, res) => {
   const { name, role, department, designation, permissions, password } = req.body;
 
   const updates: Partial<User> = {};
@@ -108,7 +108,7 @@ router.put('/:id', optionalAuth, (req: AuthRequest, res) => {
     updates.passwordHash = bcrypt.hashSync(password, salt);
   }
 
-  const updated = db.updateUser(req.params.id, updates);
+  const updated = await db.updateUser(req.params.id, updates);
   if (!updated) {
     return res.status(404).json({ error: 'User not found' });
   }
@@ -119,7 +119,7 @@ router.put('/:id', optionalAuth, (req: AuthRequest, res) => {
     email: 'admin@tatapower.com',
   };
 
-  db.addActivityLog({
+  await db.addActivityLog({
     userId: actor.id,
     userName: actor.name,
     userEmail: actor.email,
@@ -134,12 +134,12 @@ router.put('/:id', optionalAuth, (req: AuthRequest, res) => {
 });
 
 // DELETE User
-router.delete('/:id', optionalAuth, (req: AuthRequest, res) => {
+router.delete('/:id', optionalAuth, async (req: AuthRequest, res) => {
   if (req.user && req.params.id === req.user.id) {
     return res.status(400).json({ error: 'Cannot delete your own active administrator account' });
   }
 
-  const success = db.deleteUser(req.params.id);
+  const success = await db.deleteUser(req.params.id);
   if (!success) {
     return res.status(404).json({ error: 'User not found' });
   }
@@ -150,7 +150,7 @@ router.delete('/:id', optionalAuth, (req: AuthRequest, res) => {
     email: 'admin@tatapower.com',
   };
 
-  db.addActivityLog({
+  await db.addActivityLog({
     userId: actor.id,
     userName: actor.name,
     userEmail: actor.email,

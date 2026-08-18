@@ -77,7 +77,6 @@ const handleHealth = (req: express.Request, res: express.Response) => {
   });
 };
 app.get('/api/health', handleHealth);
-app.get('/health', handleHealth);
 
 // Admin DB Migration Endpoint
 const handleMigrate = async (req: express.Request, res: express.Response) => {
@@ -91,9 +90,8 @@ const handleMigrate = async (req: express.Request, res: express.Response) => {
   }
 };
 app.post('/api/admin/migrate-mongo', handleMigrate);
-app.post('/admin/migrate-mongo', handleMigrate);
 
-// Mount API routes on both /api prefix and direct root prefix
+// Mount API routes strictly under /api prefix
 const routeDefinitions: [string, any][] = [
   ['/auth', authRoutes],
   ['/datasets', datasetRoutes],
@@ -109,7 +107,6 @@ const routeDefinitions: [string, any][] = [
 
 for (const [subpath, handler] of routeDefinitions) {
   app.use(`/api${subpath}`, handler);
-  app.use(subpath, handler);
 }
 
 // Global API error handler for MongoDB duplicate keys (E11000) & server errors

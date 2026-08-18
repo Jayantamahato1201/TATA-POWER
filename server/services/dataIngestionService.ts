@@ -151,7 +151,7 @@ export class DataIngestionService {
     };
   }
 
-  public static processAndSave(
+  public static async processAndSave(
     buffer: Buffer,
     fileName: string,
     fileType: 'csv' | 'xls' | 'xlsx',
@@ -218,21 +218,23 @@ export class DataIngestionService {
     };
 
     // Save Dataset & Records
-    db.addDataset(dataset);
-    db.addRecords(records);
+    await db.addDataset(dataset);
+    await db.addRecords(records);
 
     // Dynamic Alarm Evaluation
     const alarmEvents = AlarmEvaluationService.evaluateDataset(dataset, records);
     if (alarmEvents.length > 0) {
-      db.addAlarmEvents(alarmEvents);
+      await db.addAlarmEvents(alarmEvents);
     }
 
     // Dynamic Chart Generation
     const autoCharts = ChartGeneratorService.generateDefaultChartsForDataset(dataset);
-    autoCharts.forEach((chart) => db.addChartConfig(chart));
+    for (const chart of autoCharts) {
+      await db.addChartConfig(chart);
+    }
 
     // Log Activity
-    db.addActivityLog({
+    await db.addActivityLog({
       userId: user.id,
       userName: user.name,
       userEmail: user.email,
@@ -253,7 +255,7 @@ export class DataIngestionService {
     };
   }
 
-  public static replaceDatasetData(
+  public static async replaceDatasetData(
     datasetId: string,
     buffer: Buffer,
     fileName: string,
@@ -290,7 +292,7 @@ export class DataIngestionService {
       });
     });
 
-    db.replaceDatasetRecords(datasetId, records, {
+    await db.replaceDatasetRecords(datasetId, records, {
       fileName,
       fileSize: buffer.length,
       fileType,
@@ -301,13 +303,13 @@ export class DataIngestionService {
 
     // Re-evaluate alarms
     const updatedDataset = db.getDatasetById(datasetId)!;
-    db.clearAlarmEvents(datasetId);
+    await db.clearAlarmEvents(datasetId);
     const alarmEvents = AlarmEvaluationService.evaluateDataset(updatedDataset, records);
     if (alarmEvents.length > 0) {
-      db.addAlarmEvents(alarmEvents);
+      await db.addAlarmEvents(alarmEvents);
     }
 
-    db.addActivityLog({
+    await db.addActivityLog({
       userId: user.id,
       userName: user.name,
       userEmail: user.email,
@@ -324,7 +326,7 @@ export class DataIngestionService {
     };
   }
 
-  public static appendDatasetData(
+  public static async appendDatasetData(
     datasetId: string,
     buffer: Buffer,
     fileName: string,
@@ -360,18 +362,18 @@ export class DataIngestionService {
       };
     });
 
-    const appendResult = db.appendDatasetRecords(datasetId, newCandidateRecords, duplicateStrategy);
+    const appendResult = await db.appendDatasetRecords(datasetId, newCandidateRecords, duplicateStrategy);
 
     // Re-evaluate alarms on the expanded dataset
     const updatedDataset = db.getDatasetById(datasetId)!;
     const allRecords = db.getRecords(datasetId);
-    db.clearAlarmEvents(datasetId);
+    await db.clearAlarmEvents(datasetId);
     const alarmEvents = AlarmEvaluationService.evaluateDataset(updatedDataset, allRecords);
     if (alarmEvents.length > 0) {
-      db.addAlarmEvents(alarmEvents);
+      await db.addAlarmEvents(alarmEvents);
     }
 
-    db.addActivityLog({
+    await db.addActivityLog({
       userId: user.id,
       userName: user.name,
       userEmail: user.email,
@@ -389,7 +391,7 @@ export class DataIngestionService {
   }
 
   // Pre-seed helper for real-style sample dataset if operator clicks "Load Jojobera Verified Sample Telemetry"
-  public static seedSampleDataset(user: { id: string; name: string; email: string }) {
+  public static async seedSampleDataset(user: { id: string; name: string; email: string }) {
     const sampleRows: Record<string, any>[] = [];
     const baseDate = new Date('2026-08-15T00:00:00.000Z');
     const units = ['Unit-1 (67.5 MW)', 'Unit-2 (120 MW)', 'Unit-3 (120 MW)', 'Unit-4 (120 MW)'];
@@ -426,7 +428,7 @@ export class DataIngestionService {
     const csvContent = Papa.unparse(sampleRows);
     const buffer = Buffer.from(csvContent, 'utf-8');
 
-    return this.processAndSave(
+    return await this.processAndSave(
       buffer,
       'Jojobera_Plant_Operational_Telemetry_Sample.csv',
       'csv',

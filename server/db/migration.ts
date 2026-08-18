@@ -85,9 +85,32 @@ export async function migrateJsonToMongo(force = false): Promise<{
     };
   }
 
+  const initConfig = await SystemConfigModel.findOne({ key: 'system_initialized' });
+  if (initConfig && !force) {
+    console.info('[MongoDB Migration] Database is already initialized in MongoDB Atlas. Skipping auto-migration to preserve user deletions and updates.');
+    return {
+      migrated: false,
+      users: 0,
+      datasets: 0,
+      records: 0,
+      alarmRules: 0,
+      alarmEvents: 0,
+      metricConfigs: 0,
+      temperatureConfigs: 0,
+      chartConfigs: 0,
+      dashboardLayouts: 0,
+      activityLogs: 0,
+    };
+  }
+
   const existingDatasetsCount = await DatasetModel.countDocuments();
   if (existingDatasetsCount > 0 && !force) {
-    console.info(`[MongoDB Migration] MongoDB already contains ${existingDatasetsCount} datasets. Skipping initial seed migration.`);
+    console.info(`[MongoDB Migration] MongoDB already contains ${existingDatasetsCount} datasets. Marking initialized.`);
+    await SystemConfigModel.findOneAndUpdate(
+      { key: 'system_initialized' },
+      { key: 'system_initialized', value: true, initializedAt: new Date().toISOString() },
+      { upsert: true }
+    );
     return {
       migrated: false,
       users: 0,
@@ -210,6 +233,13 @@ export async function migrateJsonToMongo(force = false): Promise<{
   await SystemConfigModel.findOneAndUpdate(
     { key: 'masterAlarmEnabled' },
     { key: 'masterAlarmEnabled', value: true, updatedAt: new Date().toISOString() },
+    { upsert: true }
+  );
+
+  // 12. Mark system as initialized permanently
+  await SystemConfigModel.findOneAndUpdate(
+    { key: 'system_initialized' },
+    { key: 'system_initialized', value: true, initializedAt: new Date().toISOString() },
     { upsert: true }
   );
 

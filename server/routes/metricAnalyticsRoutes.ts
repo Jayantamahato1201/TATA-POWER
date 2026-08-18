@@ -59,7 +59,7 @@ router.get('/configs', (req, res) => {
 });
 
 // POST /api/metrics/custom - Add new custom metric linked to dataset
-router.post('/custom', (req, res) => {
+router.post('/custom', async (req, res) => {
   try {
     const { datasetId, name, unit, thresholds } = req.body;
     if (!datasetId || !name || !name.trim()) {
@@ -125,9 +125,9 @@ router.post('/custom', (req, res) => {
       updatedAt: new Date().toISOString(),
     };
 
-    const saved = db.saveMetricConfig(datasetSpecificKey, newMetric);
+    const saved = await db.saveMetricConfig(datasetSpecificKey, newMetric);
 
-    db.addActivityLog({
+    await db.addActivityLog({
       userId: (req as any).user?.id || 'usr_admin',
       userName: (req as any).user?.name || 'Administrator',
       userEmail: (req as any).user?.email || 'admin@tatapower.com',
@@ -138,7 +138,7 @@ router.post('/custom', (req, res) => {
     });
 
     try {
-      reEvaluateAllAlarms();
+      await reEvaluateAllAlarms();
     } catch (evalErr) {
       console.warn('Alarm re-evaluation warning:', evalErr);
     }
@@ -151,7 +151,7 @@ router.post('/custom', (req, res) => {
 });
 
 // DELETE /api/metrics/custom/:metricKey - Delete custom metric
-router.delete('/custom/:metricKey', (req, res) => {
+router.delete('/custom/:metricKey', async (req, res) => {
   try {
     const { metricKey } = req.params;
     const existing = db.getMetricConfig(metricKey);
@@ -159,9 +159,9 @@ router.delete('/custom/:metricKey', (req, res) => {
       return res.status(404).json({ error: 'Metric configuration not found' });
     }
 
-    db.deleteMetricConfig(metricKey);
+    await db.deleteMetricConfig(metricKey);
 
-    db.addActivityLog({
+    await db.addActivityLog({
       userId: (req as any).user?.id || 'usr_admin',
       userName: (req as any).user?.name || 'Administrator',
       userEmail: (req as any).user?.email || 'admin@tatapower.com',
@@ -172,7 +172,7 @@ router.delete('/custom/:metricKey', (req, res) => {
     });
 
     try {
-      reEvaluateAllAlarms();
+      await reEvaluateAllAlarms();
     } catch (evalErr) {
       console.warn('Alarm re-evaluation warning:', evalErr);
     }
@@ -185,30 +185,30 @@ router.delete('/custom/:metricKey', (req, res) => {
 });
 
 // POST /api/metrics/config - Save/Update single metric configuration
-router.post('/config', (req, res) => {
+router.post('/config', async (req, res) => {
   try {
     const { metricKey, config } = req.body;
     if (!metricKey || !config) {
       return res.status(400).json({ error: 'metricKey and config are required' });
     }
 
-    const saved = db.saveMetricConfig(metricKey, config);
+    const saved = await db.saveMetricConfig(metricKey, config);
 
     // Also persist under related lookup keys to guarantee instant cross-view resolution
     if (metricKey.includes('__')) {
       const parts = metricKey.split('__');
       const baseKey = parts.slice(1).join('__');
       if (baseKey) {
-        db.saveMetricConfig(baseKey, config);
+        await db.saveMetricConfig(baseKey, config);
       }
     }
     if (config.name) {
       const nameKey = `metric_${config.name.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
-      db.saveMetricConfig(nameKey, config);
-      db.saveMetricConfig(config.name.toLowerCase(), config);
+      await db.saveMetricConfig(nameKey, config);
+      await db.saveMetricConfig(config.name.toLowerCase(), config);
     }
 
-    db.addActivityLog({
+    await db.addActivityLog({
       userId: (req as any).user?.id || 'usr_admin',
       userName: (req as any).user?.name || 'Administrator',
       userEmail: (req as any).user?.email || 'admin@tatapower.com',
@@ -219,7 +219,7 @@ router.post('/config', (req, res) => {
     });
 
     try {
-      reEvaluateAllAlarms();
+      await reEvaluateAllAlarms();
     } catch (evalErr) {
       console.warn('Alarm re-evaluation warning:', evalErr);
     }
@@ -232,7 +232,7 @@ router.post('/config', (req, res) => {
 });
 
 // POST /api/metrics/configs/batch - Save/Update multiple metric configurations
-router.post('/configs/batch', (req, res) => {
+router.post('/configs/batch', async (req, res) => {
   try {
     const { configs } = req.body;
     if (!configs || typeof configs !== 'object') {
@@ -241,10 +241,10 @@ router.post('/configs/batch', (req, res) => {
 
     const savedConfigs: Record<string, any> = {};
     for (const [key, cfg] of Object.entries(configs)) {
-      savedConfigs[key] = db.saveMetricConfig(key, cfg as any);
+      savedConfigs[key] = await db.saveMetricConfig(key, cfg as any);
     }
 
-    db.addActivityLog({
+    await db.addActivityLog({
       userId: (req as any).user?.id || 'usr_admin',
       userName: (req as any).user?.name || 'Administrator',
       userEmail: (req as any).user?.email || 'admin@tatapower.com',
@@ -255,7 +255,7 @@ router.post('/configs/batch', (req, res) => {
     });
 
     try {
-      reEvaluateAllAlarms();
+      await reEvaluateAllAlarms();
     } catch (evalErr) {
       console.warn('Alarm re-evaluation warning:', evalErr);
     }
