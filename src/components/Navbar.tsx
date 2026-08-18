@@ -107,7 +107,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
   const recentAlerts = alarmEvents.slice(0, 5);
 
   return (
-    <header className="header sticky top-0 z-40 w-full border-b border-[#1E293B] bg-[#070D18]/95 backdrop-blur-md transition-all">
+    <header className="header sticky top-0 z-40 w-full border-b border-slate-200 dark:border-[#1E293B] bg-white/95 dark:bg-[#070D18]/95 backdrop-blur-md transition-colors duration-200">
       <div className="nav-content w-full max-w-full px-2.5 sm:px-4 md:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between min-w-0 gap-1.5 sm:gap-2.5 md:gap-3">
         {/* Left: Official Tata Power Brand Identity */}
         <div
@@ -140,13 +140,13 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
                 }}
                 className={`relative px-2.5 xl:px-3 py-1.5 xl:py-2 rounded-md text-xs xl:text-sm font-medium transition-all flex items-center space-x-1.5 cursor-pointer ${
                   isActive
-                    ? 'bg-[#0284C7]/15 text-[#38BDF8] border border-[#0284C7]/40 shadow-sm font-semibold'
-                    : 'text-[#94A3B8] hover:text-white hover:bg-[#0F172A] border border-transparent'
+                    ? 'bg-[#0284C7]/15 text-[#0284C7] dark:text-[#38BDF8] border border-[#0284C7]/40 shadow-xs font-semibold'
+                    : 'text-slate-600 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#0F172A] border border-transparent'
                 }`}
               >
                 <Icon
                   className={`w-3.5 h-3.5 xl:w-4 xl:h-4 shrink-0 ${
-                    isActive ? 'text-[#38BDF8]' : 'text-[#64748B]'
+                    isActive ? 'text-[#0284C7] dark:text-[#38BDF8]' : 'text-slate-400 dark:text-[#64748B]'
                   }`}
                 />
                 <span className="whitespace-nowrap">{item.label}</span>
@@ -155,7 +155,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
                     className={`ml-1 px-1.5 py-0.2 text-[10px] font-mono font-bold rounded-full ${
                       alarmSummary.critical > 0
                         ? 'bg-rose-600 text-white animate-pulse'
-                        : 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
+                        : 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/40'
                     }`}
                   >
                     {item.badge}
@@ -174,21 +174,21 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
               <button
                 id="btn-nav-dataset-selector"
                 onClick={() => setDatasetDropdownOpen(!datasetDropdownOpen)}
-                className="px-2 py-1.5 rounded-md bg-[#0F172A] hover:bg-[#1E293B] border border-[#1E293B] text-[#CBD5E1] text-xs font-mono flex items-center space-x-1.5 cursor-pointer w-[clamp(130px,15vw,220px)] min-w-0 max-w-full transition-colors"
+                className="px-2.5 py-1.5 rounded-md bg-slate-100 dark:bg-[#0F172A] hover:bg-slate-200 dark:hover:bg-[#1E293B] border border-slate-300 dark:border-[#1E293B] text-slate-800 dark:text-[#CBD5E1] text-xs font-mono flex items-center space-x-1.5 cursor-pointer w-[clamp(130px,15vw,220px)] min-w-0 max-w-full transition-colors"
                 title="Active Telemetry Dataset"
               >
-                <Database className="w-3.5 h-3.5 text-[#38BDF8] shrink-0" />
-                <span className="truncate text-left font-medium flex-1">
+                <Database className="w-3.5 h-3.5 text-[#0284C7] dark:text-[#38BDF8] shrink-0" />
+                <span className="truncate text-left font-medium flex-1 text-slate-900 dark:text-white">
                   {activeDataset?.name || 'Select Dataset'}
                 </span>
-                <ChevronDown className="w-3 h-3 text-[#64748B] shrink-0" />
+                <ChevronDown className="w-3 h-3 text-slate-500 dark:text-[#64748B] shrink-0" />
               </button>
 
               {datasetDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-72 rounded-lg bg-[#0F172A] border border-[#1E293B] shadow-2xl p-2 z-50 text-xs space-y-1 animate-in fade-in">
-                  <div className="px-2.5 py-1.5 text-[11px] text-[#64748B] uppercase tracking-wider border-b border-[#1E293B] flex justify-between items-center font-mono">
+                <div className="dropdown-layer absolute right-0 mt-2 w-72 rounded-lg bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-[#1E293B] shadow-2xl p-2 z-50 text-xs space-y-1 animate-in fade-in">
+                  <div className="px-2.5 py-1.5 text-[11px] text-slate-500 dark:text-[#64748B] uppercase tracking-wider border-b border-slate-200 dark:border-[#1E293B] flex justify-between items-center font-mono">
                     <span>Active Telemetry Dataset</span>
-                    <span className="text-[#38BDF8]">{datasets.length} Total</span>
+                    <span className="text-[#0284C7] dark:text-[#38BDF8] font-bold">{datasets.length} Total</span>
                   </div>
 
                   <div className="max-h-60 overflow-y-auto space-y-1 py-1">
@@ -203,19 +203,19 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
                           }}
                           className={`w-full text-left px-2.5 py-2 rounded-md transition-colors flex flex-col cursor-pointer ${
                             isCurr
-                              ? 'bg-[#0284C7]/20 border border-[#0284C7]/50 text-white'
-                              : 'hover:bg-[#1E293B] text-[#94A3B8] hover:text-white'
+                              ? 'bg-[#0284C7]/15 border border-[#0284C7]/40 text-slate-900 dark:text-white'
+                              : 'hover:bg-slate-100 dark:hover:bg-[#1E293B] text-slate-700 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-white'
                           }`}
                         >
                           <div className="flex items-center justify-between">
-                            <span className="font-semibold text-white truncate">{ds.name}</span>
+                            <span className="font-semibold text-slate-900 dark:text-white truncate">{ds.name}</span>
                             {isCurr && (
-                              <span className="text-[9px] px-1.5 py-0.5 bg-[#0284C7] text-white rounded font-mono uppercase">
+                              <span className="text-[9px] px-1.5 py-0.5 bg-[#0284C7] text-white rounded font-mono uppercase font-bold">
                                 Active
                               </span>
                             )}
                           </div>
-                          <div className="text-[10px] text-[#64748B] font-mono flex items-center space-x-2 mt-0.5">
+                          <div className="text-[10px] text-slate-500 dark:text-[#64748B] font-mono flex items-center space-x-2 mt-0.5">
                             <span>{ds.totalRows.toLocaleString()} records</span>
                             <span>•</span>
                             <span>{ds.category || 'Telemetry'}</span>
@@ -225,13 +225,13 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
                     })}
                   </div>
 
-                  <div className="pt-2 border-t border-[#1E293B] flex justify-between items-center px-1">
+                  <div className="pt-2 border-t border-slate-200 dark:border-[#1E293B] flex justify-between items-center px-1">
                     <button
                       onClick={() => {
                         setDatasetDropdownOpen(false);
                         setIsUploadModalOpen(true);
                       }}
-                      className="text-[11px] text-[#38BDF8] hover:text-white flex items-center space-x-1 cursor-pointer font-medium"
+                      className="text-[11px] text-[#0284C7] dark:text-[#38BDF8] hover:underline flex items-center space-x-1 cursor-pointer font-medium"
                     >
                       <Upload className="w-3 h-3" />
                       <span>+ Ingest Data</span>
@@ -241,7 +241,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
                         setDatasetDropdownOpen(false);
                         setCurrentTab('data-management');
                       }}
-                      className="text-[11px] text-[#94A3B8] hover:text-white cursor-pointer font-medium"
+                      className="text-[11px] text-slate-600 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-white cursor-pointer font-medium"
                     >
                       Manage All &rarr;
                     </button>
@@ -258,8 +258,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
               onClick={() => setAlertsDropdownOpen(!alertsDropdownOpen)}
               className={`relative p-2 rounded-md transition-colors cursor-pointer border min-w-[38px] min-h-[38px] flex items-center justify-center ${
                 alarmSummary.active > 0
-                  ? 'bg-[#0F172A] border-amber-500/30 text-amber-400 hover:bg-[#1E293B]'
-                  : 'bg-[#0F172A] border-[#1E293B] text-[#94A3B8] hover:text-white hover:bg-[#1E293B]'
+                  ? 'bg-amber-50 dark:bg-[#0F172A] border-amber-400 dark:border-amber-500/30 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-[#1E293B]'
+                  : 'bg-slate-100 dark:bg-[#0F172A] border-slate-300 dark:border-[#1E293B] text-slate-600 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-[#1E293B]'
               }`}
               title="Operational Alerts"
               aria-label="View Operational Alerts"
@@ -278,26 +278,26 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
 
             {/* Alerts Dropdown Drawer */}
             {alertsDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-72 sm:w-96 rounded-lg bg-[#0F172A] border border-[#1E293B] shadow-2xl p-3 z-50 text-xs space-y-2 animate-in fade-in max-w-[calc(100vw-24px)]">
-                <div className="flex items-center justify-between pb-2 border-b border-[#1E293B]">
+              <div className="dropdown-layer absolute right-0 mt-2 w-72 sm:w-96 rounded-lg bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-[#1E293B] shadow-2xl p-3 z-50 text-xs space-y-2 animate-in fade-in max-w-[calc(100vw-24px)]">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-[#1E293B]">
                   <div className="flex items-center space-x-2">
-                    <Bell className="w-4 h-4 text-amber-400" />
-                    <span className="font-semibold text-white text-sm">Operational Alerts</span>
+                    <Bell className="w-4 h-4 text-amber-500" />
+                    <span className="font-semibold text-slate-900 dark:text-white text-sm">Operational Alerts</span>
                   </div>
-                  <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#1E293B] text-[#94A3B8]">
+                  <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-[#1E293B] text-slate-600 dark:text-[#94A3B8] font-bold">
                     {alarmSummary.active} Active
                   </span>
                 </div>
 
                 {alarmSettings?.systemEnabled === false ? (
-                  <div className="py-6 text-center text-[#64748B] space-y-1">
-                    <p className="font-medium text-amber-400">Alarm System is OFF</p>
+                  <div className="py-6 text-center text-slate-500 dark:text-[#64748B] space-y-1">
+                    <p className="font-medium text-amber-600 dark:text-amber-400">Alarm System is OFF</p>
                     <p className="text-[11px]">Notifications are temporarily disabled by administrator.</p>
                   </div>
                 ) : recentAlerts.length === 0 ? (
-                  <div className="py-6 text-center text-[#64748B] space-y-1">
-                    <CheckCircle2 className="w-6 h-6 text-emerald-400 mx-auto" />
-                    <p className="font-medium text-white">All Systems Normal</p>
+                  <div className="py-6 text-center text-slate-500 dark:text-[#64748B] space-y-1">
+                    <CheckCircle2 className="w-6 h-6 text-emerald-500 mx-auto" />
+                    <p className="font-medium text-slate-900 dark:text-white">All Systems Normal</p>
                     <p className="text-[11px]">No active threshold breaches or warnings detected.</p>
                   </div>
                 ) : (
@@ -311,26 +311,26 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
                         }}
                         className={`p-2 rounded-md border cursor-pointer transition-colors ${
                           alert.severity === 'CRITICAL'
-                            ? 'bg-rose-950/30 border-rose-900/50 hover:bg-rose-900/40 text-rose-200'
-                            : 'bg-amber-950/30 border-amber-900/50 hover:bg-amber-900/40 text-amber-200'
+                            ? 'bg-rose-50 dark:bg-rose-950/30 border-rose-200 dark:border-rose-900/50 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-rose-900 dark:text-rose-200'
+                            : 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/50 hover:bg-amber-100 dark:hover:bg-amber-900/40 text-amber-900 dark:text-amber-200'
                         }`}
                       >
                         <div className="flex items-center justify-between font-semibold">
                           <span className="flex items-center space-x-1.5 truncate">
                             <AlertTriangle
                               className={`w-3.5 h-3.5 shrink-0 ${
-                                alert.severity === 'CRITICAL' ? 'text-rose-400' : 'text-amber-400'
+                                alert.severity === 'CRITICAL' ? 'text-rose-600 dark:text-rose-400' : 'text-amber-600 dark:text-amber-400'
                               }`}
                             />
                             <span className="truncate">{alert.metricName}</span>
                           </span>
-                          <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-black/40 shrink-0 ml-1">
+                          <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-slate-200 dark:bg-black/40 shrink-0 ml-1 font-bold">
                             {alert.severity}
                           </span>
                         </div>
-                        <div className="text-[11px] text-[#94A3B8] font-mono mt-1 flex items-center justify-between">
+                        <div className="text-[11px] text-slate-600 dark:text-[#94A3B8] font-mono mt-1 flex items-center justify-between">
                           <span>
-                            Value: <strong className="text-white">{alert.value} {alert.unit}</strong>
+                            Value: <strong className="text-slate-900 dark:text-white">{alert.value} {alert.unit}</strong>
                           </span>
                           <span className="truncate ml-1">{alert.equipment || 'Plant'}</span>
                         </div>
@@ -339,13 +339,13 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
                   </div>
                 )}
 
-                <div className="pt-2 border-t border-[#1E293B]">
+                <div className="pt-2 border-t border-slate-200 dark:border-[#1E293B]">
                   <button
                     onClick={() => {
                       setAlertsDropdownOpen(false);
                       setCurrentTab('alerts');
                     }}
-                    className="w-full py-1.5 text-center text-xs font-semibold text-[#38BDF8] hover:text-white bg-[#0284C7]/10 hover:bg-[#0284C7]/20 border border-[#0284C7]/30 rounded-md transition-colors cursor-pointer"
+                    className="w-full py-1.5 text-center text-xs font-semibold text-[#0284C7] dark:text-[#38BDF8] hover:underline bg-[#0284C7]/10 hover:bg-[#0284C7]/20 border border-[#0284C7]/30 rounded-md transition-colors cursor-pointer"
                   >
                     Open Alert Center &rarr;
                   </button>
@@ -358,7 +358,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
           <button
             id="btn-nav-upload-data"
             onClick={() => setIsUploadModalOpen(true)}
-            className="px-2.5 sm:px-3.5 py-1.5 rounded-md bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs sm:text-sm font-semibold flex items-center space-x-1 sm:space-x-1.5 transition-all shadow-sm cursor-pointer min-h-[38px]"
+            className="px-2.5 sm:px-3.5 py-1.5 rounded-md bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs sm:text-sm font-semibold flex items-center space-x-1 sm:space-x-1.5 transition-all shadow-xs cursor-pointer min-h-[38px]"
           >
             <Upload className="w-3.5 h-3.5 shrink-0" />
             <span className="hidden sm:inline">Upload Data</span>
@@ -370,7 +370,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
             id="btn-theme-toggle"
             type="button"
             onClick={toggleTheme}
-            className="relative p-2 rounded-md transition-all duration-200 cursor-pointer border bg-[#0F172A] border-[#1E293B] text-[#CBD5E1] hover:text-white hover:bg-[#1E293B] hover:border-[#38BDF8]/40 focus:outline-none focus:ring-2 focus:ring-[#0284C7]/50 min-w-[38px] min-h-[38px] flex items-center justify-center"
+            className="relative p-2 rounded-md transition-all duration-200 cursor-pointer border bg-slate-100 dark:bg-[#0F172A] border-slate-300 dark:border-[#1E293B] text-slate-700 dark:text-[#CBD5E1] hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-[#1E293B] hover:border-[#0284C7]/40 focus:outline-none focus:ring-2 focus:ring-[#0284C7]/50 min-w-[38px] min-h-[38px] flex items-center justify-center"
             title={isDark ? 'Switch to Light Mode (☀️)' : 'Switch to Dark Mode (🌙)'}
             aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           >
@@ -388,35 +388,35 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
             <button
               id="btn-nav-user-profile"
               onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-              className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-md bg-[#0F172A] hover:bg-[#1E293B] border border-[#1E293B] text-[#CBD5E1] text-xs flex items-center space-x-1.5 sm:space-x-2 cursor-pointer transition-colors min-h-[38px]"
+              className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-md bg-slate-100 dark:bg-[#0F172A] hover:bg-slate-200 dark:hover:bg-[#1E293B] border border-slate-300 dark:border-[#1E293B] text-slate-800 dark:text-[#CBD5E1] text-xs flex items-center space-x-1.5 sm:space-x-2 cursor-pointer transition-colors min-h-[38px]"
               title="User Profile & Settings"
             >
-              <div className="w-5 h-5 rounded-full bg-[#0284C7]/30 text-[#38BDF8] flex items-center justify-center font-bold text-[10px]">
+              <div className="w-5 h-5 rounded-full bg-[#0284C7]/20 dark:bg-[#0284C7]/30 text-[#0284C7] dark:text-[#38BDF8] flex items-center justify-center font-bold text-[10px]">
                 {isAuthenticated && user?.name ? user.name[0].toUpperCase() : 'G'}
               </div>
-              <span className="hidden md:inline font-medium truncate max-w-[90px]">
+              <span className="hidden md:inline font-medium truncate max-w-[90px] text-slate-800 dark:text-slate-200">
                 {isAuthenticated ? user?.name : 'Guest'}
               </span>
-              <ChevronDown className="w-3 h-3 text-[#64748B] hidden sm:inline" />
+              <ChevronDown className="w-3 h-3 text-slate-500 dark:text-[#64748B] hidden sm:inline" />
             </button>
 
             {profileDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-56 rounded-lg bg-[#0F172A] border border-[#1E293B] shadow-2xl p-2 z-50 text-xs space-y-1 animate-in fade-in max-w-[calc(100vw-24px)]">
-                <div className="px-2.5 py-2 border-b border-[#1E293B]">
-                  <div className="font-semibold text-white truncate">
+              <div className="dropdown-layer absolute right-0 mt-2 w-56 rounded-lg bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-[#1E293B] shadow-2xl p-2 z-50 text-xs space-y-1 animate-in fade-in max-w-[calc(100vw-24px)]">
+                <div className="px-2.5 py-2 border-b border-slate-200 dark:border-[#1E293B]">
+                  <div className="font-semibold text-slate-900 dark:text-white truncate">
                     {isAuthenticated ? user?.name : 'Guest Viewer'}
                   </div>
-                  <div className="text-[11px] text-[#64748B] font-mono truncate">
+                  <div className="text-[11px] text-slate-500 dark:text-[#64748B] font-mono truncate">
                     {isAuthenticated ? user?.email : 'guest@tatapower.com'}
                   </div>
                   <div className="mt-1">
                     <span
                       className={`text-[9px] px-1.5 py-0.5 rounded font-mono uppercase font-bold ${
                         isAdmin
-                          ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                          ? 'bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400 border border-rose-300 dark:border-rose-500/30'
                           : isStaff
-                          ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30'
-                          : 'bg-slate-800 text-[#94A3B8]'
+                          ? 'bg-sky-100 dark:bg-sky-500/20 text-sky-700 dark:text-sky-400 border border-sky-300 dark:border-sky-500/30'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-[#94A3B8]'
                       }`}
                     >
                       {user?.role || 'VIEWER'}
@@ -427,7 +427,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
                 {/* Theme Selector inside profile menu */}
                 <button
                   onClick={toggleTheme}
-                  className="w-full text-left px-2.5 py-1.5 rounded-md hover:bg-[#1E293B] text-[#94A3B8] hover:text-white flex items-center justify-between cursor-pointer"
+                  className="w-full text-left px-2.5 py-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-[#1E293B] text-slate-700 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-white flex items-center justify-between cursor-pointer"
                 >
                   <span className="flex items-center space-x-2">
                     {isDark ? (
@@ -437,7 +437,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
                     )}
                     <span>Theme Appearance</span>
                   </span>
-                  <span className="font-mono text-[10px] uppercase font-bold text-[#38BDF8]">
+                  <span className="font-mono text-[10px] uppercase font-bold text-[#0284C7] dark:text-[#38BDF8]">
                     {isDark ? 'DARK' : 'LIGHT'}
                   </span>
                 </button>
@@ -445,17 +445,17 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
                 {/* Audio Alert Mute Toggle */}
                 <button
                   onClick={toggleAudioMute}
-                  className="w-full text-left px-2.5 py-1.5 rounded-md hover:bg-[#1E293B] text-[#94A3B8] hover:text-white flex items-center justify-between cursor-pointer"
+                  className="w-full text-left px-2.5 py-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-[#1E293B] text-slate-700 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-white flex items-center justify-between cursor-pointer"
                 >
                   <span className="flex items-center space-x-2">
                     {audioSettings.muted ? (
-                      <VolumeX className="w-3.5 h-3.5 text-rose-400" />
+                      <VolumeX className="w-3.5 h-3.5 text-rose-500 dark:text-rose-400" />
                     ) : (
-                      <Volume2 className="w-3.5 h-3.5 text-emerald-400" />
+                      <Volume2 className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
                     )}
                     <span>Audio Alert Chimes</span>
                   </span>
-                  <span className="font-mono text-[10px]">
+                  <span className="font-mono text-[10px] font-bold">
                     {audioSettings.muted ? 'MUTED' : 'ACTIVE'}
                   </span>
                 </button>
@@ -466,21 +466,21 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
                       setProfileDropdownOpen(false);
                       setCurrentTab('admin');
                     }}
-                    className="w-full text-left px-2.5 py-1.5 rounded-md hover:bg-[#1E293B] text-[#94A3B8] hover:text-white flex items-center space-x-2 cursor-pointer"
+                    className="w-full text-left px-2.5 py-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-[#1E293B] text-slate-700 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-white flex items-center space-x-2 cursor-pointer"
                   >
-                    <Sliders className="w-3.5 h-3.5 text-[#38BDF8]" />
+                    <Sliders className="w-3.5 h-3.5 text-[#0284C7] dark:text-[#38BDF8]" />
                     <span>Admin Portal</span>
                   </button>
                 )}
 
-                <div className="pt-1 border-t border-[#1E293B]">
+                <div className="pt-1 border-t border-slate-200 dark:border-[#1E293B]">
                   {isAuthenticated ? (
                     <button
                       onClick={() => {
                         setProfileDropdownOpen(false);
                         logout();
                       }}
-                      className="w-full text-left px-2.5 py-1.5 rounded-md hover:bg-rose-950/40 text-rose-400 hover:text-rose-300 flex items-center space-x-2 cursor-pointer"
+                      className="w-full text-left px-2.5 py-1.5 rounded-md hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 flex items-center space-x-2 cursor-pointer"
                     >
                       <LogOut className="w-3.5 h-3.5" />
                       <span>Sign Out</span>
@@ -491,7 +491,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
                         setProfileDropdownOpen(false);
                         setIsLoginModalOpen(true);
                       }}
-                      className="w-full text-left px-2.5 py-1.5 rounded-md hover:bg-[#1E293B] text-[#38BDF8] hover:text-white flex items-center space-x-2 cursor-pointer font-medium"
+                      className="w-full text-left px-2.5 py-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-[#1E293B] text-[#0284C7] dark:text-[#38BDF8] hover:underline flex items-center space-x-2 cursor-pointer font-medium"
                     >
                       <LogIn className="w-3.5 h-3.5" />
                       <span>Staff / Admin Login</span>
@@ -505,7 +505,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
           {/* Mobile Hamburger Menu Toggle (Visible below xl: <1200px) */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="xl:hidden p-2 rounded-md bg-[#0F172A] border border-[#1E293B] text-[#94A3B8] hover:text-white cursor-pointer min-w-[38px] min-h-[38px] flex items-center justify-center shrink-0"
+            className="xl:hidden p-2 rounded-md bg-slate-100 dark:bg-[#0F172A] border border-slate-300 dark:border-[#1E293B] text-slate-700 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-white cursor-pointer min-w-[38px] min-h-[38px] flex items-center justify-center shrink-0"
             aria-label="Toggle navigation menu"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -515,18 +515,18 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
 
       {/* Mobile Navigation Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="xl:hidden border-t border-[#1E293B] bg-[#070D18] px-4 py-3 space-y-2 font-sans max-h-[85vh] overflow-y-auto">
+        <div className="xl:hidden border-t border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#070D18] px-4 py-3 space-y-2 font-sans max-h-[85vh] overflow-y-auto shadow-xl">
           {/* Active Dataset Selector inside Mobile Drawer */}
           {datasets.length > 0 && (
-            <div className="p-2.5 rounded-md bg-[#0F172A] border border-[#1E293B] space-y-1.5">
-              <div className="flex items-center justify-between text-[11px] font-mono text-[#94A3B8] uppercase">
+            <div className="p-2.5 rounded-md bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-[#1E293B] space-y-1.5">
+              <div className="flex items-center justify-between text-[11px] font-mono text-slate-600 dark:text-[#94A3B8] uppercase">
                 <span>Active Dataset</span>
-                <span className="text-[#38BDF8] font-bold">{datasets.length} Loaded</span>
+                <span className="text-[#0284C7] dark:text-[#38BDF8] font-bold">{datasets.length} Loaded</span>
               </div>
               <select
                 value={selectedDatasetId || ''}
                 onChange={(e) => setSelectedDatasetId(e.target.value)}
-                className="w-full px-2.5 py-2 rounded bg-[#070D18] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#0284C7]"
+                className="w-full px-2.5 py-2 rounded bg-white dark:bg-[#070D18] border border-slate-300 dark:border-[#1E293B] text-slate-900 dark:text-white text-xs font-mono focus:outline-none focus:border-[#0284C7]"
               >
                 {datasets.map((d) => (
                   <option key={d.id} value={d.id}>
@@ -554,12 +554,12 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
                   }}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-sm cursor-pointer min-h-[44px] ${
                     isActive
-                      ? 'bg-[#0284C7]/20 text-[#38BDF8] font-semibold border border-[#0284C7]/40'
-                      : 'text-[#94A3B8] hover:text-white hover:bg-[#0F172A]'
+                      ? 'bg-[#0284C7]/15 text-[#0284C7] dark:text-[#38BDF8] font-semibold border border-[#0284C7]/40'
+                      : 'text-slate-700 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#0F172A]'
                   }`}
                 >
                   <div className="flex items-center space-x-2.5">
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-[#38BDF8]' : 'text-[#64748B]'}`} />
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-[#0284C7] dark:text-[#38BDF8]' : 'text-slate-400 dark:text-[#64748B]'}`} />
                     <span>{item.label}</span>
                   </div>
                   {item.badge !== undefined && item.badge > 0 && (
@@ -573,7 +573,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
           </div>
 
           {/* Quick Action Upload inside Mobile Drawer */}
-          <div className="pt-2 border-t border-[#1E293B] space-y-2">
+          <div className="pt-2 border-t border-slate-200 dark:border-[#1E293B] space-y-2">
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
@@ -590,13 +590,13 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
               onClick={() => {
                 toggleTheme();
               }}
-              className="w-full flex items-center justify-between px-3 py-2.5 rounded-md text-sm cursor-pointer text-[#94A3B8] hover:text-white hover:bg-[#0F172A] min-h-[44px]"
+              className="w-full flex items-center justify-between px-3 py-2.5 rounded-md text-sm cursor-pointer text-slate-700 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#0F172A] min-h-[44px]"
             >
               <div className="flex items-center space-x-2.5">
                 {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-[#0284C7]" />}
                 <span>Theme Mode</span>
               </div>
-              <span className="text-xs font-mono font-bold uppercase text-[#38BDF8] px-2 py-0.5 rounded bg-[#1E293B]">
+              <span className="text-xs font-mono font-bold uppercase text-[#0284C7] dark:text-[#38BDF8] px-2 py-0.5 rounded bg-slate-100 dark:bg-[#1E293B]">
                 {isDark ? 'Dark (☀️ Light)' : 'Light (🌙 Dark)'}
               </span>
             </button>

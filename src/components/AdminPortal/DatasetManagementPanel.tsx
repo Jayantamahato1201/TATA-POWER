@@ -165,58 +165,58 @@ export const DatasetManagementPanel: React.FC = () => {
 
       {/* Summary KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 rounded-xl bg-white border border-slate-200 border-l-4 border-l-[#0284C7] space-y-1 shadow-sm">
-          <div className="text-[11px] font-mono text-slate-600 uppercase font-semibold flex items-center justify-between">
+        <div className="p-4 rounded-xl bg-white dark:bg-[#0A1124] border border-slate-200 dark:border-[#1E293B] border-l-4 border-l-[#0284C7] space-y-1 shadow-sm transition-colors duration-200">
+          <div className="text-[11px] font-mono text-slate-600 dark:text-slate-400 uppercase font-semibold flex items-center justify-between">
             <span>Total Datasets</span>
-            <Database className="w-4 h-4 text-[#0284C7]" />
+            <Database className="w-4 h-4 text-[#0284C7] dark:text-[#38BDF8]" />
           </div>
-          <div className="text-2xl font-bold font-mono text-slate-900">{totalDatasets}</div>
-          <div className="text-[10px] font-mono text-slate-500">Stored persistently in database</div>
+          <div className="text-2xl font-bold font-mono text-slate-900 dark:text-white">{totalDatasets}</div>
+          <div className="text-[10px] font-mono text-slate-500 dark:text-slate-400">Stored persistently in database</div>
         </div>
 
-        <div className="p-4 rounded-xl bg-white border border-slate-200 border-l-4 border-l-emerald-500 space-y-1 shadow-sm">
-          <div className="text-[11px] font-mono text-slate-600 uppercase font-semibold flex items-center justify-between">
+        <div className="p-4 rounded-xl bg-white dark:bg-[#0A1124] border border-slate-200 dark:border-[#1E293B] border-l-4 border-l-emerald-500 space-y-1 shadow-sm transition-colors duration-200">
+          <div className="text-[11px] font-mono text-slate-600 dark:text-slate-400 uppercase font-semibold flex items-center justify-between">
             <span>Total Telemetry Records</span>
-            <Layers className="w-4 h-4 text-emerald-600" />
+            <Layers className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
           </div>
-          <div className="text-2xl font-bold font-mono text-slate-900">{totalRecords.toLocaleString()}</div>
-          <div className="text-[10px] font-mono text-slate-500">Active telemetry data points</div>
+          <div className="text-2xl font-bold font-mono text-slate-900 dark:text-white">{totalRecords.toLocaleString()}</div>
+          <div className="text-[10px] font-mono text-slate-500 dark:text-slate-400">Active telemetry data points</div>
         </div>
 
-        <div className="p-4 rounded-xl bg-white border border-slate-200 border-l-4 border-l-sky-500 space-y-1 shadow-sm">
-          <div className="text-[11px] font-mono text-slate-600 uppercase font-semibold flex items-center justify-between">
+        <div className="p-4 rounded-xl bg-white dark:bg-[#0A1124] border border-slate-200 dark:border-[#1E293B] border-l-4 border-l-sky-500 space-y-1 shadow-sm transition-colors duration-200">
+          <div className="text-[11px] font-mono text-slate-600 dark:text-slate-400 uppercase font-semibold flex items-center justify-between">
             <span>Detected Metrics</span>
-            <BarChart3 className="w-4 h-4 text-sky-600" />
+            <BarChart3 className="w-4 h-4 text-sky-600 dark:text-sky-400" />
           </div>
-          <div className="text-2xl font-bold font-mono text-slate-900">{totalDetectedMetrics}</div>
-          <div className="text-[10px] font-mono text-slate-500">Monitored sensor channels</div>
+          <div className="text-2xl font-bold font-mono text-slate-900 dark:text-white">{totalDetectedMetrics}</div>
+          <div className="text-[10px] font-mono text-slate-500 dark:text-slate-400">Monitored sensor channels</div>
         </div>
 
-        <div className="p-4 rounded-xl bg-white border border-slate-200 border-l-4 border-l-indigo-500 space-y-1 shadow-sm">
-          <div className="text-[11px] font-mono text-slate-600 uppercase font-semibold flex items-center justify-between">
+        <div className="p-4 rounded-xl bg-white dark:bg-[#0A1124] border border-slate-200 dark:border-[#1E293B] border-l-4 border-l-indigo-500 space-y-1 shadow-sm transition-colors duration-200">
+          <div className="text-[11px] font-mono text-slate-600 dark:text-slate-400 uppercase font-semibold flex items-center justify-between">
             <span>Active Target Dataset</span>
-            <Eye className="w-4 h-4 text-indigo-600" />
+            <Eye className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
           </div>
-          <div className="text-sm font-bold font-mono text-slate-900 truncate">
+          <div className="text-sm font-bold font-mono text-slate-900 dark:text-white truncate">
             {datasets.find((d) => d.id === selectedDatasetId)?.name || 'Default (Auto-Selected)'}
           </div>
-          <div className="text-[10px] font-mono text-slate-500">Global analytics synchronization</div>
+          <div className="text-[10px] font-mono text-slate-500 dark:text-slate-400">Global analytics synchronization</div>
         </div>
       </div>
 
       {/* Control Toolbar */}
-      <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-sm space-y-3">
+      <div className="p-4 rounded-xl bg-white dark:bg-[#0A1124] border border-slate-200 dark:border-[#1E293B] shadow-sm space-y-3 transition-colors duration-200">
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 font-mono text-xs">
           {/* Search & Filter */}
           <div className="flex flex-wrap items-center gap-2 flex-1">
             <div className="relative flex-1 min-w-[200px]">
-              <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search datasets by name, file, user, category..."
-                className="w-full pl-8 pr-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20 shadow-xs"
+                className="w-full pl-8 pr-3 py-2 rounded-lg bg-white dark:bg-[#0F172A] border border-slate-300 dark:border-[#1E293B] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20 shadow-xs"
               />
             </div>
 
@@ -224,7 +224,7 @@ export const DatasetManagementPanel: React.FC = () => {
               <select
                 value={filterCategory}
                 onChange={(e) => setFilterCategory(e.target.value)}
-                className="px-2.5 py-2 rounded-lg bg-white border border-slate-300 text-slate-800 focus:outline-none focus:border-[#0284C7] cursor-pointer shadow-xs font-semibold"
+                className="px-2.5 py-2 rounded-lg bg-white dark:bg-[#0F172A] border border-slate-300 dark:border-[#1E293B] text-slate-800 dark:text-slate-200 focus:outline-none focus:border-[#0284C7] cursor-pointer shadow-xs font-semibold"
               >
                 <option value="ALL">All Categories</option>
                 {categories.map((c) => (
@@ -235,7 +235,7 @@ export const DatasetManagementPanel: React.FC = () => {
               </select>
             )}
 
-            <label className="flex items-center space-x-1.5 text-slate-700 cursor-pointer px-2.5 py-2 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-300 font-semibold shadow-xs">
+            <label className="flex items-center space-x-1.5 text-slate-700 dark:text-slate-300 cursor-pointer px-2.5 py-2 bg-slate-50 dark:bg-[#0F172A] hover:bg-slate-100 dark:hover:bg-[#1E293B] rounded-lg border border-slate-300 dark:border-[#1E293B] font-semibold shadow-xs transition-colors">
               <input
                 type="checkbox"
                 checked={showArchived}
@@ -247,7 +247,7 @@ export const DatasetManagementPanel: React.FC = () => {
 
             <button
               onClick={refreshData}
-              className="p-2 rounded-lg bg-slate-100 border border-slate-300 text-slate-700 hover:text-slate-900 hover:bg-slate-200 cursor-pointer transition-colors shadow-xs"
+              className="p-2 rounded-lg bg-slate-100 dark:bg-[#1E293B] border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer transition-colors shadow-xs"
               title="Refresh Data"
             >
               <RefreshCw className="w-3.5 h-3.5" />
@@ -258,10 +258,10 @@ export const DatasetManagementPanel: React.FC = () => {
           <div className="flex items-center space-x-2">
             <button
               onClick={() => seedSampleDataset()}
-              className="px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-300 hover:border-slate-400 text-slate-800 flex items-center space-x-1.5 cursor-pointer text-xs font-mono uppercase tracking-wider transition-colors shadow-xs font-bold"
+              className="px-3 py-2 rounded-lg bg-slate-100 dark:bg-[#1E293B] hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 hover:border-slate-400 text-slate-800 dark:text-slate-200 flex items-center space-x-1.5 cursor-pointer text-xs font-mono uppercase tracking-wider transition-colors shadow-xs font-bold"
               title="Load Jojobera Units 1-4 Sample Telemetry"
             >
-              <Zap className="w-3.5 h-3.5 text-[#0284C7]" />
+              <Zap className="w-3.5 h-3.5 text-[#0284C7] dark:text-[#38BDF8]" />
               <span>Seed Sample</span>
             </button>
             <button
@@ -276,10 +276,10 @@ export const DatasetManagementPanel: React.FC = () => {
       </div>
 
       {/* Datasets Table */}
-      <div className="table-responsive-container rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div className="table-responsive-container rounded-xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0A1124] shadow-sm overflow-hidden transition-colors duration-200">
         <table className="w-full text-left text-xs font-mono border-collapse min-w-[700px]">
           <thead>
-            <tr className="bg-slate-50 text-slate-700 border-b border-slate-200 font-semibold">
+            <tr className="bg-slate-50 dark:bg-[#0F172A] text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-[#1E293B] font-semibold">
               <th className="p-3 uppercase">Dataset Name</th>
               <th className="p-3 uppercase">Source File</th>
               <th className="p-3 uppercase">Category</th>
@@ -290,12 +290,12 @@ export const DatasetManagementPanel: React.FC = () => {
               <th className="p-3 uppercase text-right pr-4">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
             {filteredDatasets.length === 0 ? (
               <tr>
-                <td colSpan={8} className="p-8 text-center text-slate-500">
-                  No datasets found. Click <strong className="text-[#0284C7]">"Ingest Dataset"</strong> or{' '}
-                  <strong className="text-[#0284C7]">"Seed Sample"</strong> to populate.
+                <td colSpan={8} className="p-8 text-center text-slate-500 dark:text-slate-400">
+                  No datasets found. Click <strong className="text-[#0284C7] dark:text-[#38BDF8]">"Ingest Dataset"</strong> or{' '}
+                  <strong className="text-[#0284C7] dark:text-[#38BDF8]">"Seed Sample"</strong> to populate.
                 </td>
               </tr>
             ) : (
@@ -306,13 +306,13 @@ export const DatasetManagementPanel: React.FC = () => {
                 return (
                   <tr
                     key={ds.id}
-                    className={`hover:bg-slate-50/80 transition-colors ${
-                      isSelected ? 'bg-[#0284C7]/5 border-l-4 border-l-[#0284C7]' : ''
+                    className={`hover:bg-slate-50/80 dark:hover:bg-[#0F172A]/80 transition-colors ${
+                      isSelected ? 'bg-[#0284C7]/5 dark:bg-[#0284C7]/10 border-l-4 border-l-[#0284C7]' : ''
                     }`}
                   >
                     {/* Dataset Name */}
                     <td className="p-3">
-                      <div className="font-bold text-slate-900 flex items-center space-x-1.5 font-sans">
+                      <div className="font-bold text-slate-900 dark:text-white flex items-center space-x-1.5 font-sans">
                         <span>{ds.name}</span>
                         {isSelected && (
                           <span className="px-1.5 py-0.5 rounded bg-[#0284C7] text-white text-[9px] uppercase font-bold">
@@ -321,63 +321,63 @@ export const DatasetManagementPanel: React.FC = () => {
                         )}
                       </div>
                       {ds.description && (
-                        <div className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">{ds.description}</div>
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">{ds.description}</div>
                       )}
                     </td>
 
                     {/* Source File & Type */}
-                    <td className="p-3 text-slate-700 whitespace-nowrap">
+                    <td className="p-3 text-slate-700 dark:text-slate-300 whitespace-nowrap">
                       <div className="flex items-center space-x-1.5">
-                        <FileSpreadsheet className="w-3.5 h-3.5 text-[#0284C7] shrink-0" />
-                        <span className="text-slate-900 font-medium truncate max-w-[140px]">{ds.fileName || 'Data Stream'}</span>
-                        <span className="text-[9px] px-1 py-0.2 rounded bg-slate-100 border border-slate-300 uppercase text-slate-700 font-bold">
+                        <FileSpreadsheet className="w-3.5 h-3.5 text-[#0284C7] dark:text-[#38BDF8] shrink-0" />
+                        <span className="text-slate-900 dark:text-white font-medium truncate max-w-[140px]">{ds.fileName || 'Data Stream'}</span>
+                        <span className="text-[9px] px-1 py-0.2 rounded bg-slate-100 dark:bg-[#1E293B] border border-slate-300 dark:border-slate-700 uppercase text-slate-700 dark:text-slate-300 font-bold">
                           {ds.fileType || 'CSV'}
                         </span>
                       </div>
-                      <div className="text-[10px] text-slate-500">
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400">
                         {ds.fileSize ? `${(ds.fileSize / 1024).toFixed(1)} KB` : 'Direct Upload'}
                       </div>
                     </td>
 
                     {/* Category */}
-                    <td className="p-3 text-slate-700 whitespace-nowrap">
-                      <span className="px-2 py-0.5 rounded bg-slate-100 border border-slate-300 text-[11px] text-slate-800 font-medium">
+                    <td className="p-3 text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                      <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-[#1E293B] border border-slate-300 dark:border-slate-700 text-[11px] text-slate-800 dark:text-slate-200 font-medium">
                         {ds.category || 'Plant Telemetry'}
                       </span>
                     </td>
 
                     {/* Records */}
                     <td className="p-3 whitespace-nowrap">
-                      <div className="text-slate-900 font-bold">{ds.totalRows?.toLocaleString() || 0}</div>
-                      <div className="text-[10px] text-emerald-700 font-medium">{ds.validRows?.toLocaleString() || 0} valid</div>
+                      <div className="text-slate-900 dark:text-white font-bold">{ds.totalRows?.toLocaleString() || 0}</div>
+                      <div className="text-[10px] text-emerald-700 dark:text-emerald-400 font-medium">{ds.validRows?.toLocaleString() || 0} valid</div>
                     </td>
 
                     {/* Metrics Channels */}
                     <td className="p-3">
                       <div className="flex items-center space-x-1">
-                        <span className="text-slate-900 font-bold">{numericCols.length}</span>
-                        <span className="text-slate-500 text-[11px]">channels</span>
+                        <span className="text-slate-900 dark:text-white font-bold">{numericCols.length}</span>
+                        <span className="text-slate-500 dark:text-slate-400 text-[11px]">channels</span>
                       </div>
                       <div className="flex flex-wrap gap-1 mt-1 max-w-[160px]">
                         {numericCols.slice(0, 3).map((col) => (
                           <span
                             key={col.name}
-                            className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-700 truncate max-w-[70px]"
+                            className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-[#1E293B] border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 truncate max-w-[70px]"
                             title={col.displayName || col.name}
                           >
                             {col.displayName || col.name}
                           </span>
                         ))}
                         {numericCols.length > 3 && (
-                          <span className="text-[9px] text-slate-500 font-semibold">+{numericCols.length - 3}</span>
+                          <span className="text-[9px] text-slate-500 dark:text-slate-400 font-semibold">+{numericCols.length - 3}</span>
                         )}
                       </div>
                     </td>
 
                     {/* Uploaded By */}
-                    <td className="p-3 text-slate-700 whitespace-nowrap">
-                      <div className="text-slate-900 font-semibold">{ds.uploadedBy || 'Operator'}</div>
-                      <div className="text-[10px] text-slate-500">
+                    <td className="p-3 text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                      <div className="text-slate-900 dark:text-white font-semibold">{ds.uploadedBy || 'Operator'}</div>
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400">
                         {new Date(ds.uploadedAt).toLocaleDateString()}{' '}
                         {new Date(ds.uploadedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </div>
@@ -386,11 +386,11 @@ export const DatasetManagementPanel: React.FC = () => {
                     {/* Status */}
                     <td className="p-3 whitespace-nowrap">
                       {ds.isArchived ? (
-                        <span className="px-2 py-0.5 rounded bg-slate-100 border border-slate-300 text-slate-600 text-[10px] uppercase font-bold">
+                        <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-[#1E293B] border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-[10px] uppercase font-bold">
                           Archived
                         </span>
                       ) : (
-                        <span className="px-2 py-0.5 rounded bg-emerald-100 border border-emerald-300 text-emerald-800 text-[10px] uppercase font-bold">
+                        <span className="px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-300 text-[10px] uppercase font-bold">
                           Active
                         </span>
                       )}
@@ -406,7 +406,7 @@ export const DatasetManagementPanel: React.FC = () => {
                           className={`inline-flex items-center justify-center w-7 h-7 rounded-lg border cursor-pointer transition-colors shadow-xs ${
                             isSelected
                               ? 'bg-[#0284C7] text-white border-[#0284C7]'
-                              : 'bg-slate-100 border-slate-300 text-[#0284C7] hover:text-white hover:bg-[#0284C7] hover:border-[#0284C7]'
+                              : 'bg-slate-100 dark:bg-[#1E293B] border-slate-300 dark:border-slate-700 text-[#0284C7] dark:text-[#38BDF8] hover:text-white hover:bg-[#0284C7] hover:border-[#0284C7]'
                           }`}
                           title={isSelected ? 'Active Dataset (Currently Loaded)' : 'Set as Active Target Dataset'}
                           aria-label="Set as Active Dataset"
@@ -418,7 +418,7 @@ export const DatasetManagementPanel: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setRecordEditorDataset(ds)}
-                          className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 border border-slate-300 text-sky-700 hover:text-white hover:bg-[#0284C7] hover:border-[#0284C7] cursor-pointer transition-colors shadow-xs"
+                          className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 dark:bg-[#1E293B] border border-slate-300 dark:border-slate-700 text-sky-700 dark:text-sky-400 hover:text-white hover:bg-[#0284C7] hover:border-[#0284C7] cursor-pointer transition-colors shadow-xs"
                           title="Manage & Edit Telemetry Records (Data Table)"
                           aria-label="Manage Telemetry Records"
                         >
@@ -429,7 +429,7 @@ export const DatasetManagementPanel: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setUpdateModalDataset(ds)}
-                          className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 border border-slate-300 text-emerald-700 hover:text-white hover:bg-emerald-600 hover:border-emerald-600 cursor-pointer transition-colors shadow-xs"
+                          className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 dark:bg-[#1E293B] border border-slate-300 dark:border-slate-700 text-emerald-700 dark:text-emerald-400 hover:text-white hover:bg-emerald-600 hover:border-emerald-600 cursor-pointer transition-colors shadow-xs"
                           title="Append Records or Replace Dataset File"
                           aria-label="Append Records or Replace File"
                         >
@@ -440,7 +440,7 @@ export const DatasetManagementPanel: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => handleStartEditMeta(ds)}
-                          className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 border border-slate-300 text-indigo-700 hover:text-white hover:bg-indigo-600 hover:border-indigo-600 cursor-pointer transition-colors shadow-xs"
+                          className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 dark:bg-[#1E293B] border border-slate-300 dark:border-slate-700 text-indigo-700 dark:text-indigo-400 hover:text-white hover:bg-indigo-600 hover:border-indigo-600 cursor-pointer transition-colors shadow-xs"
                           title="Edit Dataset Metadata & Categories"
                           aria-label="Edit Dataset Metadata"
                         >
@@ -451,7 +451,7 @@ export const DatasetManagementPanel: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => downloadDatasetCSV(ds.id)}
-                          className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 border border-slate-300 text-amber-700 hover:text-white hover:bg-amber-600 hover:border-amber-600 cursor-pointer transition-colors shadow-xs"
+                          className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 dark:bg-[#1E293B] border border-slate-300 dark:border-slate-700 text-amber-700 dark:text-amber-400 hover:text-white hover:bg-amber-600 hover:border-amber-600 cursor-pointer transition-colors shadow-xs"
                           title="Download Dataset as CSV"
                           aria-label="Download Dataset CSV"
                         >
@@ -462,7 +462,7 @@ export const DatasetManagementPanel: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => handleToggleArchive(ds)}
-                          className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 border border-slate-300 text-purple-700 hover:text-white hover:bg-purple-600 hover:border-purple-600 cursor-pointer transition-colors shadow-xs"
+                          className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 dark:bg-[#1E293B] border border-slate-300 dark:border-slate-700 text-purple-700 dark:text-purple-400 hover:text-white hover:bg-purple-600 hover:border-purple-600 cursor-pointer transition-colors shadow-xs"
                           title={ds.isArchived ? 'Restore Dataset' : 'Archive Dataset'}
                           aria-label={ds.isArchived ? 'Restore Dataset' : 'Archive Dataset'}
                         >
@@ -474,7 +474,7 @@ export const DatasetManagementPanel: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => setDeletingDataset(ds)}
-                            className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 border border-slate-300 text-rose-600 hover:text-white hover:bg-rose-600 hover:border-rose-600 cursor-pointer transition-colors shadow-xs"
+                            className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 dark:bg-[#1E293B] border border-slate-300 dark:border-slate-700 text-rose-600 dark:text-rose-400 hover:text-white hover:bg-rose-600 hover:border-rose-600 cursor-pointer transition-colors shadow-xs"
                             title="Permanently Delete Dataset"
                             aria-label="Permanently Delete Dataset"
                           >
@@ -512,12 +512,12 @@ export const DatasetManagementPanel: React.FC = () => {
       {/* Metadata Edit Modal */}
       {editingMetaDataset && (
         <div className="fixed inset-0 z-[2000] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md p-6 rounded-2xl bg-white border border-slate-200 shadow-2xl space-y-4 font-mono text-xs">
-            <div className="flex justify-between items-start border-b border-slate-200 pb-3">
-              <h3 className="text-base font-bold text-slate-900 uppercase font-sans">Edit Dataset Metadata</h3>
+          <div className="w-full max-w-md p-6 rounded-2xl bg-white dark:bg-[#0A1124] border border-slate-200 dark:border-[#1E293B] shadow-2xl space-y-4 font-mono text-xs transition-colors duration-200">
+            <div className="flex justify-between items-start border-b border-slate-200 dark:border-[#1E293B] pb-3">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white uppercase font-sans">Edit Dataset Metadata</h3>
               <button
                 onClick={() => setEditingMetaDataset(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer transition-colors"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#1E293B] cursor-pointer transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -525,40 +525,40 @@ export const DatasetManagementPanel: React.FC = () => {
 
             <div className="space-y-3">
               <div className="space-y-1">
-                <label className="block text-slate-700 uppercase font-semibold">Dataset Name</label>
+                <label className="block text-slate-700 dark:text-slate-300 uppercase font-semibold">Dataset Name</label>
                 <input
                   type="text"
                   value={editMetaName}
                   onChange={(e) => setEditMetaName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 focus:outline-none focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20 shadow-xs"
+                  className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#0F172A] border border-slate-300 dark:border-[#1E293B] text-slate-900 dark:text-white focus:outline-none focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20 shadow-xs"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="block text-slate-700 uppercase font-semibold">Operational Category</label>
+                <label className="block text-slate-700 dark:text-slate-300 uppercase font-semibold">Operational Category</label>
                 <input
                   type="text"
                   value={editMetaCategory}
                   onChange={(e) => setEditMetaCategory(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 focus:outline-none focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20 shadow-xs"
+                  className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#0F172A] border border-slate-300 dark:border-[#1E293B] text-slate-900 dark:text-white focus:outline-none focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20 shadow-xs"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="block text-slate-700 uppercase font-semibold">Description</label>
+                <label className="block text-slate-700 dark:text-slate-300 uppercase font-semibold">Description</label>
                 <textarea
                   value={editMetaDesc}
                   onChange={(e) => setEditMetaDesc(e.target.value)}
                   rows={3}
-                  className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 focus:outline-none focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20 shadow-xs"
+                  className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#0F172A] border border-slate-300 dark:border-[#1E293B] text-slate-900 dark:text-white focus:outline-none focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20 shadow-xs"
                 />
               </div>
             </div>
 
-            <div className="flex items-center justify-end space-x-2 pt-3 border-t border-slate-200">
+            <div className="flex items-center justify-end space-x-2 pt-3 border-t border-slate-200 dark:border-[#1E293B]">
               <button
                 onClick={() => setEditingMetaDataset(null)}
-                className="px-3.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 uppercase font-bold cursor-pointer transition-colors shadow-xs"
+                className="px-3.5 py-2 rounded-lg bg-slate-100 dark:bg-[#1E293B] hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 uppercase font-bold cursor-pointer transition-colors shadow-xs"
               >
                 Cancel
               </button>
@@ -576,27 +576,27 @@ export const DatasetManagementPanel: React.FC = () => {
       {/* Delete Confirmation Modal */}
       {deletingDataset && (
         <div className="fixed inset-0 z-[2000] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md p-6 rounded-2xl bg-white border border-slate-200 shadow-2xl space-y-4 font-mono text-xs">
-            <div className="flex items-center space-x-2 text-rose-600">
+          <div className="w-full max-w-md p-6 rounded-2xl bg-white dark:bg-[#0A1124] border border-slate-200 dark:border-[#1E293B] shadow-2xl space-y-4 font-mono text-xs transition-colors duration-200">
+            <div className="flex items-center space-x-2 text-rose-600 dark:text-rose-400">
               <AlertTriangle className="w-5 h-5 shrink-0" />
               <h3 className="text-base font-bold uppercase font-sans">Permanent Dataset Deletion</h3>
             </div>
 
-            <p className="text-slate-700 leading-relaxed font-sans">
+            <p className="text-slate-700 dark:text-slate-300 leading-relaxed font-sans">
               Are you sure you want to permanently delete dataset{' '}
-              <strong className="text-slate-900 font-bold">"{deletingDataset.name}"</strong>?
+              <strong className="text-slate-900 dark:text-white font-bold">"{deletingDataset.name}"</strong>?
             </p>
-            <p className="text-slate-600 font-sans">
+            <p className="text-slate-600 dark:text-slate-400 font-sans">
               This will permanently delete all{' '}
-              <strong className="text-rose-600 font-bold">{deletingDataset.totalRows} telemetry records</strong> and associated
+              <strong className="text-rose-600 dark:text-rose-400 font-bold">{deletingDataset.totalRows} telemetry records</strong> and associated
               alarms from the persistent database. This action cannot be undone.
             </p>
 
-            <div className="flex items-center justify-end space-x-2 pt-3 border-t border-slate-200">
+            <div className="flex items-center justify-end space-x-2 pt-3 border-t border-slate-200 dark:border-[#1E293B]">
               <button
                 onClick={() => setDeletingDataset(null)}
                 disabled={isDeleting}
-                className="px-3.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 uppercase font-bold cursor-pointer transition-colors shadow-xs"
+                className="px-3.5 py-2 rounded-lg bg-slate-100 dark:bg-[#1E293B] hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 uppercase font-bold cursor-pointer transition-colors shadow-xs"
               >
                 Cancel
               </button>

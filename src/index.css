@@ -1,54 +1,81 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
+
 :root {
   /* System Typography */
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Surfaces & Backgrounds - Light Mode */
-  --bg-main: #F1F5F9;
-  --bg-surface: #FFFFFF;
-  --bg-card: #FFFFFF;
-  --bg-card-elevated: #F8FAFC;
-  --bg-card-hover: #F1F5F9;
-  --bg-input: #FFFFFF;
-  --border-main: #CBD5E1;
-  --border-subtle: #E2E8F0;
-  --border-accent: rgba(32, 92, 165, 0.35);
+  /* ==========================================================================
+     SEMANTIC THEME TOKENS - LIGHT THEME (DEFAULT / EXPLICIT LIGHT)
+     ========================================================================== */
+  --app-bg: #F1F5F9;
+  --surface: #FFFFFF;
+  --surface-elevated: #F8FAFC;
+  --surface-secondary: #F1F5F9;
+  --header-bg: rgba(255, 255, 255, 0.95);
+  --sidebar-bg: #FFFFFF;
+  --card-bg: #FFFFFF;
+  --modal-bg: #FFFFFF;
+  --input-bg: #FFFFFF;
+  --input-border: #CBD5E1;
+  --table-bg: #FFFFFF;
+  --table-header-bg: #F8FAFC;
+  --table-row-hover: #F1F5F9;
+  --border: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --border-accent: rgba(2, 132, 199, 0.3);
 
-  /* Precise Text Colors - Light Mode */
-  --text-primary: #172033;
-  --text-heading-main: #172033;
+  /* Typography / Text */
+  --text-primary: #0F172A;
+  --text-heading-main: #0F172A;
   --text-card-title: #1E293B;
-  --text-body: #475569;
-  --text-secondary: #64748B;
+  --text-body: #334155;
+  --text-secondary: #475569;
   --text-muted: #64748B;
   --text-dim: #94A3B8;
+  --text-inverse: #FFFFFF;
 
-  /* Tata Brand Blue Palette */
-  --tata-blue: #205CA5;
-  --tata-blue-accent: #0284C7;
-  --tata-blue-light: #E0F2FE;
+  /* Tata Power Brand & Functional Accents */
+  --accent: #205CA5;
+  --accent-hover: #174883;
+  --accent-subtle: #E0F2FE;
+  --accent-cyan: #0284C7;
+  --success: #059669;
+  --warning: #D97706;
+  --danger: #DC2626;
+  --overlay: rgba(15, 23, 42, 0.65);
 
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.03);
 }
 
-.dark {
-  /* Surfaces & Backgrounds - Dark Mode */
-  --bg-main: #070D18;
-  --bg-surface: #0A1124;
-  --bg-card: #0A1124;
-  --bg-card-elevated: #0F172A;
-  --bg-card-hover: #162032;
-  --bg-input: #070D18;
-  --border-main: #1E293B;
-  --border-subtle: #162032;
-  --border-accent: rgba(32, 92, 165, 0.4);
+.dark,
+[data-theme="dark"] {
+  /* ==========================================================================
+     SEMANTIC THEME TOKENS - DARK THEME
+     ========================================================================== */
+  --app-bg: #070D18;
+  --surface: #0A1124;
+  --surface-elevated: #0F172A;
+  --surface-secondary: #162032;
+  --header-bg: rgba(7, 13, 24, 0.95);
+  --sidebar-bg: #0A1124;
+  --card-bg: #0A1124;
+  --modal-bg: #0A1124;
+  --input-bg: #0F172A;
+  --input-border: #1E293B;
+  --table-bg: #0A1124;
+  --table-header-bg: #0F172A;
+  --table-row-hover: #162032;
+  --border: #1E293B;
+  --border-strong: #334155;
+  --border-accent: rgba(56, 189, 248, 0.3);
 
-  /* Precise Text Colors - Dark Mode */
+  /* Typography / Text */
   --text-primary: #F8FAFC;
   --text-heading-main: #F8FAFC;
   --text-card-title: #F1F5F9;
@@ -56,11 +83,17 @@
   --text-secondary: #94A3B8;
   --text-muted: #94A3B8;
   --text-dim: #64748B;
+  --text-inverse: #0F172A;
 
-  /* Tata Brand Blue Palette */
-  --tata-blue: #205CA5;
-  --tata-blue-accent: #38BDF8;
-  --tata-blue-light: rgba(32, 92, 165, 0.2);
+  /* Tata Power Brand & Functional Accents */
+  --accent: #205CA5;
+  --accent-hover: #2972cc;
+  --accent-subtle: rgba(32, 92, 165, 0.25);
+  --accent-cyan: #38BDF8;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --overlay: rgba(0, 0, 0, 0.82);
 
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
@@ -90,10 +123,12 @@ body,
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
   position: relative;
-  transition: background-color 0.25s ease, color 0.25s ease;
+  background-color: var(--app-bg);
+  color: var(--text-primary);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Global width safety & structural containment */
+/* Global Layout & Width Containment */
 .main-container,
 section,
 header,
@@ -101,12 +136,30 @@ nav {
   max-width: 100%;
 }
 
+/* Layering & Stacking Hierarchy (Requirement 6)
+   Hierarchy: Base (0-10) < Header (40) < Dropdown/Popover (50) < Modal Backdrop (60) < Modal (70) < Toasts (80+) */
 .header {
   width: 100%;
   max-width: 100%;
-  overflow: visible;
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.dropdown-layer {
   z-index: 50;
+}
+
+.modal-backdrop-layer {
+  z-index: 60;
+}
+
+.modal-dialog-layer {
+  z-index: 70;
+}
+
+.toast-layer {
+  z-index: 80;
 }
 
 .nav-content {
@@ -127,7 +180,7 @@ nav {
   min-width: 0;
 }
 
-/* Media & input element constraints to prevent horizontal overflow */
+/* Media & Input Constraints */
 img,
 svg,
 canvas,
@@ -147,12 +200,11 @@ textarea {
   min-width: 0;
 }
 
-/* Text overflow protection */
 p, span, h1, h2, h3, h4, h5, h6, div, td, th {
   overflow-wrap: break-word;
 }
 
-/* Fluid Hero Typography Classes */
+/* Hero Section Typography Classes (Always crisp white on hero canvas) */
 .hero-heading,
 #hero-heading-main,
 #hero-overview h1 {
@@ -162,35 +214,15 @@ p, span, h1, h2, h3, h4, h5, h6, div, td, th {
   font-size: clamp(1.8rem, 4vw, 3.5rem);
   line-height: 1.1;
   max-width: 100%;
-  overflow-wrap: break-word;
-}
-
-html.light .hero-heading,
-html.light #hero-heading-main,
-html.light #hero-overview h1,
-html.dark .hero-heading,
-html.dark #hero-heading-main,
-html.dark #hero-overview h1 {
-  color: #FFFFFF !important;
-  -webkit-text-fill-color: #FFFFFF !important;
 }
 
 .hero-subtitle {
-  color: #CBD5E1;
+  color: #CBD5E1 !important;
   font-size: clamp(0.875rem, 1.5vw, 1.125rem);
   line-height: 1.6;
-  max-width: 100%;
 }
 
-/* Responsive Table Wrapper Class */
-.table-responsive-container {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Touch targets for mobile */
+/* Mobile Touch Target Standards */
 @media (max-width: 640px) {
   button,
   .btn-touch {
@@ -198,183 +230,147 @@ html.dark #hero-overview h1 {
   }
 }
 
-/* Light & Dark Global Theme Variables Application */
-html.light,
-html.light body,
-html.light #root {
-  background-color: var(--bg-main);
-  color: var(--text-primary);
+/* Background Grids & Glass Panels */
+.industrial-grid {
+  background-image: radial-gradient(rgba(32, 92, 165, 0.18) 1px, transparent 1px);
+  background-size: 28px 28px;
 }
 
-html.dark,
-html.dark body,
-html.dark #root {
-  background-color: var(--bg-main);
-  color: var(--text-primary);
+html.light .industrial-grid {
+  background-image: radial-gradient(rgba(32, 92, 165, 0.12) 1px, transparent 1px);
+  background-size: 28px 28px;
 }
 
-/* Typography Hierarchy Standards */
-h1 {
-  font-size: clamp(1.75rem, 4vw, 2.5rem);
-  font-weight: 800;
-  line-height: 1.2;
-  letter-spacing: -0.025em;
+.glass-panel {
+  background: var(--card-bg);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
 }
 
-h2 {
-  font-size: clamp(1.35rem, 3vw, 1.875rem);
-  font-weight: 700;
-  line-height: 1.25;
-  letter-spacing: -0.02em;
+.glow-blue {
+  box-shadow: 0 0 18px rgba(32, 92, 165, 0.45);
 }
 
-h3 {
-  font-size: clamp(1.1rem, 2vw, 1.35rem);
-  font-weight: 600;
-  line-height: 1.3;
+html.light .glow-blue {
+  box-shadow: 0 0 14px rgba(32, 92, 165, 0.22);
 }
 
-h4, h5, h6 {
-  font-weight: 600;
-  line-height: 1.35;
+.glow-blue-sm {
+  box-shadow: 0 0 10px rgba(32, 92, 165, 0.3);
 }
 
-p, span, li, td {
-  font-size: 14px;
-  line-height: 1.55;
+.glow-cyan {
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.35);
 }
 
-@layer utilities {
-  .industrial-grid {
-    background-image: radial-gradient(rgba(32, 92, 165, 0.18) 1px, transparent 1px);
-    background-size: 28px 28px;
-  }
+html.light .glow-cyan {
+  box-shadow: 0 0 10px rgba(2, 132, 199, 0.22);
+}
 
-  html.light .industrial-grid {
-    background-image: radial-gradient(rgba(32, 92, 165, 0.12) 1px, transparent 1px);
-    background-size: 28px 28px;
-  }
-  
-  .glass-panel {
-    background: rgba(10, 17, 34, 0.85);
-    backdrop-filter: blur(14px);
-    border: 1px solid rgba(32, 92, 165, 0.25);
-  }
+.glow-green {
+  box-shadow: 0 0 14px rgba(0, 255, 65, 0.3);
+}
 
-  html.light .glass-panel {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(14px);
-    border: 1px solid rgba(32, 92, 165, 0.2);
-    box-shadow: var(--shadow-md);
-  }
-
-  .glow-blue {
-    box-shadow: 0 0 18px rgba(32, 92, 165, 0.45);
-  }
-
-  html.light .glow-blue {
-    box-shadow: 0 0 14px rgba(32, 92, 165, 0.25);
-  }
-
-  .glow-blue-sm {
-    box-shadow: 0 0 10px rgba(32, 92, 165, 0.3);
-  }
-
-  .glow-cyan {
-    box-shadow: 0 0 14px rgba(56, 189, 248, 0.35);
-  }
-
-  html.light .glow-cyan {
-    box-shadow: 0 0 10px rgba(2, 132, 199, 0.25);
-  }
-
-  .glow-green {
-    box-shadow: 0 0 14px rgba(0, 255, 65, 0.3);
-  }
-
-  .loading-pulse {
-    animation: industrial-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
+.loading-pulse {
+  animation: industrial-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes industrial-pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 
 /* ==========================================================================
-   Comprehensive Contrast & Theme Enforcement Engine
+   Comprehensive Dark Mode Fallback Rules (Prevent Isolated Light Panels in Dark Mode)
    ========================================================================== */
-
-/* DARK MODE TYPOGRAPHY CONTRACT */
-html.dark {
-  /* Main headings */
-  h1, h2 {
-    color: #F8FAFC;
-  }
-  
-  /* Card titles */
-  h3, h4, h5 {
-    color: #F1F5F9;
-  }
-
-  /* Body text */
-  p, span.body-text {
-    color: #CBD5E1;
-  }
+html.dark .bg-white:not(.keep-white),
+html.dark [data-theme="dark"] .bg-white:not(.keep-white) {
+  background-color: var(--surface) !important;
 }
 
-/* LIGHT MODE SURFACE & CONTAINER OVERRIDES */
+html.dark .bg-slate-50:not(.keep-slate),
+html.dark [data-theme="dark"] .bg-slate-50:not(.keep-slate) {
+  background-color: var(--surface-elevated) !important;
+}
+
+html.dark .bg-slate-100:not(.keep-slate),
+html.dark [data-theme="dark"] .bg-slate-100:not(.keep-slate) {
+  background-color: var(--surface-secondary) !important;
+}
+
+html.dark .border-slate-200,
+html.dark .border-slate-300,
+html.dark [data-theme="dark"] .border-slate-200,
+html.dark [data-theme="dark"] .border-slate-300 {
+  border-color: var(--border) !important;
+}
+
+html.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-slate-300 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--border) !important;
+}
+
+html.dark .text-slate-900,
+html.dark .text-slate-800,
+html.dark [data-theme="dark"] .text-slate-900,
+html.dark [data-theme="dark"] .text-slate-800 {
+  color: var(--text-primary) !important;
+}
+
+html.dark .text-slate-700,
+html.dark .text-slate-600,
+html.dark [data-theme="dark"] .text-slate-700,
+html.dark [data-theme="dark"] .text-slate-600 {
+  color: var(--text-secondary) !important;
+}
+
+html.dark .text-slate-500,
+html.dark [data-theme="dark"] .text-slate-500 {
+  color: var(--text-muted) !important;
+}
+
+/* ==========================================================================
+   Comprehensive Light Mode Fallback Rules (Prevent Isolated Dark Panels in Light Mode)
+   ========================================================================== */
 html.light .bg-\[\#070D18\],
 html.light .bg-\[\#07090e\],
-html.light .bg-\[\#06080d\] {
-  background-color: #F1F5F9 !important;
+html.light .bg-\[\#06080d\],
+html.light [data-theme="light"] .bg-\[\#070D18\] {
+  background-color: var(--app-bg) !important;
 }
 
 html.light .bg-\[\#070D18\]\/95,
 html.light .bg-\[\#070D18\]\/90,
 html.light .bg-\[\#070D18\]\/80 {
-  background-color: rgba(255, 255, 255, 0.95) !important;
+  background-color: var(--header-bg) !important;
 }
 
 html.light .bg-\[\#0A101D\],
 html.light .bg-\[\#0A1124\],
 html.light .bg-\[\#0B132B\],
-html.light .bg-slate-950 {
-  background-color: #FFFFFF !important;
+html.light .bg-slate-950,
+html.light [data-theme="light"] .bg-\[\#0A1124\] {
+  background-color: var(--surface) !important;
   box-shadow: var(--shadow-sm);
 }
 
-html.light .bg-\[\#0A101D\]\/90,
-html.light .bg-\[\#0A1124\]\/90,
-html.light .bg-\[\#0A1124\]\/80 {
-  background-color: rgba(255, 255, 255, 0.92) !important;
-}
-
 html.light .bg-\[\#0F172A\],
-html.light .bg-slate-900 {
-  background-color: #F8FAFC !important;
-}
-
-html.light .bg-\[\#0F172A\]\/95 {
-  background-color: rgba(255, 255, 255, 0.96) !important;
+html.light .bg-slate-900,
+html.light [data-theme="light"] .bg-\[\#0F172A\] {
+  background-color: var(--surface-elevated) !important;
 }
 
 html.light .bg-\[\#162032\],
 html.light .bg-\[\#1E293B\],
-html.light .bg-slate-800 {
-  background-color: #E2E8F0 !important;
+html.light .bg-slate-800,
+html.light [data-theme="light"] .bg-\[\#162032\] {
+  background-color: var(--surface-secondary) !important;
 }
 
-/* LIGHT MODE HOVER BACKGROUNDS */
 html.light .hover\:bg-\[\#0F172A\]:hover,
 html.light .hover\:bg-\[\#162032\]:hover,
 html.light .hover\:bg-slate-900:hover {
-  background-color: #F1F5F9 !important;
+  background-color: var(--surface-secondary) !important;
 }
 
 html.light .hover\:bg-\[\#1E293B\]:hover,
@@ -383,64 +379,47 @@ html.light .hover\:bg-slate-800:hover {
 }
 
 html.light .hover\:bg-\[\#0A1124\]:hover {
-  background-color: #F8FAFC !important;
+  background-color: var(--surface-elevated) !important;
 }
 
-/* LIGHT MODE BORDERS */
 html.light .border-\[\#1E293B\],
 html.light .border-\[\#334155\],
 html.light .border-slate-700 {
-  border-color: #CBD5E1 !important;
+  border-color: var(--border-strong) !important;
 }
 
 html.light .border-\[\#162032\],
-html.light .border-slate-800,
-html.light .border-slate-800\/80 {
-  border-color: #E2E8F0 !important;
+html.light .border-slate-800 {
+  border-color: var(--border) !important;
 }
 
-/* LIGHT MODE TEXT CONTRAST ENGINE - STRICT WCAG AA */
-
-/* 1. Main Headings on Light Backgrounds -> #172033 (Except Hero Banner Heading which remains White) */
 html.light h1:not(.hero-heading):not(#hero-heading-main):not(#hero-overview *),
 html.light h2:not(.hero-heading):not(#hero-heading-main):not(#hero-overview *),
 html.light .text-white:not(.btn-solid-text):not(.badge-solid-text):not(.hero-heading):not(#hero-heading-main):not(#hero-overview *):not(.navbar-brand-text) {
-  color: #172033 !important;
+  color: var(--text-primary) !important;
 }
 
-/* Ensure Hero Heading & Overview Title explicitly stay #FFFFFF in light mode */
-html.light #hero-overview h1,
-html.light .hero-heading,
-html.light #hero-heading-main {
-  color: #FFFFFF !important;
-  -webkit-text-fill-color: #FFFFFF !important;
-}
-
-/* 2. Card Titles on Light Backgrounds -> #1E293B */
 html.light h3,
 html.light h4,
 html.light h5,
 html.light .text-slate-100,
 html.light .text-slate-200 {
-  color: #1E293B !important;
+  color: var(--text-card-title) !important;
 }
 
-/* 3. Body Text on Light Backgrounds -> #475569 */
-html.light p,
+html.light p:not(.hero-subtitle),
 html.light .text-\[\#CBD5E1\],
 html.light .text-slate-300 {
-  color: #475569 !important;
+  color: var(--text-secondary) !important;
 }
 
-/* 4. Secondary & Muted Labels on Light Backgrounds -> #64748B */
 html.light .text-\[\#94A3B8\],
 html.light .text-slate-400,
 html.light .text-\[\#64748B\],
 html.light .text-slate-500 {
-  color: #64748B !important;
+  color: var(--text-muted) !important;
 }
 
-/* 5. Accent Cyan/Sky on Light Backgrounds -> #0284C7 (high contrast dark sky blue) */
 html.light .text-\[\#38BDF8\],
 html.light .text-sky-400 {
   color: #0284C7 !important;
@@ -455,10 +434,10 @@ html.light .text-amber-400 {
 }
 
 html.light .text-rose-400 {
-  color: #E11D48 !important;
+  color: #DC2626 !important;
 }
 
-/* SOLID COLOR BUTTONS & BADGES (Preserve White Foreground in both Light & Dark) */
+/* SOLID COLOR BUTTONS & BADGES (Preserve crisp white text in both themes) */
 .btn-primary,
 .bg-\[\#205CA5\],
 .bg-\[\#0284C7\],
@@ -485,98 +464,42 @@ html.light .text-rose-400 {
   color: #FFFFFF !important;
 }
 
-/* HERO SECTION BUTTONS & CONTROLS (Preserve crisp contrast in Light and Dark themes) */
-#hero-overview #hero-btn-view-analytics {
-  background-color: #0284C7 !important;
-  color: #FFFFFF !important;
-  border: 1px solid #0369A1 !important;
-}
-#hero-overview #hero-btn-view-analytics:hover {
-  background-color: #0369A1 !important;
-}
-#hero-overview #hero-btn-view-analytics * {
-  color: #FFFFFF !important;
+/* Inputs, Selects & Textareas Theme Rules */
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+  border-color: var(--input-border);
 }
 
-#hero-overview #hero-btn-upload-data,
-#hero-overview #hero-btn-view-alerts {
-  background-color: #0F172A !important;
-  color: #FFFFFF !important;
-  border: 1px solid #334155 !important;
-}
-#hero-overview #hero-btn-upload-data:hover,
-#hero-overview #hero-btn-view-alerts:hover {
-  background-color: #1E293B !important;
-  border-color: #475569 !important;
-}
-#hero-overview #hero-btn-upload-data span,
-#hero-overview #hero-btn-view-alerts span {
-  color: #FFFFFF !important;
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-dim);
 }
 
-html.light #hero-overview #hero-btn-view-analytics {
-  background-color: #0284C7 !important;
-  color: #FFFFFF !important;
-}
-html.light #hero-overview #hero-btn-upload-data,
-html.light #hero-overview #hero-btn-view-alerts {
-  background-color: #0F172A !important;
-  color: #FFFFFF !important;
-  border-color: #334155 !important;
-}
-html.light #hero-overview #hero-btn-upload-data span,
-html.light #hero-overview #hero-btn-view-alerts span {
-  color: #FFFFFF !important;
+/* Tables System Theme Rules */
+table th {
+  background-color: var(--table-header-bg);
+  color: var(--text-card-title);
+  border-color: var(--border);
 }
 
-/* Inputs, Selects & Form Elements in Light Mode */
-html.light input:not([type="checkbox"]):not([type="radio"]),
-html.light select,
-html.light textarea {
-  background-color: #FFFFFF !important;
-  color: #172033 !important;
-  border-color: #CBD5E1 !important;
+table td {
+  border-color: var(--border);
+  color: var(--text-primary);
 }
 
-html.light input::placeholder,
-html.light textarea::placeholder {
-  color: #94A3B8 !important;
+table tr:hover td {
+  background-color: var(--table-row-hover);
 }
 
-/* Modals & Dropdown Overlays in Light Mode */
-html.light .fixed.inset-0.bg-black\/85,
-html.light .fixed.inset-0.bg-black\/80,
-html.light .fixed.inset-0.bg-black\/75 {
-  background-color: rgba(15, 23, 42, 0.65) !important;
-}
-
-/* Tables in Light Mode */
-html.light table th {
-  background-color: #F1F5F9 !important;
-  color: #1E293B !important;
-  border-color: #CBD5E1 !important;
-}
-
-html.light table td {
-  border-color: #E2E8F0 !important;
-  color: #172033 !important;
-}
-
-html.light table tr:hover td {
-  background-color: #F8FAFC !important;
-}
-
-/* Facility Code Badge and Pill Specific Rules */
-.facility-badge-dark {
-  background-color: #0F172A;
-  border: 1px solid #1E293B;
-  color: #38BDF8;
-}
-
-html.light .facility-badge-dark {
-  background-color: #F1F5F9 !important;
-  border: 1px solid #CBD5E1 !important;
-  color: #0284C7 !important;
+/* Modals & Backdrop Overlays Theme Rules */
+.fixed.inset-0.bg-black\/80,
+.fixed.inset-0.bg-black\/85,
+.fixed.inset-0.bg-black\/75,
+.fixed.inset-0.bg-slate-900\/60 {
+  background-color: var(--overlay) !important;
 }
 
 /* Scrollbars */
@@ -585,28 +508,34 @@ html.light .facility-badge-dark {
   height: 6px;
 }
 
-html.dark ::-webkit-scrollbar-track {
-  background: #070D18;
+html.dark ::-webkit-scrollbar-track,
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: var(--app-bg);
 }
 
-html.dark ::-webkit-scrollbar-thumb {
-  background: #1E293B;
+html.dark ::-webkit-scrollbar-thumb,
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
   border-radius: 3px;
 }
 
-html.dark ::-webkit-scrollbar-thumb:hover {
-  background: #205CA5;
+html.dark ::-webkit-scrollbar-thumb:hover,
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
 }
 
-html.light ::-webkit-scrollbar-track {
-  background: #F1F5F9;
+html.light ::-webkit-scrollbar-track,
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: var(--app-bg);
 }
 
-html.light ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+html.light ::-webkit-scrollbar-thumb,
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
   border-radius: 3px;
 }
 
-html.light ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+html.light ::-webkit-scrollbar-thumb:hover,
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }

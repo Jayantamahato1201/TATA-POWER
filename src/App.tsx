@@ -29,7 +29,7 @@ const MainApplication: React.FC = () => {
   }, [currentTab]);
 
   return (
-    <div className="min-h-screen w-full bg-[#070D18] text-[#E2E8F0] flex flex-col font-sans selection:bg-[#205CA5] selection:text-white industrial-grid overflow-x-hidden">
+    <div className="min-h-screen w-full bg-[#F1F5F9] dark:bg-[#070D18] text-slate-900 dark:text-[#E2E8F0] flex flex-col font-sans selection:bg-[#205CA5] selection:text-white industrial-grid overflow-x-hidden transition-colors duration-200">
       {/* Cinematic Fullscreen Loader */}
       <AnimatePresence>
         {showCinematicIntro && (
@@ -88,8 +88,8 @@ const MainApplication: React.FC = () => {
           <LoginModal />
 
           {/* Industrial Footer Status Bar */}
-          <footer className="mt-auto border-t border-[#1E293B] bg-[#070D18] py-6 w-full">
-            <div className="w-full max-w-full px-3 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 flex flex-col md:flex-row items-center justify-between gap-4 text-[10px] text-[#94A3B8] font-mono tracking-wider uppercase">
+          <footer className="mt-auto border-t border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#070D18] py-6 w-full transition-colors duration-200">
+            <div className="w-full max-w-full px-3 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 flex flex-col md:flex-row items-center justify-between gap-4 text-[10px] text-slate-500 dark:text-[#94A3B8] font-mono tracking-wider uppercase">
               <div className="flex items-center space-x-3">
                 <TataPowerLogo
                   variant="full"
@@ -99,15 +99,15 @@ const MainApplication: React.FC = () => {
 
               <div className="flex flex-wrap items-center justify-center md:justify-end gap-3 sm:gap-4 text-center md:text-right">
                 <span>Node: TP-JSR-01</span>
-                <span className="hidden sm:inline text-[#1E293B]">|</span>
+                <span className="hidden sm:inline text-slate-300 dark:text-[#1E293B]">|</span>
                 <span>LAT: 22.7578° N · LONG: 86.2411° E</span>
-                <span className="hidden sm:inline text-[#1E293B]">|</span>
-                <span className="text-[#00FF41] flex items-center space-x-1">
-                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#00FF41] animate-pulse" />
+                <span className="hidden sm:inline text-slate-300 dark:text-[#1E293B]">|</span>
+                <span className="text-emerald-600 dark:text-[#00FF41] flex items-center space-x-1 font-semibold">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-[#00FF41] animate-pulse" />
                   <span>SECURE SSL ACTIVE</span>
                 </span>
-                <span className="hidden sm:inline text-[#1E293B]">|</span>
-                <span className="text-[#38BDF8] font-bold">v4.2.0-ENTERPRISE</span>
+                <span className="hidden sm:inline text-slate-300 dark:text-[#1E293B]">|</span>
+                <span className="text-[#0284C7] dark:text-[#38BDF8] font-bold">v4.2.0-ENTERPRISE</span>
               </div>
             </div>
           </footer>
