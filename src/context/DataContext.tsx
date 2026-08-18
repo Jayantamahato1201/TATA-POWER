@@ -81,6 +81,7 @@ export interface DataContextType {
   updateLayout: (widgets: DashboardWidget[]) => Promise<boolean>;
   updateDashboardLayout: (layout: DashboardLayout) => Promise<boolean>;
   deleteDataset: (id: string) => Promise<boolean>;
+  clearAllDatasets: () => Promise<boolean>;
   replaceDataset: (datasetId: string, file: File) => Promise<{ success: boolean; error?: string }>;
   appendDataset: (datasetId: string, file: File, duplicateStrategy?: 'skip' | 'overwrite') => Promise<{ success: boolean; error?: string; added?: number; duplicatesSkipped?: number }>;
   updateDatasetMeta: (datasetId: string, updates: Partial<Dataset>) => Promise<boolean>;
@@ -834,6 +835,24 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const clearAllDatasets = async (): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/datasets/clear-all', {
+        method: 'POST',
+        headers: authHeaders,
+      });
+      if (res.ok) {
+        setSelectedDatasetId(null);
+        await refreshData();
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Failed to clear all datasets:', err);
+      return false;
+    }
+  };
+
   const exportDatasetCSV = (datasetId: string) => {
     const params = new URLSearchParams();
     if (filters.equipment && filters.equipment !== 'ALL') {
@@ -915,6 +934,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateLayout,
         updateDashboardLayout,
         deleteDataset,
+        clearAllDatasets,
         exportDatasetCSV,
         exportAlarmsCSV,
         exportTemperatureCSV,

@@ -171,18 +171,25 @@ export class MongoDatabase {
           status: d.status,
           updatedAt: d.updatedAt,
         }));
+      } else {
+        this.data.datasets = [];
       }
 
+      const validDatasetIds = new Set(this.data.datasets.map((d) => d.id));
       if (recordsDocs.length > 0) {
-        this.data.records = recordsDocs.map((r: any) => ({
-          id: r.id,
-          datasetId: r.datasetId,
-          rowIndex: r.rowIndex,
-          timestamp: r.timestamp,
-          equipmentId: r.equipmentId,
-          data: r.data || {},
-          createdAt: r.createdAt,
-        }));
+        this.data.records = recordsDocs
+          .filter((r: any) => validDatasetIds.has(r.datasetId))
+          .map((r: any) => ({
+            id: r.id,
+            datasetId: r.datasetId,
+            rowIndex: r.rowIndex,
+            timestamp: r.timestamp,
+            equipmentId: r.equipmentId,
+            data: r.data || {},
+            createdAt: r.createdAt,
+          }));
+      } else {
+        this.data.records = [];
       }
 
       if (alarmRulesDocs.length > 0) {
@@ -761,6 +768,37 @@ export class MongoDatabase {
 
     this.saveFallbackLocal();
     return true;
+  }
+
+  public async clearAllDatasets(): Promise<{ deletedDatasets: number; deletedRecords: number }> {
+    const deletedDatasets = this.data.datasets.length;
+    const deletedRecords = this.data.records.length;
+    this.data.datasets = [];
+    this.data.records = [];
+    this.data.alarmEvents = [];
+    this.data.chartConfigs = [];
+    if (this.data.temperatureConfigs) {
+      this.data.temperatureConfigs = [];
+    }
+
+    if (isMongoConnected()) {
+      try {
+        await Promise.all([
+          DatasetModel.deleteMany({}),
+          RecordModel.deleteMany({}),
+          AlarmEventModel.deleteMany({}),
+          ChartConfigModel.deleteMany({}),
+          TemperatureConfigModel.deleteMany({}),
+          IdempotencyRecordModel.deleteMany({}),
+        ]);
+        console.info('[MongoDB] Permanently cleared all datasets, records, and related events from MongoDB Atlas.');
+      } catch (err: any) {
+        console.error('[MongoDB] Error clearing all datasets in MongoDB:', err.message);
+      }
+    }
+
+    this.saveFallbackLocal();
+    return { deletedDatasets, deletedRecords };
   }
 
   // ==========================================

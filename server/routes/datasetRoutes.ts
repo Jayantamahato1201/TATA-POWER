@@ -494,6 +494,61 @@ router.post('/seed-sample', optionalAuth, async (req: AuthRequest, res) => {
   }
 });
 
+// POST / DELETE Clear All Datasets
+router.post('/clear-all', optionalAuth, async (req: AuthRequest, res) => {
+  try {
+    const user = req.user || {
+      id: 'usr_admin_01',
+      name: 'Command Center Lead Administrator',
+      email: 'admin@tatapower.com',
+    };
+
+    const result = await db.clearAllDatasets();
+    await db.addActivityLog({
+      userId: user.id,
+      userName: user.name,
+      userEmail: user.email,
+      action: 'DATASET_DELETED',
+      details: `Purged repository: cleared all datasets (${result.deletedDatasets}) and telemetry records (${result.deletedRecords}).`,
+      entityType: 'DATASET',
+    });
+
+    res.json({
+      message: 'All datasets, records, and related alarm events cleared permanently.',
+      ...result,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Failed to clear all datasets' });
+  }
+});
+
+router.delete('/clear-all', optionalAuth, async (req: AuthRequest, res) => {
+  try {
+    const user = req.user || {
+      id: 'usr_admin_01',
+      name: 'Command Center Lead Administrator',
+      email: 'admin@tatapower.com',
+    };
+
+    const result = await db.clearAllDatasets();
+    await db.addActivityLog({
+      userId: user.id,
+      userName: user.name,
+      userEmail: user.email,
+      action: 'DATASET_DELETED',
+      details: `Purged repository: cleared all datasets (${result.deletedDatasets}) and telemetry records (${result.deletedRecords}).`,
+      entityType: 'DATASET',
+    });
+
+    res.json({
+      message: 'All datasets, records, and related alarm events cleared permanently.',
+      ...result,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Failed to clear all datasets' });
+  }
+});
+
 // DELETE dataset
 router.delete('/:id', optionalAuth, async (req: AuthRequest, res) => {
   const user = req.user || {
