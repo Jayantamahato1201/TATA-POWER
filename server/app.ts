@@ -9,7 +9,7 @@ import userRoutes from './routes/userRoutes.js';
 import temperatureRoutes from './routes/temperatureRoutes.js';
 import metricAnalyticsRoutes from './routes/metricAnalyticsRoutes.js';
 import { db } from './db/database.js';
-import { isMongoConnected } from './db/connection.js';
+import { isMongoConnected, getDatabaseStatus, connectToDatabase } from './db/connection.js';
 import { migrateJsonToMongo } from './db/migration.js';
 
 export const app = express();
@@ -68,15 +68,43 @@ app.use(async (req, res, next) => {
 
 // Health check
 const handleHealth = (req: express.Request, res: express.Response) => {
+  const dbStatus = getDatabaseStatus();
   res.json({
     status: 'operational',
     platform: 'Tata Power Jamshedpur Intelligent Operations Command Center',
-    database: isMongoConnected() ? 'MongoDB Atlas (Connected)' : 'Local Persistent Fallback',
-    isMongoConnected: isMongoConnected(),
+    database: dbStatus.isMongoConnected ? 'MongoDB Atlas (Connected)' : 'Local Persistent Storage (Active)',
+    engine: dbStatus.engine,
+    isMongoConnected: dbStatus.isMongoConnected,
     timestamp: new Date().toISOString(),
   });
 };
 app.get('/api/health', handleHealth);
+
+// Database status & retry diagnostics endpoint
+app.get('/api/database/status', (req: express.Request, res: express.Response) => {
+  const dbStatus = getDatabaseStatus();
+  res.json({
+    ...dbStatus,
+    datasetCount: db.getDatasets().length,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+app.post('/api/database/reconnect', async (req: express.Request, res: express.Response) => {
+  try {
+    const mongo = await connectToDatabase(true);
+    if (mongo) {
+      await db.init();
+    }
+    const dbStatus = getDatabaseStatus();
+    res.json({
+      success: dbStatus.isMongoConnected,
+      ...dbStatus,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Connection attempt failed' });
+  }
+});
 
 // Admin DB Migration Endpoint
 const handleMigrate = async (req: express.Request, res: express.Response) => {

@@ -204,22 +204,46 @@ p, span, h1, h2, h3, h4, h5, h6, div, td, th {
   overflow-wrap: break-word;
 }
 
-/* Hero Section Typography Classes (Always crisp white on hero canvas) */
+/* Hero Section Typography Classes (Adaptive based on active theme) */
 .hero-heading,
-#hero-heading-main,
-#hero-overview h1 {
-  color: #FFFFFF !important;
-  -webkit-text-fill-color: #FFFFFF !important;
+#hero-heading-main {
+  color: var(--text-heading-main);
   font-weight: 800;
   font-size: clamp(1.8rem, 4vw, 3.5rem);
   line-height: 1.1;
   max-width: 100%;
 }
 
+html.dark .hero-heading,
+html.dark #hero-heading-main,
+[data-theme="dark"] .hero-heading,
+[data-theme="dark"] #hero-heading-main {
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+}
+
+html.light .hero-heading,
+html.light #hero-heading-main,
+[data-theme="light"] .hero-heading,
+[data-theme="light"] #hero-heading-main {
+  color: #0F172A !important;
+  -webkit-text-fill-color: #0F172A !important;
+}
+
 .hero-subtitle {
-  color: #CBD5E1 !important;
+  color: var(--text-secondary);
   font-size: clamp(0.875rem, 1.5vw, 1.125rem);
   line-height: 1.6;
+}
+
+html.dark .hero-subtitle,
+[data-theme="dark"] .hero-subtitle {
+  color: #CBD5E1 !important;
+}
+
+html.light .hero-subtitle,
+[data-theme="light"] .hero-subtitle {
+  color: #475569 !important;
 }
 
 /* Mobile Touch Target Standards */
@@ -405,9 +429,9 @@ html.light .border-slate-800 {
   border-color: var(--border) !important;
 }
 
-html.light h1:not(.hero-heading):not(#hero-heading-main):not(#hero-overview *),
-html.light h2:not(.hero-heading):not(#hero-heading-main):not(#hero-overview *),
-html.light .text-white:not(.btn-solid-text):not(.badge-solid-text):not(.hero-heading):not(#hero-heading-main):not(#hero-overview *):not(.navbar-brand-text) {
+html.light h1:not(.btn-solid-text):not(.badge-solid-text):not(.navbar-brand-text),
+html.light h2:not(.btn-solid-text):not(.badge-solid-text):not(.navbar-brand-text),
+html.light .text-white:not(.btn-solid-text):not(.badge-solid-text):not(.navbar-brand-text):not(.keep-white) {
   color: var(--text-primary) !important;
 }
 
@@ -419,7 +443,7 @@ html.light .text-slate-200 {
   color: var(--text-card-title) !important;
 }
 
-html.light p:not(.hero-subtitle),
+html.light p:not(.keep-white),
 html.light .text-\[\#CBD5E1\],
 html.light .text-slate-300 {
   color: var(--text-secondary) !important;
