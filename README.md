@@ -11,7 +11,7 @@
 [![MongoDB](https://img.shields.io/badge/MongoDB-Database-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
 [![Vercel](https://img.shields.io/badge/Vercel-Deployed-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
 
-### 🚀 [View Live Demo](https://tata-power-plant.vercel.app/](https://tata-power-2h5ts9vf8-jayantamahato1201s-projects.vercel.app/)
+### 🚀 [View Live Demo](https://tata-power-plant.vercel.app/)
 
 </div>
 
