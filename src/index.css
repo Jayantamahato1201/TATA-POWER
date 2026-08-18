@@ -476,6 +476,50 @@ html.light .text-rose-400 {
   color: #FFFFFF !important;
 }
 
+/* HERO SECTION BUTTONS & CONTROLS (Preserve crisp contrast in Light and Dark themes) */
+#hero-overview #hero-btn-view-analytics {
+  background-color: #0284C7 !important;
+  color: #FFFFFF !important;
+  border: 1px solid #0369A1 !important;
+}
+#hero-overview #hero-btn-view-analytics:hover {
+  background-color: #0369A1 !important;
+}
+#hero-overview #hero-btn-view-analytics * {
+  color: #FFFFFF !important;
+}
+
+#hero-overview #hero-btn-upload-data,
+#hero-overview #hero-btn-view-alerts {
+  background-color: #0F172A !important;
+  color: #FFFFFF !important;
+  border: 1px solid #334155 !important;
+}
+#hero-overview #hero-btn-upload-data:hover,
+#hero-overview #hero-btn-view-alerts:hover {
+  background-color: #1E293B !important;
+  border-color: #475569 !important;
+}
+#hero-overview #hero-btn-upload-data span,
+#hero-overview #hero-btn-view-alerts span {
+  color: #FFFFFF !important;
+}
+
+html.light #hero-overview #hero-btn-view-analytics {
+  background-color: #0284C7 !important;
+  color: #FFFFFF !important;
+}
+html.light #hero-overview #hero-btn-upload-data,
+html.light #hero-overview #hero-btn-view-alerts {
+  background-color: #0F172A !important;
+  color: #FFFFFF !important;
+  border-color: #334155 !important;
+}
+html.light #hero-overview #hero-btn-upload-data span,
+html.light #hero-overview #hero-btn-view-alerts span {
+  color: #FFFFFF !important;
+}
+
 /* Inputs, Selects & Form Elements in Light Mode */
 html.light input:not([type="checkbox"]):not([type="radio"]),
 html.light select,

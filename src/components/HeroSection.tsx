@@ -71,29 +71,29 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             onClick={onNavigateToAnalytics}
             className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-lg bg-[#0284C7] hover:bg-[#0369A1] text-white text-sm font-semibold flex items-center justify-center space-x-2 shadow-lg shadow-sky-950/50 transition-all cursor-pointer hover:translate-y-[-1px]"
           >
-            <BarChart2 className="w-4 h-4 shrink-0" />
-            <span>View Analytics</span>
-            <ArrowRight className="w-4 h-4 ml-1 shrink-0" />
+            <BarChart2 className="w-4 h-4 shrink-0 text-white" />
+            <span className="text-white font-medium">View Analytics</span>
+            <ArrowRight className="w-4 h-4 ml-1 shrink-0 text-white" />
           </button>
 
           <button
             id="hero-btn-upload-data"
             onClick={onNavigateToUpload}
-            className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-lg bg-[#0F172A] hover:bg-[#1E293B] border border-[#1E293B] hover:border-[#38BDF8]/40 text-[#F8FAFC] text-sm font-semibold flex items-center justify-center space-x-2 shadow-md transition-all cursor-pointer hover:translate-y-[-1px]"
+            className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-lg bg-[#0F172A] hover:bg-[#1E293B] border border-[#334155] hover:border-[#38BDF8]/60 text-white text-sm font-semibold flex items-center justify-center space-x-2 shadow-md transition-all cursor-pointer hover:translate-y-[-1px]"
           >
             <Upload className="w-4 h-4 text-[#38BDF8] shrink-0" />
-            <span>Upload Data</span>
+            <span className="text-white font-medium">Upload Data</span>
           </button>
 
           <button
             id="hero-btn-view-alerts"
             onClick={onNavigateToAlerts}
-            className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-lg bg-[#0F172A] hover:bg-[#1E293B] border border-[#1E293B] hover:border-amber-500/40 text-[#F1F5F9] text-sm font-semibold flex items-center justify-center space-x-2 shadow-md transition-all cursor-pointer hover:translate-y-[-1px]"
+            className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-lg bg-[#0F172A] hover:bg-[#1E293B] border border-[#334155] hover:border-amber-500/60 text-white text-sm font-semibold flex items-center justify-center space-x-2 shadow-md transition-all cursor-pointer hover:translate-y-[-1px]"
           >
             <Bell className="w-4 h-4 text-amber-400 shrink-0" />
-            <span>View Alerts</span>
+            <span className="text-white font-medium">View Alerts</span>
             {alarmSummary.active > 0 && (
-              <span className="px-1.5 py-0.2 text-[11px] font-mono font-bold rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
+              <span className="px-1.5 py-0.2 text-[11px] font-mono font-bold rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
                 {alarmSummary.active}
               </span>
             )}
